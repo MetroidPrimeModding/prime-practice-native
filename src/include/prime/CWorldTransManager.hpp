@@ -1,0 +1,9 @@
+#ifndef PRIME_PRACTICE_CWORLDTRANSMANAGER_HPP
+#define PRIME_PRACTICE_CWORLDTRANSMANAGER_HPP
+
+class CWorldTransManager {
+public:
+    void DisableTransition();
+};
+
+#endif //PRIME_PRACTICE_CWORLDTRANSMANAGER_HPP

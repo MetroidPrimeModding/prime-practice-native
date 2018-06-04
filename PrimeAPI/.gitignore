@@ -1,0 +1,4 @@
+*.o
+*.a
+build/*
+script/__pycache__/*

@@ -1,0 +1,9 @@
+#ifndef PRIME_PRACTICE_CIOWINMANAGER_HPP
+#define PRIME_PRACTICE_CIOWINMANAGER_HPP
+
+class CIOWinManager {
+public:
+    void Draw() const;
+};
+
+#endif //PRIME_PRACTICE_CIOWINMANAGER_HPP
