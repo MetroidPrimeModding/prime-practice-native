@@ -683,7 +683,6 @@ def compile_rel():
     sourceFiles.append("%s/newlib/newlib/libc/stdio/fclose.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libc/stdio/fflush.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libc/stdio/fwalk.c" % projDir)
-    sourceFiles.append("%s/libcxx/src/typeinfo.cpp" % projDir)
 
     sourceFiles = [file for file in sorted(sourceFiles) if file.find("build/ApplyCodePatches.cpp") == -1]
     sourceFiles = [file for file in sorted(sourceFiles) if file.find("script/ApplyCodePatches_Template.cpp") == -1]
