@@ -4,6 +4,3 @@
 [submodule "libcxx"]
 	path = libcxx
 	url = git@github.com:llvm-mirror/libcxx.git
-[submodule "gcc"]
-	path = gcc
-	url = git@github.com:devkitPro/gcc.git
