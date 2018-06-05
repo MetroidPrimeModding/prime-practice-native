@@ -48,7 +48,6 @@ void operator delete(void *ptr) {
 
 // Patches
 // @formatter:off
-PATCH_SYMBOL(CPlayer::IsUnderBetaMetroidAttack(CStateManager&) const, UpdateHealth(CPlayer*, CStateManager&))
 PATCH_SYMBOL(CGraphics::EndScene(), RenderHook())
 PATCH_SYMBOL(CPauseScreen::Draw(), PauseScreenDrawReplacement(CPauseScreen *))
 PATCH_SYMBOL(CPauseScreen::ProcessControllerInput(const CStateManager &, const CFinalInput &), PauseControllerInputHandler(CPauseScreen *, CStateManager &, const CFinalInput &))
@@ -58,26 +57,6 @@ PATCH_SYMBOL(CMainFlow::OnMessage(const CArchitectureMessage&, CArchitectureQueu
 // Impls
 void _prolog() {
   MODULE_INIT;
-}
-
-bool UpdateHealth(CPlayer *pPlayer, CStateManager &rStateMgr) {
-  // Get health
-//  CHealthInfo *pHealthInfo = rStateMgr.GetPlayerState()->GetHealthInfo();
-//  float health = pHealthInfo->GetHealth();
-//
-//  // Update health
-//  health += 0.2f;
-//
-//  pHealthInfo->SetHealth(health);
-//
-//  if (health != pHealthInfo->GetHealth()) {
-//    health -= 50;
-//    if (health < 50) health = 50;
-//    pHealthInfo->SetHealth(health);
-//  }
-
-  // Let the caller know we are not being attacked by a beta metroid
-  return false;
 }
 
 void PauseScreenDrawReplacement(CPauseScreen *pause) {
