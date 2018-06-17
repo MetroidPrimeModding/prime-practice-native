@@ -34,6 +34,7 @@ void TextRenderer::RenderText(const char *str, float xStart, float yStart) {
   int charsRendered = 0;
 
   CGraphics::StreamBegin(ERglPrimitive_QUADS);
+  CGraphics::StreamColor(colorR, colorG, colorB, colorA);
   for (u32 i = 0; i < len; i++) {
     char c = str[i];
     if (c == '\n') {
@@ -48,8 +49,7 @@ void TextRenderer::RenderText(const char *str, float xStart, float yStart) {
 
     if (charsRendered >= charsMaxPerRender) {
       charsRendered = 0;
-      CGraphics::StreamEnd();
-      CGraphics::StreamBegin(ERglPrimitive_QUADS);
+      CGraphics::FlushStream();
     }
 
     // Don't render spaces...
@@ -70,19 +70,15 @@ void TextRenderer::RenderChar(u8 c, float xStart, float yStart) {
   float s = CHAR_TEX_DIM * col;
   float t = CHAR_TEX_DIM * row;
 
-  CGraphics::StreamColor(colorR, colorG, colorB, colorA);
   CGraphics::StreamTexcoord(s, t);
   CGraphics::StreamVertex(xStart + CHAR_DIM_X, 0, yStart);
 
-  CGraphics::StreamColor(colorR, colorG, colorB, colorA);
   CGraphics::StreamTexcoord(s, t + CHAR_TEX_OFFSET);
   CGraphics::StreamVertex(xStart + CHAR_DIM_X, 0, yStart + CHAR_DIM_Y);
 
-  CGraphics::StreamColor(colorR, colorG, colorB, colorA);
   CGraphics::StreamTexcoord(s + CHAR_TEX_OFFSET, t + CHAR_TEX_OFFSET);
   CGraphics::StreamVertex(xStart, 0, yStart + CHAR_DIM_Y);
 
-  CGraphics::StreamColor(colorR, colorG, colorB, colorA);
   CGraphics::StreamTexcoord(s + CHAR_TEX_OFFSET, t);
   CGraphics::StreamVertex(xStart, 0, yStart);
 }

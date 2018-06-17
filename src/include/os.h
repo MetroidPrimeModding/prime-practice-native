@@ -2,6 +2,7 @@
 #define PRIME_PRACTICE_OS_H
 
 #include <gccore.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -54,6 +54,7 @@ public:
     static void InitGraphicsDefaults();
     static void StreamBegin(ERglPrimitive primitive);
     static void StreamEnd();
+    static void FlushStream();
     static void StreamColor(float r, float g, float b, float a);
     static void StreamVertex(float x, float y, float z);
     static void StreamTexcoord(float s, float t);
