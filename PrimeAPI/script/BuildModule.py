@@ -570,7 +570,8 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
 
                 curOffset += offset
 
-        print("Failed to find %s symbols" % unresolvedSymbolCount)
+        if unresolvedSymbolCount > 0:
+            print("Failed to find %s symbols" % unresolvedSymbolCount)
         # Write "end" directive
         rel.write_short(0)
         rel.write_byte(R_DOLPHIN_END)

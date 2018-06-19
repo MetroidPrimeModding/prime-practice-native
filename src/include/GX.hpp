@@ -319,7 +319,8 @@ typedef enum _GXTexCoordID {
     GXTexCoord4 = GX_TEXCOORD4,
     GXTexCoord5 = GX_TEXCOORD5,
     GXTexCoord6 = GX_TEXCOORD6,
-    GXTexCoord7 = GX_TEXCOORD7
+    GXTexCoord7 = GX_TEXCOORD7,
+    GXTexCoordNull = GX_TEXCOORDNULL
 } _GXTexCoordID;
 
 
@@ -331,7 +332,9 @@ typedef enum _GXTexMapID {
     GXTexMap4 = GX_TEXMAP4,
     GXTexMap5 = GX_TEXMAP5,
     GXTexMap6 = GX_TEXMAP6,
-    GXTexMap7 = GX_TEXMAP7
+    GXTexMap7 = GX_TEXMAP7,
+    GXTexMapNull = GX_TEXMAP_NULL
+
 } _GXTexMapID;
 
 

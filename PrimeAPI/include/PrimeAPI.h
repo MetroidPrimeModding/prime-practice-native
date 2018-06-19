@@ -38,6 +38,8 @@ typedef double f64;
 
 #define VALID_PTR(p) ((u32)p >= 0x80000000 && (u32)p <= 0x81800000)
 
+#define PACKED __attribute__ ((__packed__))
+
 // Allocation
 #ifdef __cplusplus
 void *operator new(size_t size, const char *pkFileAndLine, const char *pkType);

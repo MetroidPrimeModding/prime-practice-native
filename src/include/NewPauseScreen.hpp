@@ -1,6 +1,7 @@
 #ifndef NEW_PAUSE_SCREEN_HPP
 #define NEW_PAUSE_SCREEN_HPP
 
+#include <include/prime/CScriptTrigger.hpp>
 #include "include/UI/UIElement.hpp"
 #include "include/prime/CStateManager.h"
 #include "duktape.h"
@@ -25,6 +26,7 @@ duk_ret_t script_getPlayer(duk_context *ctx);
 duk_ret_t script_isPauseScreen(duk_context *ctx);
 duk_ret_t script_drawBegin(duk_context *ctx);
 duk_ret_t script_drawEnd(duk_context *ctx);
+duk_ret_t script_drawFlush(duk_context *ctx);
 duk_ret_t script_drawVertex(duk_context *ctx);
 duk_ret_t script_drawTexcoord(duk_context *ctx);
 duk_ret_t script_drawColor(duk_context *ctx);
@@ -32,6 +34,7 @@ duk_ret_t script_warp(duk_context *ctx);
 duk_ret_t script_getWorld(duk_context *ctx);
 duk_ret_t script_setInventory(duk_context *ctx);
 duk_ret_t script_getFPS(duk_context *ctx);
+duk_ret_t script_getEntities(duk_context *ctx);
 
 class NewPauseScreen {
     int frames;
@@ -81,8 +84,10 @@ public:
     friend duk_ret_t script_setInventory(duk_context *ctx);
     friend duk_ret_t script_getFPS(duk_context *ctx);
 
+    void RenderWorld();
 private:
     void setupScriptFunctions();
+    void drawTrigger(CScriptTrigger *trigger) const;
 };
 
 #endif

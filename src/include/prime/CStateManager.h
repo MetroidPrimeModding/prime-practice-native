@@ -6,13 +6,23 @@
 #include "rstl/rc_ptr.h"
 #include "rstl/vector.h"
 #include "include/GetField.hpp"
+#include "include/prime/CStateManager.h"
+#include "CObjectList.hpp"
+
+#define CStateManager_INSTANCE ((CStateManager *) 0x8045A1A8)
 
 class CPlayerState;
+
 class CWorldLayerState;
+
 class CGameState;
+
 class CWorldState;
+
 class CWorld;
+
 class CPlayer;
+
 class CWorldTransManager;
 
 struct StateManagerFlags {
@@ -42,9 +52,12 @@ public:
 
     CPlayer *Player() const { return *GetField<CPlayer *>(this, 0x84C); };
 
+    CObjectList *GetAllObjs() { return *GetField<CObjectList *>(this, 0x810); };
+
     void SetShouldQuitGame(bool should) { GetField<StateManagerFlags>(this, 0xf94)->xf94_25_quitGame = should; }
 
     void DrawWorld() const;
+    void DrawDebugStuff() const;
 };
 
 class CGameState {
@@ -55,6 +68,7 @@ public:
 
 
     inline CAssetId MLVL() { return *GetField<u32>(this, 0x84); };
+
     inline double PlayTime() { return *GetField<double>(this, 0xa0); };
 };
 

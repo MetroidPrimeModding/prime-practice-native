@@ -35,6 +35,7 @@ void PauseScreenDrawReplacement(CPauseScreen *);
 void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const CFinalInput &input);
 void resetLayerStates(const CStateManager &manager);
 CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue);
+void drawDebugStuff(CStateManager *);
 
 int crashVar;
 
@@ -52,6 +53,7 @@ PATCH_SYMBOL(CGraphics::EndScene(), RenderHook())
 PATCH_SYMBOL(CPauseScreen::Draw(), PauseScreenDrawReplacement(CPauseScreen *))
 PATCH_SYMBOL(CPauseScreen::ProcessControllerInput(const CStateManager &, const CFinalInput &), PauseControllerInputHandler(CPauseScreen *, CStateManager &, const CFinalInput &))
 PATCH_SYMBOL(CMainFlow::OnMessage(const CArchitectureMessage&, CArchitectureQueue&), IOWinMessageHook(CMainFlow *, const CArchitectureMessage &, CArchitectureQueue &))
+PATCH_SYMBOL(CStateManager::DrawDebugStuff() const, drawDebugStuff(CStateManager *))
 // @formatter:on
 
 // Impls
@@ -141,4 +143,8 @@ CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMess
   }
 
   return thiz->OnMessage(msg, queue);
+}
+
+void drawDebugStuff(CStateManager *mgr) {
+  NewPauseScreen::instance->RenderWorld();
 }

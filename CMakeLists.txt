@@ -57,6 +57,9 @@ set(SOURCE_FILES
         src/include/prime/CGameAllocator.hpp
         src/include/prime/CDvdFile.hpp
         src/include/prime/CIOWin.hpp
+        src/include/prime/CObjectList.hpp
+        src/include/prime/CActor.hpp
+        src/include/prime/CScriptTrigger.hpp
         src/UI/UIElement.cpp
         src/UI/UITextElement.cpp
         src/UI/UIHeapUsageElement.cpp

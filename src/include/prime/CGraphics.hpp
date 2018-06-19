@@ -43,8 +43,8 @@ class CGraphics {
 public:
     static void SetCullMode(ERglCullMode mode);
     static void SetOrtho(float left, float right, float top, float bottom, float near, float far);
-    static void SetViewPointMatrix(const CTransform4f &mat);
-    static void SetModelMatrix(const CTransform4f &mat);
+    static void SetViewPointMatrix(const CTransform &mat);
+    static void SetModelMatrix(const CTransform &mat);
     static void SetIdentityModelMatrix();
     static void SetIdentityViewPointMatrix();
     static void VideoPreCallback(ulong arg);

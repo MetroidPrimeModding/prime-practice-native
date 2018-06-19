@@ -4,8 +4,9 @@
 #include "include/GetField.hpp"
 #include "include/MathyTypes.hpp"
 #include "include/prime/CPhysicsState.hpp"
+#include "CActor.hpp"
 
-class CPhysicsActor {
+class CPhysicsActor : public CActor {
 public:
     CPhysicsState GetPhysicsState() const;
 

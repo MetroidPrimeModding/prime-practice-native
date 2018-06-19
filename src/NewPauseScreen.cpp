@@ -1,6 +1,7 @@
 #include <math.h>
 #include "include/NewPauseScreen.hpp"
 #include <gccore.h>
+#include <include/prime/CScriptTrigger.hpp>
 #include "include/os.h"
 #include "include/prime/CPlayerState.h"
 #include "include/prime/CGameGlobalObjects.hpp"
@@ -21,7 +22,6 @@
 #include "jskernel.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
-
 
 NewPauseScreen *NewPauseScreen::instance = NULL;
 
@@ -111,6 +111,128 @@ void NewPauseScreen::Render() {
   this->hudElement.draw();
 }
 
+void NewPauseScreen::RenderWorld() {
+  duk_bool_t renderLoadingTriggers = FALSE;
+  duk_push_global_object(ctx);
+  {
+    duk_get_prop_string(ctx, -1, "CONFIG");
+    if (duk_is_object(ctx, -1)) {
+      duk_get_prop_string(ctx, -1, "showLoadingTriggers");
+      renderLoadingTriggers = duk_to_boolean(ctx, -1);
+      duk_pop(ctx);
+    }
+    duk_pop(ctx);
+  }
+  duk_pop(ctx);
+
+  CStateManager *mgr = CStateManager_INSTANCE;
+  CPlayer *player = mgr->Player();
+  CObjectList *list = mgr->GetAllObjs();
+  if (list == nullptr) return;
+
+  CGraphics::SetCullMode(ERglCullMode_Back);
+  CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
+  CGX::SetZMode(true, GxCompare_LEQUAL, false);
+
+  CGX::SetNumTevStages(1);
+  CGX::SetTevOrder(
+    GXTevStage0,
+    GXTexCoordNull,
+    GXTexMapNull,
+    GXChannelColor0A0
+  );
+  CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_ZERO, GxTevColorArg_ZERO, GxTevColorArg_RASC);
+  CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_ZERO, GxTevAlphaArg_ZERO, GxTevAlphaArg_RASA);
+  CGX::SetTevColorOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+  CGX::SetTevAlphaOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+
+  CGraphics::StreamBegin(ERglPrimitive_QUADS);
+  int visited = 0;
+  int id = list->first;
+  while (id != 0xFFFF && visited < list->count) {
+    SObjectListEntry entry = list->entries[id & 0x3FF];
+    if (!VALID_PTR(entry.entity)) {
+      break;
+    }
+    CEntity *entity = entry.entity;
+    if (entity->getVtablePtr() == 0x803da4d8) {
+      CScriptTrigger *trigger = reinterpret_cast<CScriptTrigger *>(entity);
+      drawTrigger(trigger);
+    }
+    visited++;
+    id = entry.next;
+  }
+
+  CGraphics::StreamEnd();
+}
+
+void NewPauseScreen::drawTrigger(CScriptTrigger *trigger) const {
+  if ((trigger->getStatus() & CEntity::ACTIVE_MASK) == 0) {
+    return;
+  }
+  ETriggerFlags flags = trigger->getFlags();
+
+  CTransform *transform = trigger->getTransform();
+  CVector3f origin = transform->origin();
+  CAABox *aabb = trigger->getBounds();
+  CVector3f min(
+    origin.x + aabb->min.x,
+    origin.y + aabb->min.y,
+    origin.z + aabb->min.z
+  );
+  CVector3f max(
+    origin.x + aabb->max.x,
+    origin.y + aabb->max.y,
+    origin.z + aabb->max.z
+  );
+
+  if ((flags & (ETriggerFlags::DetectPlayer))) {
+    CGraphics::StreamColor(0.2f, 0.6f, 1.0f, 0.3f);
+  } else if ((flags & (ETriggerFlags::DetectMorphedPlayer))) {
+    CGraphics::StreamColor(0.2f, 0.1f, 0.6f, 0.3f);
+  } else {
+    return;
+  }
+
+  //-z
+  CGraphics::StreamVertex(max.x, min.y, min.z);
+  CGraphics::StreamVertex(max.x, max.y, min.z);
+  CGraphics::StreamVertex(min.x, max.y, min.z);
+  CGraphics::StreamVertex(min.x, min.y, min.z);
+
+  //+z
+  CGraphics::StreamVertex(min.x, min.y, max.z);
+  CGraphics::StreamVertex(min.x, max.y, max.z);
+  CGraphics::StreamVertex(max.x, max.y, max.z);
+  CGraphics::StreamVertex(max.x, min.y, max.z);
+
+  //-x
+  CGraphics::StreamVertex(min.x, min.y, min.z);
+  CGraphics::StreamVertex(min.x, max.y, min.z);
+  CGraphics::StreamVertex(min.x, max.y, max.z);
+  CGraphics::StreamVertex(min.x, min.y, max.z);
+
+  //+x
+  CGraphics::StreamVertex(max.x, min.y, max.z);
+  CGraphics::StreamVertex(max.x, max.y, max.z);
+  CGraphics::StreamVertex(max.x, max.y, min.z);
+  CGraphics::StreamVertex(max.x, min.y, min.z);
+
+  //-y
+  CGraphics::StreamVertex(min.x, min.y, max.z);
+  CGraphics::StreamVertex(max.x, min.y, max.z);
+  CGraphics::StreamVertex(max.x, min.y, min.z);
+  CGraphics::StreamVertex(min.x, min.y, min.z);
+
+  //+y
+  CGraphics::StreamVertex(min.x, max.y, min.z);
+  CGraphics::StreamVertex(max.x, max.y, min.z);
+  CGraphics::StreamVertex(max.x, max.y, max.z);
+  CGraphics::StreamVertex(min.x, max.y, max.z);
+
+  CGraphics::FlushStream();
+}
+
 void NewPauseScreen::hide() {
   active = false;
   frames = 0;
@@ -181,6 +303,9 @@ void NewPauseScreen::setupScriptFunctions() {
   duk_push_c_function(ctx, &script_drawEnd, 0);
   duk_put_prop_string(ctx, -2, "drawEnd");
 
+  duk_push_c_function(ctx, &script_drawFlush, 0);
+  duk_put_prop_string(ctx, -2, "drawFlush");
+
   duk_push_c_function(ctx, &script_drawVertex, 3);
   duk_put_prop_string(ctx, -2, "drawVertex");
 
@@ -204,6 +329,9 @@ void NewPauseScreen::setupScriptFunctions() {
 
   duk_push_c_function(ctx, &script_getFPS, 0);
   duk_put_prop_string(ctx, -2, "getFPS");
+
+  duk_push_c_function(ctx, &script_getEntities, 0);
+  duk_put_prop_string(ctx, -2, "getEntities");
 
   duk_pop(ctx);
 }
@@ -706,7 +834,7 @@ duk_ret_t script_getGameState(duk_context *ctx) {
 }
 
 duk_ret_t script_getPlayer(duk_context *ctx) {
-  CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
+  CStateManager *stateManager = CStateManager_INSTANCE;
   CPlayer *player = stateManager->Player();
   CPlayerState *playerState = stateManager->GetPlayerState();
 
@@ -715,6 +843,21 @@ duk_ret_t script_getPlayer(duk_context *ctx) {
     {
       duk_push_uint(ctx, (duk_uint_t) player);
       duk_put_prop_string(ctx, -2, "address");
+
+      duk_push_object(ctx);
+      {
+        CVector3f pos = player->GetPhysicsState().x0_translation;
+
+        duk_push_number(ctx, pos.x);
+        duk_put_prop_string(ctx, -2, "x");
+
+        duk_push_number(ctx, pos.y);
+        duk_put_prop_string(ctx, -2, "y");
+
+        duk_push_number(ctx, pos.z);
+        duk_put_prop_string(ctx, -2, "z");
+      }
+      duk_put_prop_string(ctx, -2, "pos");
 
       duk_push_object(ctx);
       {
@@ -809,6 +952,11 @@ duk_ret_t script_drawBegin(duk_context *ctx) {
 
 duk_ret_t script_drawEnd(duk_context *ctx) {
   CGraphics::StreamEnd();
+  return 0;
+}
+
+duk_ret_t script_drawFlush(duk_context *ctx) {
+  CGraphics::FlushStream();
   return 0;
 }
 
@@ -927,5 +1075,39 @@ duk_ret_t script_setInventory(duk_context *ctx) {
 
 duk_ret_t script_getFPS(duk_context *ctx) {
   duk_push_number(ctx, CGraphics::GetFPS());
+  return 1;
+}
+
+duk_ret_t script_getEntities(duk_context *ctx) {
+  CStateManager *mgr = CStateManager_INSTANCE;
+  CObjectList *list = mgr->GetAllObjs();
+  if (list == nullptr) {
+    duk_push_undefined(ctx);
+    return 1;
+  }
+  duk_uarridx_t visited = 0;
+  int id = list->first;
+
+  duk_push_array(ctx);
+  while (id != 0xFFFF && visited < list->count) {
+    SObjectListEntry entry = list->entries[id & 0x3FF];
+    if (!VALID_PTR(entry.entity)) {
+      break;
+    }
+    CEntity *entity = entry.entity;
+
+    duk_push_object(ctx);
+    {
+      duk_push_int(ctx, entity->getVtablePtr());
+      duk_put_prop_string(ctx, -2, "vtable");
+
+      duk_push_int(ctx, (duk_int32_t) entity);
+      duk_put_prop_string(ctx, -2, "address");
+    }
+    duk_put_prop_index(ctx, -2, visited);
+
+    visited++;
+    id = entry.next;
+  }
   return 1;
 }

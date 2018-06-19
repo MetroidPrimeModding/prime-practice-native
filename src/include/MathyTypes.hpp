@@ -9,7 +9,8 @@ public:
     float y;
     float z;
 
-    inline CVector3f(): x(0), y(0), z(0) {};
+    inline CVector3f() : x(0), y(0), z(0) {};
+
     inline CVector3f(float x, float y, float z) : x(x), y(y), z(z) {};
 };
 
@@ -27,18 +28,18 @@ struct CAxisAngle : CVector3f {
     inline CAxisAngle(float x, float y, float z) : CVector3f(x, y, z) {}
 };
 
-class CTransform4f {
+class CTransform {
 public:
-    float matrix[16];
+    float matrix[12];
 
-    static inline CTransform4f Identity() {
-      CTransform4f res;
+    static inline CTransform Identity() {
+      CTransform res;
 
       float mat[16] = {
-          1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0,
-          0, 0, 0, 1
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
       };
 
       res.matrix[0] = mat[0];
@@ -61,7 +62,15 @@ public:
       return res;
     }
 
-    static CTransform4f Translate(float x, float y, float z);
+    static CTransform Translate(float x, float y, float z);
+
+    inline CVector3f origin() { return CVector3f(matrix[3], matrix[3 + 4], matrix[3 + 8]); };
+};
+
+class CAABox {
+public:
+    CVector3f min;
+    CVector3f max;
 };
 
 #endif //PRIME_PRACTICE_CMATRIX3F_HPP
