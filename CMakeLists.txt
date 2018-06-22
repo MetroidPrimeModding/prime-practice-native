@@ -60,6 +60,11 @@ set(SOURCE_FILES
         src/include/prime/CObjectList.hpp
         src/include/prime/CActor.hpp
         src/include/prime/CScriptTrigger.hpp
+        src/include/prime/CScriptDock.hpp
+        src/include/prime/CEntity.hpp
+        PrimeAPI/include/rstl/rstl.h
+        PrimeAPI/include/rstl/vector.h
+        src/include/prime/CScriptRelay.hpp
         src/UI/UIElement.cpp
         src/UI/UITextElement.cpp
         src/UI/UIHeapUsageElement.cpp

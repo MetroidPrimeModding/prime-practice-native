@@ -87,7 +87,8 @@ public:
     void RenderWorld();
 private:
     void setupScriptFunctions();
-    void drawTrigger(CScriptTrigger *trigger) const;
+    void drawTrigger(CObjectList *trigger, CScriptTrigger *pTrigger) const;
+    ETriggerType determineTriggerType(CObjectList *pTrigger, CScriptTrigger *pScriptTrigger) const;
 };
 
 #endif

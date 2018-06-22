@@ -2,6 +2,8 @@
 #include "include/NewPauseScreen.hpp"
 #include <gccore.h>
 #include <include/prime/CScriptTrigger.hpp>
+#include <include/prime/CScriptDock.hpp>
+#include <include/prime/CScriptRelay.hpp>
 #include "include/os.h"
 #include "include/prime/CPlayerState.h"
 #include "include/prime/CGameGlobalObjects.hpp"
@@ -125,14 +127,19 @@ void NewPauseScreen::RenderWorld() {
   }
   duk_pop(ctx);
 
+  if (!renderLoadingTriggers) {
+    return;
+  }
+
   CStateManager *mgr = CStateManager_INSTANCE;
-  CPlayer *player = mgr->Player();
   CObjectList *list = mgr->GetAllObjs();
   if (list == nullptr) return;
 
   CGraphics::SetCullMode(ERglCullMode_Back);
   CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
   CGX::SetZMode(true, GxCompare_LEQUAL, false);
+  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
+  CGraphics::DisableAllLights();
 
   CGX::SetNumTevStages(1);
   CGX::SetTevOrder(
@@ -155,9 +162,9 @@ void NewPauseScreen::RenderWorld() {
       break;
     }
     CEntity *entity = entry.entity;
-    if (entity->getVtablePtr() == 0x803da4d8) {
+    if (entity->getVtablePtr() == CScriptTrigger::VTABLE_ADDR) {
       CScriptTrigger *trigger = reinterpret_cast<CScriptTrigger *>(entity);
-      drawTrigger(trigger);
+      drawTrigger(list, trigger);
     }
     visited++;
     id = entry.next;
@@ -166,11 +173,28 @@ void NewPauseScreen::RenderWorld() {
   CGraphics::StreamEnd();
 }
 
-void NewPauseScreen::drawTrigger(CScriptTrigger *trigger) const {
+void NewPauseScreen::drawTrigger(CObjectList *list, CScriptTrigger *trigger) const {
   if ((trigger->getStatus() & CEntity::ACTIVE_MASK) == 0) {
     return;
   }
-  ETriggerFlags flags = trigger->getFlags();
+
+  if (*trigger->getTriggerType() == ETriggerType::NotYetDetermined) {
+    *trigger->getTriggerType() = determineTriggerType(list, trigger);
+  }
+
+  bool render;
+  switch (*trigger->getTriggerType()) {
+    case ETriggerType::Load:
+      render = true;
+      CGraphics::StreamColor(0.2f, 0.6f, 0.3f, 0.1f);
+      break;
+    default:
+      render = false;
+  }
+
+  if (!render) {
+    return;
+  }
 
   CTransform *transform = trigger->getTransform();
   CVector3f origin = transform->origin();
@@ -185,14 +209,6 @@ void NewPauseScreen::drawTrigger(CScriptTrigger *trigger) const {
     origin.y + aabb->max.y,
     origin.z + aabb->max.z
   );
-
-  if ((flags & (ETriggerFlags::DetectPlayer))) {
-    CGraphics::StreamColor(0.2f, 0.6f, 1.0f, 0.3f);
-  } else if ((flags & (ETriggerFlags::DetectMorphedPlayer))) {
-    CGraphics::StreamColor(0.2f, 0.1f, 0.6f, 0.3f);
-  } else {
-    return;
-  }
 
   //-z
   CGraphics::StreamVertex(max.x, min.y, min.z);
@@ -232,6 +248,58 @@ void NewPauseScreen::drawTrigger(CScriptTrigger *trigger) const {
 
   CGraphics::FlushStream();
 }
+
+bool entityHasVtableOrIsRelayThatPointsAtVtable(CObjectList *list, u32 objectID, u32 vtable, u32 depth = 0) {
+  int visited = 0;
+  u16 uniqueID = list->first;
+  while (uniqueID != 0xFFFF && visited < list->count) {
+    SObjectListEntry entry = list->entries[uniqueID & 0x3FF];
+    if (!VALID_PTR(entry.entity)) {
+      break;
+    }
+    CEntity *entity = entry.entity;
+    if (entity->getEditorID() == objectID) {
+      // found the object
+      // If we're a relay, recurse
+      if (entity->getVtablePtr() == CScriptRelay::VTABLE_ADDR & depth < 2) {
+        printf("Recursing into relay %x\r\n", entity->getEditorID());
+        auto connections = entity->getConnections();
+        for (u32 i = connections->first; i < connections->len; i++) {
+          auto conn = &connections->ptr[i];
+          if (!VALID_PTR(conn)) {
+            continue;
+          }
+          if (entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, vtable, depth + 1)) {
+            return ETriggerType::Load;
+          }
+        }
+      }
+      //otherwise, return if our vtable matches
+      return entity->getVtablePtr() == vtable;
+    }
+    visited++;
+    uniqueID = entry.next;
+  }
+  return false;
+}
+
+ETriggerType NewPauseScreen::determineTriggerType(CObjectList *list, CScriptTrigger *trigger) const {
+  auto connections = trigger->getConnections();
+  for (u32 i = connections->first; i < connections->len; i++) {
+    auto conn = &connections->ptr[i];
+    if (!VALID_PTR(conn)) {
+      continue;
+    }
+    if (conn->x0_state == EScriptObjectState::Entered) {
+      if (entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, CScriptDock::VTABLE_ADDR)) {
+        return ETriggerType::Load;
+      }
+    }
+  }
+
+  return ETriggerType::Unknown;
+}
+
 
 void NewPauseScreen::hide() {
   active = false;
