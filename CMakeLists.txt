@@ -68,6 +68,8 @@ set(SOURCE_FILES
         src/include/prime/CArchitectureQueue.hpp
         src/include/prime/CScriptRelay.hpp
         src/include/prime/CScriptDoor.hpp
+        src/include/prime/CScriptCameraHint.hpp
+        src/include/STriggerRenderConfig.hpp
         src/new.cpp
         src/UI/UIElement.cpp
         src/UI/UITextElement.cpp

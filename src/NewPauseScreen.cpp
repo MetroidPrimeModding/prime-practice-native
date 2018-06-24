@@ -1,4 +1,6 @@
 #include <include/prime/CScriptDoor.hpp>
+#include <include/prime/CScriptCameraHint.hpp>
+#include <include/STriggerRenderConfig.hpp>
 #include "include/os.h"
 #include "include/NewPauseScreen.hpp"
 #include "include/TextRenderer.hpp"
@@ -116,20 +118,36 @@ void NewPauseScreen::Render() {
 }
 
 void NewPauseScreen::RenderWorld() {
-  duk_bool_t renderLoadingTriggers = FALSE;
+  STriggerRenderConfig triggerRenderConfig;
   duk_push_global_object(ctx);
   {
     duk_get_prop_string(ctx, -1, "CONFIG");
     if (duk_is_object(ctx, -1)) {
-      duk_get_prop_string(ctx, -1, "showLoadingTriggers");
-      renderLoadingTriggers = duk_to_boolean(ctx, -1);
+      duk_get_prop_string(ctx, -1, "showUnknownTriggers");
+      triggerRenderConfig.renderUnknown = duk_to_boolean(ctx, -1) > 0;
+      duk_pop(ctx);
+
+      duk_get_prop_string(ctx, -1, "showLoadTriggers");
+      triggerRenderConfig.renderLoad = duk_to_boolean(ctx, -1) > 0;
+      duk_pop(ctx);
+
+      duk_get_prop_string(ctx, -1, "showDoorTriggers");
+      triggerRenderConfig.renderDoor = duk_to_boolean(ctx, -1) > 0;
+      duk_pop(ctx);
+
+      duk_get_prop_string(ctx, -1, "showForceTriggers");
+      triggerRenderConfig.renderForce = duk_to_boolean(ctx, -1) > 0;
+      duk_pop(ctx);
+
+      duk_get_prop_string(ctx, -1, "showCameraHintTriggers");
+      triggerRenderConfig.renderCameraHint = duk_to_boolean(ctx, -1) > 0;
       duk_pop(ctx);
     }
     duk_pop(ctx);
   }
   duk_pop(ctx);
 
-  if (!renderLoadingTriggers) {
+  if (!triggerRenderConfig.anyOn()) {
     return;
   }
 
@@ -169,7 +187,7 @@ void NewPauseScreen::RenderWorld() {
     CEntity *entity = entry.entity;
     if (entity->getVtablePtr() == CScriptTrigger::VTABLE_ADDR) {
       CScriptTrigger *trigger = reinterpret_cast<CScriptTrigger *>(entity);
-      drawTrigger(list, trigger);
+      drawTrigger(triggerRenderConfig, list, trigger);
     }
     visited++;
     id = entry.next;
@@ -178,7 +196,7 @@ void NewPauseScreen::RenderWorld() {
   CGraphics::StreamEnd();
 }
 
-void NewPauseScreen::drawTrigger(CObjectList *list, CScriptTrigger *trigger) const {
+void NewPauseScreen::drawTrigger(const STriggerRenderConfig &config, CObjectList *list, CScriptTrigger *trigger) const {
   if ((trigger->getStatus() & CEntity::ACTIVE_MASK) == 0) {
     return;
   }
@@ -191,27 +209,31 @@ void NewPauseScreen::drawTrigger(CObjectList *list, CScriptTrigger *trigger) con
   float alpha = 0.05f;
   switch (*trigger->getTriggerType()) {
     case ETriggerType::Load:
-      render = true;
+      render = config.renderLoad;
       CGraphics::StreamColor(0.2f, 0.6f, 0.3f, alpha);
       break;
     case ETriggerType::Door:
-      render = true;
+      render = config.renderDoor;
       CGraphics::StreamColor(0.55f, 0.91f, 0.97f, alpha);
       break;
     case ETriggerType::Force:
-      render = true;
+      render = config.renderForce;
       CGraphics::StreamColor(0.75f, 0.75f, 0.25f, alpha);
       break;
+    case ETriggerType::CameraHint:
+      render = config.renderCameraHint;
+      CGraphics::StreamColor(0.95, 0.6, 0.91, alpha);
+      break;
     case ETriggerType::Unknown:
-      render = true;
+      render = config.renderUnknown;
       CGraphics::StreamColor(0.8f, 0.8f, 0.8f, alpha);
       break;
     case ETriggerType::NotYetDetermined:
-      render = true;
-      CGraphics::StreamColor(0.8f, 0.0f, 0.8f, alpha);
+      render = true; // should never happen
+      CGraphics::StreamColor(0.8f, 0.0f, 0.0f, alpha);
       break;
     default:
-//      render = false;
+      // Should never happen
       render = true;
       CGraphics::StreamColor(0.8f, 0.0f, 0.0f, alpha);
   }
@@ -321,8 +343,17 @@ ETriggerType NewPauseScreen::determineTriggerType(CObjectList *list, CScriptTrig
       }
       return ETriggerType::Door;
     }
-    if (trigger->getForceMagnitude() > 1) {
+    if (trigger->getForceMagnitude() > 1 || trigger->getForceMagnitude() < -1) {
       return ETriggerType::Force;
+    }
+    float forceVec = trigger->getForceField()->x * trigger->getForceField()->x
+                     + trigger->getForceField()->y * trigger->getForceField()->y
+                     + trigger->getForceField()->z * trigger->getForceField()->z;
+    if (forceVec > 1) {
+      return ETriggerType::Force;
+    }
+    if (entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, CScriptCameraHint::VTABLE_ADDR)) {
+      return ETriggerType::CameraHint;
     }
   }
   return ETriggerType::Unknown;

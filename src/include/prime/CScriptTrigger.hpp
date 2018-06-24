@@ -33,7 +33,8 @@ enum PACKED ETriggerType : u8 {
     Unknown,
     Load,
     Door,
-    Force
+    Force,
+    CameraHint
 };
 
 class CScriptTrigger : public CActor {
