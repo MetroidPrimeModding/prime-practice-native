@@ -28,21 +28,27 @@ enum ETriggerFlags : u32 {
     BlockEnvironmentalEffects = (1 << 17)
 };
 
-enum ETriggerType {
+enum PACKED ETriggerType : u8 {
     NotYetDetermined = 0,
     Unknown,
-    Load
+    Load,
+    Door,
+    Force
 };
 
 class CScriptTrigger : public CActor {
 public:
     static constexpr u32 VTABLE_ADDR = 0x803da4d8;
 
-    ETriggerFlags getFlags() { return *GetField<ETriggerFlags>(this, 0x12c); }
+    inline ETriggerFlags getFlags() { return *GetField<ETriggerFlags>(this, 0x12c); }
 
-    CAABox *getBounds() { return GetField<CAABox>(this, 0x130); };
+    inline CAABox *getBounds() { return GetField<CAABox>(this, 0x130); };
 
-    ETriggerType *getTriggerType() { return GetField<ETriggerType>(this, 0x149); }
+    inline u8 *getTriggerType() { return GetField<u8>(this, 0x149); }
+
+    inline float getForceMagnitude() { return *GetField<float>(this, 0x128); }
+
+    inline CVector3f *getForceField() { return GetField<CVector3f>(this, 0x11c); }
 };
 
 #endif //PRIME_PRACTICE_NATIVE_CTRIGGER_HPP

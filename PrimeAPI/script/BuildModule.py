@@ -1,4 +1,3 @@
-from Stream import *
 from Mangle import *
 from DolFile import *
 from PreplfFile import *
@@ -7,11 +6,10 @@ import os
 import re
 import subprocess
 import sys
-import platform
 import cxxfilt
 import zlib
-
 # Environment
+
 primeApiRoot = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
 devkitPPCRoot = ""
 gccPath = ""
@@ -347,14 +345,6 @@ def link_objects(objList):
     return ret == 0
 
 
-def handle_demangle_edge_cases(demangled):
-    if demangled.startswith('operator new'):
-        return demangled.replace('unsigned int', 'unsigned long')
-    if demangled.startswith('operator new'):
-        return demangled.replace('unsigned int', 'unsigned long')
-    return demangled
-
-
 def convert_preplf_to_rel(preplfPath, outRelPath):
     preplf = PreplfFile(preplfPath)
     rel = OutputStream()
@@ -550,7 +540,7 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
                 # DOL relocs will require looking up the address of the symbol in the DOL
                 else:
                     symbolName = symbol['name']
-                    demangled = handle_demangle_edge_cases(cxxfilt.demangle(symbolName))
+                    demangled = cxxfilt.demangle(symbolName)
                     remangled = demangled
                     if ('(' in demangled and ')' in demangled) or '::' in demangled or 'operator' in demangled:
                         remangled = mangle(demangled)

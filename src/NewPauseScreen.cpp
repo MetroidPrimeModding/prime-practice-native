@@ -1,26 +1,16 @@
-#include <math.h>
-#include "include/NewPauseScreen.hpp"
-#include <gccore.h>
-#include <include/prime/CScriptTrigger.hpp>
-#include <include/prime/CScriptDock.hpp>
-#include <include/prime/CScriptRelay.hpp>
+#include <include/prime/CScriptDoor.hpp>
 #include "include/os.h"
-#include "include/prime/CPlayerState.h"
+#include "include/NewPauseScreen.hpp"
+#include "include/TextRenderer.hpp"
+#include "include/prime/CScriptRelay.hpp"
+#include "include/prime/CScriptDock.hpp"
+#include "include/readFile.hpp"
 #include "include/prime/CGameGlobalObjects.hpp"
 #include "include/prime/CPlayer.hpp"
-#include "include/prime/CGraphics.hpp"
+#include "include/prime/CPlayerState.h"
 #include "include/prime/CWorld.hpp"
-#include "include/UI/UITextElement.hpp"
-#include "include/UI/UIHeapUsageElement.hpp"
-#include "include/prime/CWorldTransManager.hpp"
-#include "include/TextRenderer.hpp"
 #include "include/prime/CMain.hpp"
 #include "include/prime/CSfxManager.hpp"
-#include "include/prime/CDvdFile.hpp"
-#include "include/GX.hpp"
-#include "duktape.h"
-#include "duk_mem.h"
-#include "include/readFile.hpp"
 #include "jskernel.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
@@ -28,6 +18,7 @@
 NewPauseScreen *NewPauseScreen::instance = NULL;
 
 NewPauseScreen::NewPauseScreen() {
+  printf("size: %x\r\n", sizeof(ETriggerType));
   TextRenderer::Init();
   frames = 0;
   active = false;
@@ -37,15 +28,25 @@ NewPauseScreen::NewPauseScreen() {
 
 //  menuElement.addChild(new UITextElement("Prime practice mod menu", 5, 35));
 
+  // Patch raw code
+  // CScriptTrigger::CScriptTrigger
+  // 50A03E30 rlwimi r0, r5, 7, 24, 24
+  // 98140148 stb r0, 0x148(r20)
+  // lbz r0, 0x148(r20) 0x88140148
+
+  *((u32 *) 0x80076f0c) = 0x90940148; // stw r4, 0x148(r20)
+  *((u32 *) 0x80076f10) = 0x50A03E30; // rlwimi r0, r5, 7, 24, 24
+  *((u32 *) 0x80076f14) = 0x98140148; // stb r0, 0x148(r20)
+
   this->ctx = duk_create_heap(&prime_malloc, &prime_realloc, &prime_free, nullptr, &script_fatal);
   this->setupScriptFunctions();
 
   duk_push_string(ctx, "kernel.js");
   if (duk_pcompile_string_filename(ctx, 0, js_kernel) != 0) {
-    OSReport("Error compiling kernel: %s\r\n", duk_safe_to_string(ctx, -1));
+    printf("Error compiling kernel: %s\r\n", duk_safe_to_string(ctx, -1));
   } else {
     if (duk_pcall(ctx, 0) != DUK_EXEC_SUCCESS) {
-      OSReport("Error executing kernel: %s\r\n", duk_safe_to_string(ctx, -1));
+      printf("Error executing kernel: %s\r\n", duk_safe_to_string(ctx, -1));
     }
   }
   duk_pop(ctx);
@@ -53,6 +54,7 @@ NewPauseScreen::NewPauseScreen() {
 
 void NewPauseScreen::Render() {
   frames++;
+
 
   // Setup for GX
   // Prime's formats, which are what I want so that's convenient:
@@ -95,7 +97,7 @@ void NewPauseScreen::Render() {
 
   if (duk_is_function(ctx, -1)) {
     if (duk_pcall(ctx, 0) != DUK_EXEC_SUCCESS) {
-      OSReport("OnFrame error: %s\r\n", duk_safe_to_string(ctx, -1));
+      printf("OnFrame error: %s\r\n", duk_safe_to_string(ctx, -1));
     }
   }
   duk_pop(ctx);
@@ -134,6 +136,9 @@ void NewPauseScreen::RenderWorld() {
   CStateManager *mgr = CStateManager_INSTANCE;
   CObjectList *list = mgr->GetAllObjs();
   if (list == nullptr) return;
+
+  SViewport backupViewport = *SVIEWPORT_GLOBAL;
+  mgr->SetupViewForDraw(backupViewport);
 
   CGraphics::SetCullMode(ERglCullMode_Back);
   CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
@@ -183,13 +188,32 @@ void NewPauseScreen::drawTrigger(CObjectList *list, CScriptTrigger *trigger) con
   }
 
   bool render;
+  float alpha = 0.05f;
   switch (*trigger->getTriggerType()) {
     case ETriggerType::Load:
       render = true;
-      CGraphics::StreamColor(0.2f, 0.6f, 0.3f, 0.1f);
+      CGraphics::StreamColor(0.2f, 0.6f, 0.3f, alpha);
+      break;
+    case ETriggerType::Door:
+      render = true;
+      CGraphics::StreamColor(0.55f, 0.91f, 0.97f, alpha);
+      break;
+    case ETriggerType::Force:
+      render = true;
+      CGraphics::StreamColor(0.75f, 0.75f, 0.25f, alpha);
+      break;
+    case ETriggerType::Unknown:
+      render = true;
+      CGraphics::StreamColor(0.8f, 0.8f, 0.8f, alpha);
+      break;
+    case ETriggerType::NotYetDetermined:
+      render = true;
+      CGraphics::StreamColor(0.8f, 0.0f, 0.8f, alpha);
       break;
     default:
-      render = false;
+//      render = false;
+      render = true;
+      CGraphics::StreamColor(0.8f, 0.0f, 0.0f, alpha);
   }
 
   if (!render) {
@@ -249,54 +273,58 @@ void NewPauseScreen::drawTrigger(CObjectList *list, CScriptTrigger *trigger) con
   CGraphics::FlushStream();
 }
 
-bool entityHasVtableOrIsRelayThatPointsAtVtable(CObjectList *list, u32 objectID, u32 vtable, u32 depth = 0) {
+CEntity *getEntityWithEditorID(CObjectList *list, u32 objid) {
   int visited = 0;
   u16 uniqueID = list->first;
   while (uniqueID != 0xFFFF && visited < list->count) {
     SObjectListEntry entry = list->entries[uniqueID & 0x3FF];
-    if (!VALID_PTR(entry.entity)) {
-      break;
-    }
-    CEntity *entity = entry.entity;
-    if (entity->getEditorID() == objectID) {
-      // found the object
-      // If we're a relay, recurse
-      if (entity->getVtablePtr() == CScriptRelay::VTABLE_ADDR & depth < 2) {
-        printf("Recursing into relay %x\r\n", entity->getEditorID());
-        auto connections = entity->getConnections();
-        for (u32 i = connections->first; i < connections->len; i++) {
-          auto conn = &connections->ptr[i];
-          if (!VALID_PTR(conn)) {
-            continue;
-          }
-          if (entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, vtable, depth + 1)) {
-            return ETriggerType::Load;
-          }
-        }
-      }
-      //otherwise, return if our vtable matches
-      return entity->getVtablePtr() == vtable;
+    if (entry.entity->getEditorID() == objid) {
+      return entry.entity;
     }
     visited++;
     uniqueID = entry.next;
   }
+  return nullptr;
+}
+
+bool entityHasVtableOrIsRelayThatPointsAtVtable(CObjectList *list, u32 objectID, u32 vtable, u32 depth = 0) {
+  CEntity *entity = getEntityWithEditorID(list, objectID);
+  if (!entity) return false;
+  // found the object
+  // If we're a relay, recurse
+  if (entity->getVtablePtr() == vtable) return true;
+  if (entity->getVtablePtr() == CScriptRelay::VTABLE_ADDR & depth < 2) {
+    auto connections = entity->getConnections();
+    for (u32 i = 0; i < connections->len; i++) {
+      auto conn = &connections->ptr[i];
+      if (entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, vtable, depth + 1)) {
+        return ETriggerType::Load;
+      }
+    }
+  }
   return false;
+
 }
 
 ETriggerType NewPauseScreen::determineTriggerType(CObjectList *list, CScriptTrigger *trigger) const {
   auto connections = trigger->getConnections();
-  for (u32 i = connections->first; i < connections->len; i++) {
+  for (u32 i = 0; i < connections->len; i++) {
     auto conn = &connections->ptr[i];
-    if (!VALID_PTR(conn)) {
-      continue;
-    }
     if (conn->x0_state == EScriptObjectState::Entered) {
       if (entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, CScriptDock::VTABLE_ADDR)) {
         return ETriggerType::Load;
       }
     }
+    if (conn->x0_state == EScriptObjectState::Inside && conn->x4_msg == EScriptObjectMessage::Open) {
+      if (!entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, CScriptDoor::VTABLE_ADDR)) {
+        return ETriggerType::NotYetDetermined;
+      }
+      return ETriggerType::Door;
+    }
+    if (trigger->getForceMagnitude() > 1) {
+      return ETriggerType::Force;
+    }
   }
-
   return ETriggerType::Unknown;
 }
 
@@ -312,7 +340,7 @@ void NewPauseScreen::HandleInputs() {
 
   if (duk_is_function(ctx, -1)) {
     if (duk_pcall(ctx, 0) != DUK_EXEC_SUCCESS) {
-      OSReport("OnInput error: %s\r\n", duk_safe_to_string(ctx, -1));
+      printf("OnInput error: %s\r\n", duk_safe_to_string(ctx, -1));
     }
   }
   duk_pop(ctx);
@@ -406,7 +434,7 @@ void NewPauseScreen::setupScriptFunctions() {
 
 void script_fatal(void *udata, const char *msg) {
   NewPauseScreen::instance->fatalError = msg;
-  OSReport("Script Fatal: %s\r\n", msg);
+  printf("Script Fatal: %s\r\n", msg);
 }
 
 
@@ -414,12 +442,12 @@ duk_ret_t script_require(duk_context *ctx) {
   const char *path = duk_require_string(ctx, 0);
 
   ReadFileResult res = readFileSync(path);
-  OSReport("Script length: %u\r\n", res.len);
+  printf("Script length: %u\r\n", res.len);
 
   duk_push_string(ctx, path);
 
   if (duk_pcompile_string_filename(ctx, 0, (char *) res.data) != 0) {
-    OSReport("Error compiling %s\r\n", duk_safe_to_string(ctx, -1));
+    printf("Error compiling %s\r\n", duk_safe_to_string(ctx, -1));
     delete res.data;
     return duk_throw(ctx);
   } else {
@@ -445,7 +473,7 @@ duk_ret_t script_drawText(duk_context *ctx) {
 
 duk_ret_t script_osReport(duk_context *ctx) {
   const char *str = duk_safe_to_string(ctx, 0);
-  OSReport("JS message: %s\r\n", str);
+  printf("JS message: %s\r\n", str);
   return 0;
 }
 

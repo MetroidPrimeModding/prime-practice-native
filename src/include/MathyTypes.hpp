@@ -73,4 +73,9 @@ public:
     CVector3f max;
 };
 
+class CFrustum {
+public:
+    float data[16];
+};
+
 #endif //PRIME_PRACTICE_CMATRIX3F_HPP

@@ -4,10 +4,6 @@
 #include "rstl/string.h"
 #include "include/prime/CArchitectureMessage.hpp"
 
-class CArchitectureQueue {
-    PADDING(0x8);
-};
-
 class CIOWin {
 //    rstl::string x4_name;
 //    size_t m_nameHash;

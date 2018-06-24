@@ -9,7 +9,6 @@ extern "C" {
 #endif
 
 extern void OSYieldThread(void);
-#define OSReport printf
 extern u32 PADRead(PADStatus *status);
 
 

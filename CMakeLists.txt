@@ -64,7 +64,11 @@ set(SOURCE_FILES
         src/include/prime/CEntity.hpp
         PrimeAPI/include/rstl/rstl.h
         PrimeAPI/include/rstl/vector.h
+        src/include/prime/CFontEndUI.hpp
+        src/include/prime/CArchitectureQueue.hpp
         src/include/prime/CScriptRelay.hpp
+        src/include/prime/CScriptDoor.hpp
+        src/new.cpp
         src/UI/UIElement.cpp
         src/UI/UITextElement.cpp
         src/UI/UIHeapUsageElement.cpp

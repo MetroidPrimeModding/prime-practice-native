@@ -42,8 +42,8 @@ typedef double f64;
 
 // Allocation
 #ifdef __cplusplus
-void *operator new(size_t size, const char *pkFileAndLine, const char *pkType);
-void *operator new[](size_t size, const char *pkFileAndLine, const char *pkType);
+void *operator new(size_t size);
+void *operator new(size_t size, void* ptr);
 
 void operator delete(void *);
 
@@ -60,7 +60,7 @@ inline void operator delete[](void * ptr, size_t) {
 
 #endif
 
-#define new new("", "")
+//#define new new("", "")
 
 #endif
 

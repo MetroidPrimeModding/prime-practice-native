@@ -3,6 +3,7 @@
 
 #include "PrimeAPI.h"
 #include "include/GetField.hpp"
+#include "rstl/vector.h"
 
 enum class EScriptObjectType {
     Actor = 0x00,

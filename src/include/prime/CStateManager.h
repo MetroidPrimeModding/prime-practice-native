@@ -8,6 +8,7 @@
 #include "include/GetField.hpp"
 #include "include/prime/CStateManager.h"
 #include "CObjectList.hpp"
+#include "CGraphics.hpp"
 
 #define CStateManager_INSTANCE ((CStateManager *) 0x8045A1A8)
 
@@ -58,6 +59,9 @@ public:
 
     void DrawWorld() const;
     void DrawDebugStuff() const;
+    CFrustum SetupViewForDraw(const SViewport& vp) const;
+    void ResetViewAfterDraw(const SViewport& backupViewport,
+                                           const CTransform& backupViewMatrix) const;
 };
 
 class CGameState {

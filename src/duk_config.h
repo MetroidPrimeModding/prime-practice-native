@@ -1510,8 +1510,8 @@ typedef struct duk_hthread duk_context;
 #undef DUK_USE_DEBUGGER_TRANSPORT_TORTURE
 #define DUK_USE_DEBUG_BUFSIZE 32000L
 #define DUK_USE_DEBUG_LEVEL 2
-//#define DUK_USE_DEBUG_WRITE(level, file, line, func, msg) OSReport("Duktape log [%s] %s:%s %s - %s", level, file, line, func, msg)
-#define DUK_USE_DEBUG_WRITE(level, file, line, func, msg) OSReport("Duktape log %s\r\n", msg)
+//#define DUK_USE_DEBUG_WRITE(level, file, line, func, msg) printf("Duktape log [%s] %s:%s %s - %s", level, file, line, func, msg)
+#define DUK_USE_DEBUG_WRITE(level, file, line, func, msg) printf("Duktape log %s\r\n", msg)
 #define DUK_USE_DOUBLE_LINKED_HEAP
 #define DUK_USE_DUKTAPE_BUILTIN
 #define DUK_USE_ENCODING_BUILTINS

@@ -4,14 +4,14 @@
 #include "include/MathyTypes.hpp"
 #include "include/GX.hpp"
 
-typedef enum ERglCullMode {
+enum ERglCullMode {
     ERglCullMode_None = 0,
     ERglCullMode_Front = 1,
     ERglCullMode_Back = 2,
     ERglCullMode_All = 3
-} ERglCullMode;
+};
 
-typedef enum ERglPrimitive {
+enum ERglPrimitive {
     ERglPrimitive_POINTS = 0xB8,
     ERglPrimitive_LINES = 0xA8,
     ERglPrimitive_LINESTRIP = 0xB0,
@@ -19,9 +19,9 @@ typedef enum ERglPrimitive {
     ERglPrimitive_TRIANGLESTRIP = 0x98,
     ERglPrimitive_TRIANGLEFAN = 0xA0,
     ERglPrimitive_QUADS = 0x80
-} ERglPrimitive;
+};
 
-typedef enum ERglAlphaFunc {
+enum ERglAlphaFunc {
     ERglAlphaFunc_NEVER = 0,
     ERglAlphaFunc_LESS = 1,
     ERglAlphaFunc_EQUAL = 2,
@@ -30,14 +30,25 @@ typedef enum ERglAlphaFunc {
     ERglAlphaFunc_NEQUAL = 5,
     ERglAlphaFunc_GEQUAL = 6,
     ERglAlphaFunc_ALWAYS = 7
-} ERglAlphaFunc;
+};
 
-typedef enum ERglAlphaOp {
+enum ERglAlphaOp {
     ERglAlphaOp_AND = 0,
     ERglAlphaOp_OR = 1,
     ERglAlphaOp_XOR = 2,
     ERglAlphaOp_XNOR = 3
-} ERglAlphaOp;
+};
+
+
+#define SVIEWPORT_GLOBAL ((SViewport*) 0x803ED910)
+struct SViewport {
+    u32 x0_left;
+    u32 x4_top;
+    u32 x8_width;
+    u32 xc_height;
+    float x10_halfWidth;
+    float x14_halfHeight;
+};
 
 class CGraphics {
 public:

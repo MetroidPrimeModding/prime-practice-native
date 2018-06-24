@@ -1,4 +1,5 @@
 #include <PrimeAPI.h>
+#include <include/prime/CFontEndUI.hpp>
 #include "include/prime/CMain.hpp"
 #include "include/prime/CStateManager.h"
 #include "include/prime/CPlayerState.h"
@@ -36,6 +37,7 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
 void resetLayerStates(const CStateManager &manager);
 CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue);
 void drawDebugStuff(CStateManager *);
+CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue);
 
 int crashVar;
 
@@ -112,7 +114,7 @@ void resetLayerStates(const CStateManager &manager) {
 
   if (srcLayers.len == destLayers.len) {
     for (int i = 0; i < srcLayers.len; i++) {
-      destLayers.first[i].m_layerBits = srcLayers.first[i].m_layerBits;
+      destLayers.ptr[i].m_layerBits = srcLayers.ptr[i].m_layerBits;
     }
   } else {
     crashVar = *((int *) 0xDEAD0002);
@@ -148,3 +150,16 @@ CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMess
 void drawDebugStuff(CStateManager *mgr) {
   NewPauseScreen::instance->RenderWorld();
 }
+//
+//CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue) {
+//    thiz = new ((void*)thiz) CFrontEndUI(queue);
+//    *thiz->getPhase() = 6;
+//  //CStateManager *mgr = ((CStateManager *) 0x8045A1A8);
+////    mgr->GetWorld()->SetPauseState(true);
+//
+//  CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
+//  gameState->SetCurrentWorldId(0x83F6FF6F);
+////  gameState->CurrentWorldState().SetDesiredAreaAssetId(0x44E528F6);
+//
+//  return thiz;
+//}
