@@ -4,6 +4,7 @@
 #include <include/prime/CScriptTrigger.hpp>
 #include "include/UI/UIElement.hpp"
 #include "include/prime/CStateManager.h"
+#include "include/STriggerRenderConfig.hpp"
 #include "duktape.h"
 
 void script_fatal(void* udata, const char* msg);
@@ -37,7 +38,6 @@ duk_ret_t script_getFPS(duk_context *ctx);
 duk_ret_t script_getEntities(duk_context *ctx);
 
 class NewPauseScreen {
-    int frames;
     UIElement menuElement;
     UIElement hudElement;
     duk_context *ctx;
@@ -46,6 +46,7 @@ class NewPauseScreen {
 public:
     static NewPauseScreen *instance;
     bool active;
+    int frames;
     CFinalInput *inputs;
 
     NewPauseScreen();
@@ -53,6 +54,8 @@ public:
     void Render();
 
     void HandleInputs();
+
+    bool shouldRenderGloballyInsteadOfInWorld();
 
     void hide();
 
@@ -85,6 +88,7 @@ public:
     friend duk_ret_t script_getFPS(duk_context *ctx);
 
     void RenderWorld();
+    void show();
 private:
     void setupScriptFunctions();
     void drawTrigger(const STriggerRenderConfig &trigger, CObjectList *pTrigger, CScriptTrigger *pScriptTrigger) const;

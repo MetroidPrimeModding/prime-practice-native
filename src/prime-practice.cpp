@@ -71,16 +71,16 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
   if (!pause->IsLoaded()) { return; }
   if (pause->x8_curSubscreen == CPauseScreen::ESubScreen_ToGame) { return; }
 
-  NewPauseScreen::instance->active = true;
   if (pause->InputEnabled()) {
     // Only close if you aren't holding the reload hotkey
     if (input.PStart() && !(input.DL() || input.DR())) {
-      //This hack man
       NewPauseScreen::instance->hide();
 
       //Play some noises too
       CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId);
       pause->StartTransition(0.5f, mgr, CPauseScreen::ESubScreen_ToGame, 2);
+    } else if (NewPauseScreen::instance->frames < 0) {
+      NewPauseScreen::instance->show();
     }
   }
 }
@@ -126,7 +126,9 @@ void RenderHook() {
   if (!NewPauseScreen::instance) {
     NewPauseScreen::instance = new NewPauseScreen();
   }
-  NewPauseScreen::instance->Render();
+  if (NewPauseScreen::instance->shouldRenderGloballyInsteadOfInWorld()) {
+    NewPauseScreen::instance->Render();
+  }
   CGraphics::EndScene();
 }
 
@@ -135,9 +137,8 @@ CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMess
     if (!NewPauseScreen::instance) {
       NewPauseScreen::instance = new NewPauseScreen();
     }
-    CArchMsgParmUserInput *status = (CArchMsgParmUserInput*)msg.x8_parm.RawPointer();
+    CArchMsgParmUserInput *status = (CArchMsgParmUserInput *) msg.x8_parm.RawPointer();
     // The mod 4 is just for safety
-
     NewPauseScreen::instance->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
     if (status->x4_parm.ControllerIdx() == 0) {
       NewPauseScreen::instance->HandleInputs();
@@ -148,7 +149,13 @@ CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMess
 }
 
 void drawDebugStuff(CStateManager *mgr) {
+  if (!NewPauseScreen::instance) {
+    NewPauseScreen::instance = new NewPauseScreen();
+  }
   NewPauseScreen::instance->RenderWorld();
+  if (!NewPauseScreen::instance->shouldRenderGloballyInsteadOfInWorld()) {
+    NewPauseScreen::instance->Render();
+  }
 }
 //
 //CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue) {

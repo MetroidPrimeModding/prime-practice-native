@@ -20,10 +20,8 @@
 NewPauseScreen *NewPauseScreen::instance = NULL;
 
 NewPauseScreen::NewPauseScreen() {
-  printf("size: %x\r\n", sizeof(ETriggerType));
   TextRenderer::Init();
-  frames = 0;
-  active = false;
+  this->hide();
   fatalError = nullptr;
   inputs = new CFinalInput[4];
 //  hudElement.addChild(new UIHeapUsageElement(10, 460));
@@ -55,7 +53,9 @@ NewPauseScreen::NewPauseScreen() {
 }
 
 void NewPauseScreen::Render() {
-  frames++;
+  if (active) {
+    frames++;
+  }
 
 
   // Setup for GX
@@ -112,7 +112,6 @@ void NewPauseScreen::Render() {
 
   if (active) {
     this->menuElement.draw();
-    active = false;
   }
   this->hudElement.draw();
 }
@@ -359,10 +358,14 @@ ETriggerType NewPauseScreen::determineTriggerType(CObjectList *list, CScriptTrig
   return ETriggerType::Unknown;
 }
 
-
 void NewPauseScreen::hide() {
   active = false;
-  frames = 0;
+  frames = -1;
+}
+
+void NewPauseScreen::show() {
+  this->active = true;
+  this->frames = 0;
 }
 
 void NewPauseScreen::HandleInputs() {
@@ -1147,6 +1150,8 @@ duk_ret_t script_warp(duk_context *ctx) {
 
   mgr->SetShouldQuitGame(true);
 
+  NewPauseScreen::instance->hide();
+
   return 0;
 }
 
@@ -1203,6 +1208,10 @@ duk_ret_t script_setInventory(duk_context *ctx) {
 duk_ret_t script_getFPS(duk_context *ctx) {
   duk_push_number(ctx, CGraphics::GetFPS());
   return 1;
+}
+
+bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
+  return this->active;
 }
 
 duk_ret_t script_getEntities(duk_context *ctx) {
