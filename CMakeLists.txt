@@ -86,3 +86,5 @@ set(SOURCE_FILES
         )
 
 add_executable(default-prime-practice ${SOURCE_FILES})
+
+add_subdirectory(loader)
