@@ -254,7 +254,7 @@ def compile_object(sourcePath, outPath):
         lang = "-std=c++17"
     elif ext == ".c":
         lang = ""
-    elif ext == '.S':
+    elif ext == '.s' or ext == '.S':
         lang = ""
     else:
         print("%s: unrecognized extension (%s)" % (sourcePath, ext))
@@ -316,8 +316,8 @@ def link_objects(objList):
         ldPath,
         # '-shared',
         ' '.join(objList),
-        "-L%s/lib/gcc/powerpc-eabi/6.3.0" % devkitPPCRoot,
-        "-L%s/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib" % devkitPPCRoot,
+        "-L%s/lib/gcc/powerpc-eabi/8.1.0" % devkitPPCRoot,
+        "-L%s/lib/gcc/powerpc-eabi/8.1.0/../../../../powerpc-eabi/lib" % devkitPPCRoot,
         "-nodefaultlibs",
         "-nostdlib",
         '-lgcc',
@@ -533,7 +533,10 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
 
                 # Internal relocs are easy - just copy data from the ELF reloc/symbol
                 if not isDol:
-                    rel.write_byte(symbol['sectionIndex'])
+                    if symbol['sectionIndex'] == 65521:  # Apparently this means absolute redirect
+                        rel.write_byte(0)
+                    else:
+                        rel.write_byte(symbol['sectionIndex'])
                     rel.write_long(symbol['value'] + reloc['addend'])
                     # this is basically just the section-relative offset to the symbol
 
@@ -544,8 +547,8 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
                     remangled = demangled
                     if ('(' in demangled and ')' in demangled) or '::' in demangled or 'operator' in demangled:
                         remangled = mangle(demangled)
-                    dolSymbolAddr = dolFile.get_symbol(remangled)
-
+                    # dolSymbolAddr = dolFile.get_symbol(remangled)
+                    dolSymbolAddr = None
                     if dolSymbolAddr is None:
                         unresolvedSymbolCount += 1
                         print("Error: Failed to locate dol symbol: %s / %s (GCC: %s)" % (
@@ -619,6 +622,7 @@ def compile_rel():
     sourceFiles.append("%s/newlib/newlib/libm/common/s_isnan.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libm/math/s_ceil.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libm/math/e_log10.c" % projDir)
+    sourceFiles.append("%s/newlib/newlib/libm/math/e_log.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libm/math/w_log10.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libm/math/e_sqrt.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libm/math/w_sqrt.c" % projDir)
@@ -674,6 +678,7 @@ def compile_rel():
     sourceFiles.append("%s/newlib/newlib/libc/stdio/fclose.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libc/stdio/fflush.c" % projDir)
     sourceFiles.append("%s/newlib/newlib/libc/stdio/fwalk.c" % projDir)
+    sourceFiles.append("%s/PrimeAPI/symbols/v1.088.s" % projDir)
 
     sourceFiles = [file for file in sorted(sourceFiles) if file.find("build/ApplyCodePatches.cpp") == -1]
     sourceFiles = [file for file in sorted(sourceFiles) if file.find("script/ApplyCodePatches_Template.cpp") == -1]
