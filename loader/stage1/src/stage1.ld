@@ -15,4 +15,5 @@ SECTIONS {
         *(.bss)
         __bss_end = .;
      }
+     __payload_end = .;
 }

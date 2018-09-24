@@ -1,45 +1,138 @@
-PREFIX=powerpc-eabi-
-CC=${PREFIX}gcc
-CXX=${PREFIX}g++
-OBJCOPY=${PREFIX}objcopy
-OBJDUMP=${PREFIX}objdump
-AS=${PREFIX}as
-ld=${PREFIX}ld
-DEBUG=-g
-CCFLAGS=-ffreestanding -nostdlib -O2 -I$(DEVKITPRO)/libogc/include -L$(DEVKITPRO)/libogc/lib/cube -DGEKKO -mogc -mcpu=750 -meabi -mhard-float -logc --std=gnu99 ${DEBUG}
-LIBS=-lgcc
-BIN=bin
-SRC=src
+#---------------------------------------------------------------------------------
+# Clear the implicit built in rules
+#---------------------------------------------------------------------------------
+.SUFFIXES:
+#---------------------------------------------------------------------------------
+ifeq ($(strip $(DEVKITPPC)),)
+$(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
+endif
 
-SRC_S_FILES=$(wildcard *.s)
-SRC_C_FILES=$(wildcard *.c)
-SRC_O_FILES=$(patsubst %.s,%.o,$(SRC_S_FILES)) $(patsubst %.c,%.o,$(SRC_C_FILES))
-BIN_O_FILES=$(patsubst %,bin/%,$(SRC_O_FILES))
+include $(DEVKITPPC)/gamecube_rules
 
-all: ${BIN} ${BIN}/stage1.img decompile
+#---------------------------------------------------------------------------------
+%.bin: %.elf
+	@echo output ... $(notdir $@)
+	@$(OBJCOPY) $< -O binary $@
 
-decompile: ${BIN}/stage1.elf
-	${OBJDUMP} -d bin/stage1.elf > bin/stage1.elf.s
+#---------------------------------------------------------------------------------
+# TARGET is the name of the output
+# BUILD is the directory where object files & intermediate files will be placed
+# SOURCES is a list of directories containing source code
+# INCLUDES is a list of directories containing extra header files
+#---------------------------------------------------------------------------------
+TARGET		:=	$(notdir $(CURDIR))
+BUILD		:=	build
+SOURCES		:=	src
+DATA		:=	data  
+INCLUDES	:=
 
-${BIN}:
-	mkdir $@
+#---------------------------------------------------------------------------------
+# options for code generation
+#---------------------------------------------------------------------------------
 
-${BIN}/%.o: %.c
-	${CC} ${CCFLAGS} -c -o $@ $<
+CFLAGS	= -O2 -Wall $(MACHDEP) $(INCLUDE)
+CXXFLAGS	=	$(CFLAGS)
 
-${BIN}/%.o: %.s
-	${CC} ${CCFLAGS} -c -o $@ $<
+LDFLAGS	= $(MACHDEP) -Xlinker -Map=$(CURDIR)/$(notdir $@).map -T $(CURDIR)/../$(SOURCES)/stage1.ld
 
-${BIN}/stage1.elf: ${BIN_O_FILES}
-	${CC} ${CCFLAGS} ${LIBS} -T stage1.ld -Xlinker -Map=${BIN}/stage1.map -o $@ ${BIN_O_FILES}
+#---------------------------------------------------------------------------------
+# any extra libraries we wish to link with the project
+#---------------------------------------------------------------------------------
+LIBS	:=	-logc
 
-${BIN}/stage1.bin: ${BIN}/stage1.elf
-	${OBJCOPY} ${BIN}/stage1.elf -O binary ${BIN}/stage1.bin
+#---------------------------------------------------------------------------------
+# list of directories containing libraries, this must be the top level containing
+# include and lib
+#---------------------------------------------------------------------------------
+LIBDIRS	:=
 
-${BIN}/stage1.img: ${BIN}/stage1.bin
-	cp -v $< $@
+#---------------------------------------------------------------------------------
+# no real need to edit anything past this point unless you need to add additional
+# rules for different file extensions
+#---------------------------------------------------------------------------------
+ifneq ($(BUILD),$(notdir $(CURDIR)))
+#---------------------------------------------------------------------------------
 
-.PHONY: clean
+export OUTPUT	:=	$(CURDIR)/$(TARGET)
 
+export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
+
+export DEPSDIR	:=	$(CURDIR)/$(BUILD)
+
+#---------------------------------------------------------------------------------
+# automatically build a list of object files for our project
+#---------------------------------------------------------------------------------
+CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
+CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
+sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
+BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+
+#---------------------------------------------------------------------------------
+# use CXX for linking C++ projects, CC for standard C
+#---------------------------------------------------------------------------------
+ifeq ($(strip $(CPPFILES)),)
+	export LD	:=	$(CC)
+else
+	export LD	:=	$(CXX)
+endif
+
+export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
+					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
+					$(sFILES:.s=.o) $(SFILES:.S=.o)
+
+#---------------------------------------------------------------------------------
+# build a list of include paths
+#---------------------------------------------------------------------------------
+export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
+					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+					-I$(CURDIR)/$(BUILD) \
+					-I$(LIBOGC_INC)
+
+#---------------------------------------------------------------------------------
+# build a list of library paths
+#---------------------------------------------------------------------------------
+export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
+					-L$(LIBOGC_LIB)
+
+export OUTPUT	:=	$(CURDIR)/$(TARGET)
+
+.PHONY: $(BUILD) clean
+
+#---------------------------------------------------------------------------------
+$(BUILD):
+	@[ -d $@ ] || mkdir -p $@
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+
+#---------------------------------------------------------------------------------
 clean:
-	rm -rf ${BIN}
+	@echo clean ...
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol $(OUTPUT).bin
+
+#---------------------------------------------------------------------------------
+else
+
+DEPENDS	:=	$(OFILES:.o=.d)
+
+#---------------------------------------------------------------------------------
+# main targets
+#---------------------------------------------------------------------------------
+all: $(OUTPUT).bin $(OUTPUT).dol
+$(OUTPUT).bin: $(OUTPUT).elf
+$(OUTPUT).dol: $(OUTPUT).elf
+$(OUTPUT).elf: $(OFILES)
+
+#---------------------------------------------------------------------------------
+# This rule links in binary data with the .jpg extension
+#---------------------------------------------------------------------------------
+%.jpg.o	:	%.jpg
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
+-include $(DEPENDS)
+
+#---------------------------------------------------------------------------------
+endif
+#---------------------------------------------------------------------------------

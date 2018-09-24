@@ -48,8 +48,8 @@
 .set __init_data, 0x8000535c
 .global __init_hardware
 .set __init_hardware, 0x8000541c
-.global __flush_cache
-.set __flush_cache, 0x8000543c
+#.global __flush_cache
+#.set __flush_cache, 0x8000543c
 .global zz_0005470_
 .set zz_0005470_, 0x80005470
 .global zz_000594c_
@@ -36754,38 +36754,38 @@
 .set __OSInitAudioSystem, 0x80344534
 .global __OSStopAudioSystem
 .set __OSStopAudioSystem, 0x803446f0
-.global DCEnable
-.set DCEnable, 0x803447c8
-.global DCInvalidateRange
-.set DCInvalidateRange, 0x803447dc
-.global DCFlushRange
-.set DCFlushRange, 0x8034480c
-.global DCStoreRange
-.set DCStoreRange, 0x80344840
-.global DCFlushRangeNoSync
-.set DCFlushRangeNoSync, 0x80344874
-.global DCZeroRange
-.set DCZeroRange, 0x803448a4
-.global ICInvalidateRange
-.set ICInvalidateRange, 0x803448d4
-.global ICFlashInvalidate
-.set ICFlashInvalidate, 0x8034490c
-.global ICEnable
-.set ICEnable, 0x8034491c
-.global __LCEnable
-.set __LCEnable, 0x80344930
-.global LCEnable
-.set LCEnable, 0x803449fc
-.global LCDisable
-.set LCDisable, 0x80344a34
-.global LCStoreBlocks
-.set LCStoreBlocks, 0x80344a5c
+#.global DCEnable
+#.set DCEnable, 0x803447c8
+#.global DCInvalidateRange
+#.set DCInvalidateRange, 0x803447dc
+#.global DCFlushRange
+#.set DCFlushRange, 0x8034480c
+#.global DCStoreRange
+#.set DCStoreRange, 0x80344840
+#.global DCFlushRangeNoSync
+#.set DCFlushRangeNoSync, 0x80344874
+#.global DCZeroRange
+#.set DCZeroRange, 0x803448a4
+#.global ICInvalidateRange
+#.set ICInvalidateRange, 0x803448d4
+#.global ICFlashInvalidate
+#.set ICFlashInvalidate, 0x8034490c
+#.global ICEnable
+#.set ICEnable, 0x8034491c
+#.global __LCEnable
+#.set __LCEnable, 0x80344930
+#.global LCEnable
+#.set LCEnable, 0x803449fc
+#.global LCDisable
+#.set LCDisable, 0x80344a34
+#.global LCStoreBlocks
+#.set LCStoreBlocks, 0x80344a5c
 .global LCStoreData
 .set LCStoreData, 0x80344a80
 .global LCQueueWait
 .set LCQueueWait, 0x80344b2c
-.global L2GlobalInvalidate
-.set L2GlobalInvalidate, 0x80344b44
+#.global L2GlobalInvalidate
+#.set L2GlobalInvalidate, 0x80344b44
 .global DMAErrorHandler
 .set DMAErrorHandler, 0x80344bdc
 .global __OSCacheInit
@@ -37128,8 +37128,8 @@
 .set SamplingHandler, 0x8034e834
 .global PADSetSamplingCallback
 .set PADSetSamplingCallback, 0x8034e894
-.global __PADDisableRecalibration
-.set __PADDisableRecalibration, 0x8034e8e8
+#.global __PADDisableRecalibration
+#.set __PADDisableRecalibration, 0x8034e8e8
 .global __VIRetraceHandler
 .set __VIRetraceHandler, 0x8034e964
 .global VISetPreRetraceCallback

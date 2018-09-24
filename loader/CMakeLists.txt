@@ -1,2 +1,2 @@
 add_executable(loader-stage-1
-        stage1/stage1.c)
+        stage1/src/stage1.c)
