@@ -1211,7 +1211,10 @@ duk_ret_t script_getFPS(duk_context *ctx) {
 }
 
 bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
-  return this->active;
+  // TODO: properly fix the in-game renderer? Or handle this better.
+  // For now the garble is preferable so it renders always
+//    return this->active;
+  return true;
 }
 
 duk_ret_t script_getEntities(duk_context *ctx) {
