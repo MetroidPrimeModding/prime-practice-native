@@ -33,7 +33,8 @@ INCLUDES	:=
 CFLAGS	= -O2 -Wall $(MACHDEP) $(INCLUDE)
 CXXFLAGS	=	$(CFLAGS)
 
-LDFLAGS	= $(MACHDEP) -Xlinker -Map=$(CURDIR)/$(notdir $@).map -T $(CURDIR)/../$(SOURCES)/stage1.ld
+LDFLAGS		= -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
+#LDFLAGS	= $(MACHDEP) -Xlinker -Map=$(CURDIR)/$(notdir $@).map -T $(CURDIR)/../$(SOURCES)/stage1.ld
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project

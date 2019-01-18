@@ -1,4 +1,5 @@
 #include <ogc/dvd.h>
+#include <ogc/video.h>
 
 typedef short fb_t;
 
@@ -24,6 +25,13 @@ extern int printf(const char *__restrict, ...) __printflike(1, 2);
 fb_t *fb1 = (fb_t *) 0x804f0c00;
 fb_t *fb2 = (fb_t *) 0x80586c00;
 
+void _payload();
+
+int main() {
+  _payload();
+  return 0;
+}
+
 void _payload() {
   *((int *) 0x8045D850) = 0xFFFFFFFF;
 
@@ -34,15 +42,16 @@ void _payload() {
     fb2[i] = (fb_t) 0xDDDD;
   }
 
-  printf("Resetting @ %x %x", OSGetArenaLo(), OSGetArenaHi());
-  VISetNextFrameBuffer(fb1);
-  VIFlush();
-  VIWaitForRetrace();
-  OSResetSystem(2);
-  OSInit();
-  VIInit();
-  VISetBlack(0);
-  printf("All set up @ %x %x", OSGetArenaLo(), OSGetArenaHi());
+//  printf("Resetting @ %x %x", OSGetArenaLo(), OSGetArenaHi());
+//  VISetNextFrameBuffer(fb1);
+//  VIFlush();
+//  VIWaitForRetrace();
+//  OSResetSystem(2);
+  VIDEO_Init ();
+//  OSInit();
+//  VIInit();
+//  VISetBlack(0);
+//  printf("All set up @ %x %x", OSGetArenaLo(), OSGetArenaHi());
   int lastStatus = -1;
   char lastID[5];
   lastID[4] = 0;

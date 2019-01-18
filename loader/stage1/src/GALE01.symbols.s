@@ -16552,8 +16552,8 @@
 .set zz_015fda0_, 0x8015fda0
 .global zz_015fda4_
 .set zz_015fda4_, 0x8015fda4
-.global main
-.set main, 0x8015feb4
+#.global main
+#.set main, 0x8015feb4
 .global zz_01601c4_
 .set zz_01601c4_, 0x801601c4
 .global zz_0160244_
