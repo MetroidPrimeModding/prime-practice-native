@@ -66,7 +66,7 @@ NewPauseScreen::NewPauseScreen() {
   *((u32*)0x8001FF04) = 0x7CE53B78; // mr r5, r7
 
   // Swap what text is used for ELAPSED to ZOOM
-  *((u32*)0x8001FFB8) = 0x38800030; // li r4, 48 - "zoom"
+  *((u32*)0x8001FFB8) = 0x3880005C; // li r4, 92 - which is blank
 
   this->ctx = duk_create_heap(&prime_malloc, &prime_realloc, &prime_free, nullptr, &script_fatal);
   this->setupScriptFunctions();
