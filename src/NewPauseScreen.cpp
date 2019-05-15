@@ -28,7 +28,7 @@ NewPauseScreen::NewPauseScreen() {
 
 //  menuElement.addChild(new UITextElement("Prime practice mod menu", 5, 35));
 
-  // Patch raw code
+  // Patch CScriptTrigger so we can attach a value to it
   // CScriptTrigger::CScriptTrigger
   // 50A03E30 rlwimi r0, r5, 7, 24, 24
   // 98140148 stb r0, 0x148(r20)
@@ -37,6 +37,36 @@ NewPauseScreen::NewPauseScreen() {
   *((u32 *) 0x80076f0c) = 0x90940148; // stw r4, 0x148(r20)
   *((u32 *) 0x80076f10) = 0x50A03E30; // rlwimi r0, r5, 7, 24, 24
   *((u32 *) 0x80076f14) = 0x98140148; // stb r0, 0x148(r20)
+
+  // Patch file select IGT to mm:ss
+  // r5 contains number of seconds
+  // we want 5 and 6 as out, so
+
+  // r7 = 60
+  // r7 = r5 / r7 (seconds / 60) = minutes
+  // r6 = r7 * 60 (minutes * 60)
+  // r6 = r5 - r6 (seconds - (minutes * 60))
+  // r5 = r7 // minutes
+  /*
+  li 7, 60
+  divw 7, 5, 7
+  mulli 6, 7, 60
+  sub 6, 5, 6
+  mr 5, 7
+   */
+
+  // nop out our region and overwrite
+  for (u32 i = 0x8001FEF4; i <= 0x8001FF38; i += 4) {
+    *((u32*) i) = 0x60000000; // nop
+  }
+  *((u32*)0x8001FEF4) = 0x38e0003C; // li r7, 60
+  *((u32*)0x8001FEF8) = 0x7CE53BD6; // divw r7, r5, r7
+  *((u32*)0x8001FEFC) = 0x1CC7003C; // muli r6, r7, 60
+  *((u32*)0x8001FF00) = 0x7CC62850; // sub r6, r5, r6
+  *((u32*)0x8001FF04) = 0x7CE53B78; // mr r5, r7
+
+  // Swap what text is used for ELAPSED to ZOOM
+  *((u32*)0x8001FFB8) = 0x38800030; // li r4, 48 - "zoom"
 
   this->ctx = duk_create_heap(&prime_malloc, &prime_realloc, &prime_free, nullptr, &script_fatal);
   this->setupScriptFunctions();
@@ -1146,7 +1176,7 @@ duk_ret_t script_warp(duk_context *ctx) {
   gameState->CurrentWorldState().SetDesiredAreaAssetId(areaID);
 
   CMain *cmain = *((CMain **) 0x805A8C38);
-  cmain->SetFlowState(EFlowState_None);
+  cmain->SetFlowState(EFlowState_WinBad);
 
   mgr->SetShouldQuitGame(true);
 
