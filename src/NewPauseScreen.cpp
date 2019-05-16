@@ -65,7 +65,7 @@ NewPauseScreen::NewPauseScreen() {
   *((u32*)0x8001FF00) = 0x7CC62850; // sub r6, r5, r6
   *((u32*)0x8001FF04) = 0x7CE53B78; // mr r5, r7
 
-  // Swap what text is used for ELAPSED to ZOOM
+  // Swap what text is used for ELAPSED to blank
   *((u32*)0x8001FFB8) = 0x3880005C; // li r4, 92 - which is blank
 
   this->ctx = duk_create_heap(&prime_malloc, &prime_realloc, &prime_free, nullptr, &script_fatal);
@@ -1176,7 +1176,7 @@ duk_ret_t script_warp(duk_context *ctx) {
   gameState->CurrentWorldState().SetDesiredAreaAssetId(areaID);
 
   CMain *cmain = *((CMain **) 0x805A8C38);
-  cmain->SetFlowState(EFlowState_WinBad);
+  cmain->SetFlowState(EFlowState_None);
 
   mgr->SetShouldQuitGame(true);
 
