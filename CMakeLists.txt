@@ -51,7 +51,7 @@ set(SOURCE_FILES
         src/include/UI/UIElementList.hpp
         src/include/UI/UIHeapUsageElement.hpp
         src/include/GX.hpp
-        src/include/ReadFile.hpp
+        src/include/readFile.hpp
         src/include/prime/CMFGame.hpp
         src/include/prime/CIOWinManager.hpp
         src/include/prime/CGameAllocator.hpp
