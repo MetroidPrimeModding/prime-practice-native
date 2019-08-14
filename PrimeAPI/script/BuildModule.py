@@ -13,6 +13,7 @@ import zlib
 primeApiRoot = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
 devkitPPCRoot = ""
 gccPath = ""
+gccVersion = ""
 ldPath = ""
 linkerPath = ""
 
@@ -316,8 +317,8 @@ def link_objects(objList):
         ldPath,
         # '-shared',
         ' '.join(objList),
-        "-L%s/lib/gcc/powerpc-eabi/8.2.0" % devkitPPCRoot,
-        "-L%s/lib/gcc/powerpc-eabi/8.2.0/../../../../powerpc-eabi/lib" % devkitPPCRoot,
+        "-L%s/lib/gcc/powerpc-eabi/%s" % (devkitPPCRoot, gccVersion),
+        "-L%s/powerpc-eabi/lib" % devkitPPCRoot,
         "-nodefaultlibs",
         "-nostdlib",
         '-lgcc',
@@ -723,16 +724,34 @@ def main():
         print("Error: The DEVKITPRO environment variable is undefined. BuildModule.py requires DevKitPro")
 
     if devkitPPCRoot is None or devkitProRoot is None:
-        return
+        sys.exit(1)
 
     # Set globals
-    global linkerPath, gccPath, ldPath
+    global linkerPath, gccPath, gccVersion, ldPath
     gccPath = devkitPPCRoot + '/bin/powerpc-eabi-gcc'
     ldPath = devkitPPCRoot + '/bin/powerpc-eabi-ld'
+    
+    # Get GCC version
+    try:
+      proc = subprocess.Popen([gccPath, '-dumpversion'], stdout=subprocess.PIPE)
+      tmpVersion = ''
+      while proc.returncode == None:
+        tmpVersion += proc.stdout.readline().decode('utf-8')
+        proc.communicate()
+      
+      if proc.returncode == 0:
+        gccVersion = tmpVersion.rstrip()
+        print('Successfully retrieved GCC version, using %s' % gccVersion)
+      else:
+        print('Unable to determine GCC version, aborting')
+        sys.exit(1)
+    except:
+      print('Unable to determine GCC version, aborting')
+      sys.exit(1)
 
     # Parse commandline argments
     if not parse_commandline():
-        return
+        sys.exit(1)
 
     # Apply DOL patches
     shouldContinue = True
