@@ -83,6 +83,6 @@ set(SOURCE_FILES
         src/prime-practice.cpp
         src/readFile.cpp
         src/libc.c
-        )
+        src/include/rust_interface.hpp)
 
 add_executable(default-prime-practice ${SOURCE_FILES})

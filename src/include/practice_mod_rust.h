@@ -11,6 +11,8 @@ const uint8_t *hello();
 
 extern void *malloc(uint32_t len);
 
+void on_frame();
+
 extern void printf(const uint8_t *fmt);
 
 extern void sprintf(uint8_t *s, const uint8_t *fmt);

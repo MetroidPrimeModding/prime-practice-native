@@ -43,8 +43,7 @@ impl fmt::Write for MPStdout {
   }
 }
 
-fn halt() -> !
-{
+fn halt() -> ! {
   // extern "C" {
   //     fn PPCHalt() -> !;
   // }
@@ -78,4 +77,16 @@ pub extern "C" fn hello() -> *const u8 {
   return &"Hello, Rust!".as_bytes()[0];
 }
 
-pub extern "C" fn on_frame() {}
+pub mod hooks;
+pub use hooks::on_frame;
+
+pub mod memory {
+  pub mod memory_object;
+  #[allow(non_snake_case)]
+  pub mod mp1 {
+    pub mod CGameState;
+    pub mod CGameGlobalObjects;
+  }
+}
+
+pub mod practice_mod_memory_object;
