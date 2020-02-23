@@ -11,6 +11,8 @@ void *prime_calloc(void *user, size_t nmemb, size_t size) {
   return res;
 }
 
+extern "C" {
+
 void prime_free(void *user, void *ptr) {
   delete ptr;
 //  CGameAllocator_LOCATION->Free(ptr);
@@ -20,6 +22,8 @@ void *prime_malloc(void *user, size_t size) {
   char *res = new char[size];
   return res;
 //  return CGameAllocator_LOCATION->Alloc(size, 1);
+}
+
 }
 
 void *prime_realloc(void *user, void *ptr, size_t size) {

@@ -14,6 +14,7 @@
 #include "include/prime/CMain.hpp"
 #include "include/prime/CSfxManager.hpp"
 #include "jskernel.hpp"
+#include "include/practice_mod_rust.h"
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -139,6 +140,11 @@ void NewPauseScreen::Render() {
   if (fatalError) {
     TextRenderer::RenderText(fatalError, 100, 100);
   }
+
+
+  char buff[128];
+  snprintf(buff, 128, "%s", hello());
+  TextRenderer::RenderText(buff, 100, 100);
 
   if (active) {
     this->menuElement.draw();

@@ -700,6 +700,8 @@ def compile_rel():
         objectFiles.append(get_object_path(generatedFile))
         if verbose: print('')
 
+    objectFiles.append('%s/practice-mod-rust/target/powerpc-unknown-linux-gnu/release/libpractice_mod_rust.rlib' % projDir)
+
     # Link
     if not link_objects(objectFiles):
         return False

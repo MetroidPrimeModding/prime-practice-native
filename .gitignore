@@ -9,3 +9,4 @@
 /Dolphin.app
 /dolphin-user
 .DS_Store
+target/

@@ -1,5 +1,9 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd "$DIR/practice-mod-rust"
+./build.sh
+cd "$DIR"
 
 python3 ./PrimeAPI/script/BuildModule.py . default.dol -v
 ret=$?
