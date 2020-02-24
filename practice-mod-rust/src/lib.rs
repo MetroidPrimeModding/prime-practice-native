@@ -86,6 +86,7 @@ pub mod memory {
   pub mod mp1 {
     pub mod CGameState;
     pub mod CGameGlobalObjects;
+    pub mod CSimplePool;
   }
 }
 
