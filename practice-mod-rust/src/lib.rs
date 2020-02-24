@@ -81,6 +81,7 @@ pub mod hooks;
 pub use hooks::on_frame;
 
 pub mod memory {
+  #[macro_use]
   pub mod memory_object;
   #[allow(non_snake_case)]
   pub mod mp1 {

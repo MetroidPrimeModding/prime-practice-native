@@ -2,18 +2,8 @@ use crate::memory::memory_object::{MemoryOffset, MemoryView};
 use crate::memory::mp1::CGameState::CGameState;
 use crate::memory::mp1::CSimplePool::CSimplePool;
 
-#[derive(Copy, Clone)]
-pub struct CGameGlobalObjects {
-  pub offset: MemoryOffset
-}
-
+memory_object!(CGameGlobalObjects);
 impl CGameGlobalObjects {
-  pub fn mainPool(&self) -> Option<CSimplePool> {
-    Some(CSimplePool { offset: self.offset + 0xCC })
-  }
-
-  pub fn gameState(&self, view: &dyn MemoryView) -> Option<CGameState> {
-    let ptr = view.u32(self.offset + 0x134)?;
-    Some(CGameState { offset: MemoryOffset(ptr) })
-  }
+  memory_field!(CSimplePool : mainPool @ 0xCC);
+  memory_field!(CGameState : gameState deref 0x134);
 }

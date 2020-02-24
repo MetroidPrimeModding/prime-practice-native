@@ -2,7 +2,13 @@ use alloc::string::String;
 use core::ops::{Add, AddAssign};
 
 #[derive(Debug, Copy, Clone)]
-pub struct MemoryOffset(pub u32);
+pub struct MemoryOffset(u32);
+
+impl MemoryOffset {
+  fn of(v: u32) -> Self {
+    return MemoryOffset(v)
+  }
+}
 
 impl Add<u32> for MemoryOffset {
   type Output = MemoryOffset;
@@ -15,6 +21,18 @@ impl Add<u32> for MemoryOffset {
 impl AddAssign<u32> for MemoryOffset {
   fn add_assign(&mut self, rhs: u32) {
     self.0 = self.0 + rhs;
+  }
+}
+
+impl From<u32> for MemoryOffset {
+  fn from(v: u32) -> Self {
+    MemoryOffset::of(v)
+  }
+}
+
+impl From<MemoryOffset> for u32 {
+  fn from(v: MemoryOffset) -> Self {
+    v.0
   }
 }
 
@@ -55,11 +73,68 @@ pub trait MemoryView {
   fn string(&self, offset: MemoryOffset) -> Option<String>;
 }
 
+trait MemoryObject {
+  fn offset(&self) -> crate::memory::memory_object::MemoryOffset;
+}
+
+#[macro_export]
+macro_rules! memory_object {
+  ($name: ident) => {
+    pub struct $name {
+      pub memory: alloc::rc::Rc<dyn MemoryView>,
+      pub offset: crate::memory::memory_object::MemoryOffset
+    }
+  }
+}
+
+macro_rules! expand_extra_fields {
+  ($($extra: ident : $type: ident),*) => {
+    pub $extra: $type,
+    $crate::expand_extra_fields!($($extra : $type),*)
+  };
+  ($($extra: ident : $type: ty),*) => {
+    pub $extra: $type
+  }
+}
+
+#[macro_export]
+macro_rules! memory_field {
+  ($name: ident : $type: ident @ $offset: expr) => {
+    pub fn $name(&self) -> Option<$type> {
+      Some($type { offset: self.offset + $offset })
+    }
+  };
+  ($name: ident : $type: ident ident deref $offset: expr) => {
+    pub fn $name(&self) -> Option<$type> {
+      let ptr = self.memory.u32(self.offset + $offset)?;
+      Some($type { offset: ptr.into() })
+    }
+  };
+  ($name: ident : $type: ident by primitive) => {
+    pub fn $name(&self) -> Option<$type> {
+      self.memory.$type(self.offset)
+    }
+  }
+}
+
+macro_rules! primitive {
+  ($name: ident : $type: ident) => {
+    memory_object!($name);
+    impl $name {
+      memory_field!(value: $type by primitive);
+    }
+  }
+}
 
 pub mod game_types {
   use super::{MemoryOffset, MemoryView};
   use alloc;
   use core::marker::PhantomData;
+
+  // #[derive(Copy, Clone)]
+  // pub struct MemoryObject {
+  //   pub offset: MemoryOffset
+  // }
 
   #[derive(Clone)]
   pub struct Array<T, F: Fn(&dyn MemoryView, MemoryOffset) -> T> {
@@ -90,138 +165,34 @@ pub mod game_types {
     }
   }
 
-  #[derive(Copy, Clone)]
-  pub struct Uint8 {
-    pub offset: MemoryOffset
-  }
+  primitive!(Uint8 : u8);
+  primitive!(Int8 : i8);
+  primitive!(Uint16 : u16);
+  primitive!(Int16 : i16);
+  primitive!(Uint32 : u32);
+  primitive!(Int32 : i32);
+  primitive!(Uint64 : u64);
+  primitive!(Int64 : i64);
+  primitive!(Uint128 : u128);
+  primitive!(Int128 : i128);
+  primitive!(Float32 : f32);
+  primitive!(Float64 : f64);
+  primitive!(String : string);
 
-  impl Uint8 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<u8> {
-      view.u8(self.offset)
-    }
-  }
+  memory_object!(StringFixedLength, length: u32);
 
-  #[derive(Copy, Clone)]
-  pub struct Int8 {
-    pub offset: MemoryOffset
-  }
+  // #[derive(Copy, Clone)]
+  // pub struct StringFixedLength {
+  //   pub offset: MemoryOffset,
+  //   pub length: u32
+  // }
+  //
+  // impl StringFixedLength {
+  //   pub fn value(&self, view: &dyn MemoryView) -> Option<alloc::string::String> {
+  //     view.string_fixed_length(self.offset, self.length)
+  //   }
+  // }
 
-  impl Int8 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<i8> {
-      view.i8(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct Uint16 {
-    pub offset: MemoryOffset
-  }
-
-  impl Uint16 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<u16> {
-      view.u16(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct Int16 {
-    pub offset: MemoryOffset
-  }
-
-  impl Int16 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<i16> {
-      view.i16(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct Uint32 {
-    pub offset: MemoryOffset
-  }
-
-  impl Uint32 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<u32> {
-      view.u32(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct Int32 {
-    pub offset: MemoryOffset
-  }
-
-  impl Int32 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<i32> {
-      view.i32(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct Uint64 {
-    pub offset: MemoryOffset
-  }
-
-  impl Uint64 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<u64> {
-      view.u64(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct Int64 {
-    pub offset: MemoryOffset
-  }
-
-  impl Int64 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<i64> {
-      view.i64(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct Float32 {
-    pub offset: MemoryOffset
-  }
-
-  impl Float32 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<f32> {
-      view.f32(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct Float64 {
-    pub offset: MemoryOffset
-  }
-
-  impl Float64 {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<f64> {
-      view.f64(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct String {
-    pub offset: MemoryOffset
-  }
-
-  impl String {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<alloc::string::String> {
-      view.string(self.offset)
-    }
-  }
-
-  #[derive(Copy, Clone)]
-  pub struct StringFixedLength {
-    pub offset: MemoryOffset,
-    pub length: u32
-  }
-
-  impl StringFixedLength {
-    pub fn value(&self, view: &dyn MemoryView) -> Option<alloc::string::String> {
-      view.string_fixed_length(self.offset, self.length)
-    }
-  }
 }
 
 

@@ -92,10 +92,11 @@ impl MemoryView for RealMemoryView {
   }
 
   fn string_fixed_length(&self, offset: MemoryOffset, size: u32) -> Option<String> {
-    let end = offset + size;
+    let start: u32 = offset.into();
+    let end: u32 = (offset + size).into();
     let mut res = String::with_capacity(size as usize);
-    for i in (offset.0)..(end.0) {
-      res.push(self.u8(MemoryOffset(i))? as char);
+    for i  in (start)..(end) {
+      res.push(self.u8(i.into())? as char);
     }
     Some(res)
   }
