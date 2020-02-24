@@ -1,7 +1,7 @@
 #!/usr/bin/env bash -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$DIR/practice-mod-rust"
+cd "$DIR/practice_mod_rust"
 ./build.sh
 cd "$DIR"
 
