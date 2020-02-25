@@ -25,6 +25,8 @@ extern "C" {
 
 extern void draw_text(const uint8_t *str, uint32_t len, float x, float y);
 
+extern float get_fps();
+
 const uint8_t *hello();
 
 void on_frame();

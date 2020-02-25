@@ -4,6 +4,8 @@ mod c_interface {
         pub fn draw_text(str: *const u8, len: u32, x: f32, y: f32);
         #[no_mangle]
         pub fn text_color(r: f32, g: f32, b: f32, a: f32);
+        #[no_mangle]
+        pub fn get_fps() -> f32;
     }
 }
 
@@ -41,7 +43,7 @@ impl TextLocation {
 }
 
 pub static CONFIG: ModConfig = ModConfig {
-    show_speed: true,
+    show_speed: false,
     show_pos: false,
     show_high_p_pos: false,
     show_room_timers: false,
@@ -58,6 +60,10 @@ pub static CONFIG: ModConfig = ModConfig {
 pub mod text_renderer {
     use super::c_interface;
     use crate::cpp_interface::TextLocation;
+
+    pub fn get_fps() -> f32 {
+        unsafe { c_interface::get_fps() }
+    }
 
     pub fn set_text_color(r: f32, g: f32, b: f32, a: f32) {
         unsafe { c_interface::text_color(r, g, b, a) }

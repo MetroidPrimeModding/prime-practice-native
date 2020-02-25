@@ -819,12 +819,6 @@ duk_ret_t script_setTextColor(duk_context *ctx) {
   return 0;
 }*/
 
-// fps
-/*duk_ret_t script_getFPS(duk_context *ctx) {
-  duk_push_number(ctx, CGraphics::GetFPS());
-  return 1;
-}*/
-
 bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
   // TODO: properly fix the in-game renderer? Or handle this better.
   // For now the garble is preferable so it renders always

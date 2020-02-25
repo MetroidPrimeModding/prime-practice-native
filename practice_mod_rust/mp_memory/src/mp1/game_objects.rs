@@ -8,7 +8,7 @@ impl CStateManager {
 
     // memory_field!(allObjects: CObjectList deref 0x810);
     memory_field!(player: CPlayer deref 0x84C);
-    // memory_field!(world: CWorld deref 0x850);
+    memory_field!(world: CWorld deref 0x850);
     // memory_field!(cameraManager: CCameraManager deref 0x870);
     // memory_field!(playerState: CPlayerState deref_twice 0x8B8);
     memory_field!(nextAreaID: Uint32 @ 0x8CC);
@@ -30,4 +30,15 @@ impl CGameGlobalObjects {
 
     memory_field!(mainPool: CSimplePool @ 0xCC);
     memory_field!(gameState: CGameState deref 0x134);
+}
+
+memory_object!(CWorld);
+impl CWorld {
+    memory_field!(phase: Uint32 @ 0x4);
+    memory_field!(mlvlID: Uint32 @ 0x8);
+    memory_field!(strgID: Uint32 @ 0xC);
+    // ...not sure how i'm gonna do this one yet... maybe by hand
+    //memory_field!(areas: RSTLVector<RSTLAutoPtr<CGameArea>> @ 0x18)
+    memory_field!(relays: Uint32 @ 0x2C);
+    memory_field!(currentAreaID: Uint32 @ 0x68);
 }

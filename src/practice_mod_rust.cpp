@@ -1,4 +1,5 @@
 #include <include/os.h>
+#include <include/prime/CGraphics.hpp>
 #include "include/practice_mod_rust.h"
 #include "include/TextRenderer.hpp"
 
@@ -18,4 +19,8 @@ void rust_error(const uint8_t *fmt, uint32_t len) {
   res[len] = '\0';
   OSReport(res);
   delete res;
+}
+
+float get_fps() {
+  return CGraphics::GetFPS();
 }
