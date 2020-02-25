@@ -1,7 +1,10 @@
+use alloc::string::String;
+
+use libm;
+
 use crate::cpp_interface::text_renderer::{draw_text, set_text_color};
 use crate::cpp_interface::{TextLocation, CONFIG};
 use crate::globals;
-use libm;
 
 const CHAR_DIM: f32 = 8.0;
 const LINE_PADDING: f32 = 2.0;
@@ -18,6 +21,7 @@ pub extern "C" fn on_frame() {
             pos.x += 110.0;
         }
         pos.y += LINE_HEIGHT;
+        pos.x = 10.0;
     }
     if CONFIG.show_speed {
         draw_player_speed(pos);

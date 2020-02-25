@@ -38,7 +38,7 @@ impl From<MemoryOffset> for u32 {
 
 impl MemoryOffset {
     pub fn is_valid(&self) -> bool {
-        (0x8000000u32..0x98000000u32).contains(&self.0)
+        (0x8000_0000u32..0x9800_0000u32).contains(&self.0)
     }
 
     pub fn if_valid(&self) -> Option<u32> {

@@ -19,6 +19,6 @@ pub fn global_objects() -> CGameGlobalObjects {
 pub fn state_manager() -> CStateManager {
     CStateManager {
         memory: real_memory(),
-        offset: CGameGlobalObjects::LOCATION,
+        offset: CStateManager::LOCATION,
     }
 }
