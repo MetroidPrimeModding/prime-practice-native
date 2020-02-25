@@ -24,6 +24,10 @@ void TextRenderer::RenderText(const char *str, float xStart, float yStart) {
     return;
   }
   u32 len = strlen(str);
+  TextRenderer::RenderText(str, len, xStart, yStart);
+}
+
+void TextRenderer::RenderText(const char *str, u32 len, float xStart, float yStart) {
   float x = xStart;
   float y = yStart;
 

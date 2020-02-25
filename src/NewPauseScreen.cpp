@@ -6,14 +6,12 @@
 #include "include/TextRenderer.hpp"
 #include "include/prime/CScriptRelay.hpp"
 #include "include/prime/CScriptDock.hpp"
-#include "include/readFile.hpp"
 #include "include/prime/CGameGlobalObjects.hpp"
 #include "include/prime/CPlayer.hpp"
 #include "include/prime/CPlayerState.h"
 #include "include/prime/CWorld.hpp"
 #include "include/prime/CMain.hpp"
 #include "include/prime/CSfxManager.hpp"
-#include "jskernel.hpp"
 #include "include/practice_mod_rust.h"
 
 #define PAD_MAX_CONTROLLERS 4
@@ -21,6 +19,8 @@
 NewPauseScreen *NewPauseScreen::instance = NULL;
 
 NewPauseScreen::NewPauseScreen() {
+  OSReport("Hello, Dolphin\n");
+
   TextRenderer::Init();
   this->hide();
   fatalError = nullptr;
@@ -68,19 +68,6 @@ NewPauseScreen::NewPauseScreen() {
 
   // Swap what text is used for ELAPSED to blank
   *((u32*)0x8001FFB8) = 0x3880005C; // li r4, 92 - which is blank
-
-  this->ctx = duk_create_heap(&prime_malloc, &prime_realloc, &prime_free, nullptr, &script_fatal);
-  this->setupScriptFunctions();
-
-  duk_push_string(ctx, "kernel.js");
-  if (duk_pcompile_string_filename(ctx, 0, js_kernel) != 0) {
-    printf("Error compiling kernel: %s\r\n", duk_safe_to_string(ctx, -1));
-  } else {
-    if (duk_pcall(ctx, 0) != DUK_EXEC_SUCCESS) {
-      printf("Error executing kernel: %s\r\n", duk_safe_to_string(ctx, -1));
-    }
-  }
-  duk_pop(ctx);
 }
 
 void NewPauseScreen::Render() {
@@ -125,110 +112,91 @@ void NewPauseScreen::Render() {
   CGraphics::SetIdentityModelMatrix();
   CGraphics::SetIdentityViewPointMatrix();
 
-  duk_push_global_object(ctx);
-  duk_get_prop_string(ctx, -1, "onFrame");
-
-  if (duk_is_function(ctx, -1)) {
-    if (duk_pcall(ctx, 0) != DUK_EXEC_SUCCESS) {
-      printf("OnFrame error: %s\r\n", duk_safe_to_string(ctx, -1));
-    }
-  }
-  duk_pop(ctx);
-
-  duk_pop(ctx);
+  on_frame();
 
   if (fatalError) {
     TextRenderer::RenderText(fatalError, 100, 100);
   }
-
-
-  char buff[128];
-  snprintf(buff, 128, "%s", hello());
-  TextRenderer::RenderText(buff, 100, 100);
-
-  if (active) {
-    this->menuElement.draw();
-  }
-  this->hudElement.draw();
 }
 
 void NewPauseScreen::RenderWorld() {
-  STriggerRenderConfig triggerRenderConfig;
-  duk_push_global_object(ctx);
-  {
-    duk_get_prop_string(ctx, -1, "CONFIG");
-    if (duk_is_object(ctx, -1)) {
-      duk_get_prop_string(ctx, -1, "showUnknownTriggers");
-      triggerRenderConfig.renderUnknown = duk_to_boolean(ctx, -1) > 0;
-      duk_pop(ctx);
-
-      duk_get_prop_string(ctx, -1, "showLoadTriggers");
-      triggerRenderConfig.renderLoad = duk_to_boolean(ctx, -1) > 0;
-      duk_pop(ctx);
-
-      duk_get_prop_string(ctx, -1, "showDoorTriggers");
-      triggerRenderConfig.renderDoor = duk_to_boolean(ctx, -1) > 0;
-      duk_pop(ctx);
-
-      duk_get_prop_string(ctx, -1, "showForceTriggers");
-      triggerRenderConfig.renderForce = duk_to_boolean(ctx, -1) > 0;
-      duk_pop(ctx);
-
-      duk_get_prop_string(ctx, -1, "showCameraHintTriggers");
-      triggerRenderConfig.renderCameraHint = duk_to_boolean(ctx, -1) > 0;
-      duk_pop(ctx);
-    }
-    duk_pop(ctx);
-  }
-  duk_pop(ctx);
-
-  if (!triggerRenderConfig.anyOn()) {
-    return;
-  }
-
-  CStateManager *mgr = CStateManager_INSTANCE;
-  CObjectList *list = mgr->GetAllObjs();
-  if (list == nullptr) return;
-
-  SViewport backupViewport = *SVIEWPORT_GLOBAL;
-  mgr->SetupViewForDraw(backupViewport);
-
-  CGraphics::SetCullMode(ERglCullMode_Back);
-  CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
-  CGX::SetZMode(true, GxCompare_LEQUAL, false);
-  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
-  CGraphics::DisableAllLights();
-
-  CGX::SetNumTevStages(1);
-  CGX::SetTevOrder(
-    GXTevStage0,
-    GXTexCoordNull,
-    GXTexMapNull,
-    GXChannelColor0A0
-  );
-  CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_ZERO, GxTevColorArg_ZERO, GxTevColorArg_RASC);
-  CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_ZERO, GxTevAlphaArg_ZERO, GxTevAlphaArg_RASA);
-  CGX::SetTevColorOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
-  CGX::SetTevAlphaOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
-
-  CGraphics::StreamBegin(ERglPrimitive_QUADS);
-  int visited = 0;
-  int id = list->first;
-  while (id != 0xFFFF && visited < list->count) {
-    SObjectListEntry entry = list->entries[id & 0x3FF];
-    if (!VALID_PTR(entry.entity)) {
-      break;
-    }
-    CEntity *entity = entry.entity;
-    if (entity->getVtablePtr() == CScriptTrigger::VTABLE_ADDR) {
-      CScriptTrigger *trigger = reinterpret_cast<CScriptTrigger *>(entity);
-      drawTrigger(triggerRenderConfig, list, trigger);
-    }
-    visited++;
-    id = entry.next;
-  }
-
-  CGraphics::StreamEnd();
+  // TODO: re-implement this
+//  STriggerRenderConfig triggerRenderConfig;
+//  duk_push_global_object(ctx);
+//  {
+//    duk_get_prop_string(ctx, -1, "CONFIG");
+//    if (duk_is_object(ctx, -1)) {
+//      duk_get_prop_string(ctx, -1, "showUnknownTriggers");
+//      triggerRenderConfig.renderUnknown = duk_to_boolean(ctx, -1) > 0;
+//      duk_pop(ctx);
+//
+//      duk_get_prop_string(ctx, -1, "showLoadTriggers");
+//      triggerRenderConfig.renderLoad = duk_to_boolean(ctx, -1) > 0;
+//      duk_pop(ctx);
+//
+//      duk_get_prop_string(ctx, -1, "showDoorTriggers");
+//      triggerRenderConfig.renderDoor = duk_to_boolean(ctx, -1) > 0;
+//      duk_pop(ctx);
+//
+//      duk_get_prop_string(ctx, -1, "showForceTriggers");
+//      triggerRenderConfig.renderForce = duk_to_boolean(ctx, -1) > 0;
+//      duk_pop(ctx);
+//
+//      duk_get_prop_string(ctx, -1, "showCameraHintTriggers");
+//      triggerRenderConfig.renderCameraHint = duk_to_boolean(ctx, -1) > 0;
+//      duk_pop(ctx);
+//    }
+//    duk_pop(ctx);
+//  }
+//  duk_pop(ctx);
+//
+//  if (!triggerRenderConfig.anyOn()) {
+//    return;
+//  }
+//
+//  CStateManager *mgr = CStateManager_INSTANCE;
+//  CObjectList *list = mgr->GetAllObjs();
+//  if (list == nullptr) return;
+//
+//  SViewport backupViewport = *SVIEWPORT_GLOBAL;
+//  mgr->SetupViewForDraw(backupViewport);
+//
+//  CGraphics::SetCullMode(ERglCullMode_Back);
+//  CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
+//  CGX::SetZMode(true, GxCompare_LEQUAL, false);
+//  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
+//  CGraphics::DisableAllLights();
+//
+//  CGX::SetNumTevStages(1);
+//  CGX::SetTevOrder(
+//    GXTevStage0,
+//    GXTexCoordNull,
+//    GXTexMapNull,
+//    GXChannelColor0A0
+//  );
+//  CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_ZERO, GxTevColorArg_ZERO, GxTevColorArg_RASC);
+//  CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_ZERO, GxTevAlphaArg_ZERO, GxTevAlphaArg_RASA);
+//  CGX::SetTevColorOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+//  CGX::SetTevAlphaOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+//
+//  CGraphics::StreamBegin(ERglPrimitive_QUADS);
+//  int visited = 0;
+//  int id = list->first;
+//  while (id != 0xFFFF && visited < list->count) {
+//    SObjectListEntry entry = list->entries[id & 0x3FF];
+//    if (!VALID_PTR(entry.entity)) {
+//      break;
+//    }
+//    CEntity *entity = entry.entity;
+//    if (entity->getVtablePtr() == CScriptTrigger::VTABLE_ADDR) {
+//      CScriptTrigger *trigger = reinterpret_cast<CScriptTrigger *>(entity);
+//      drawTrigger(triggerRenderConfig, list, trigger);
+//    }
+//    visited++;
+//    id = entry.next;
+//  }
+//
+//  CGraphics::StreamEnd();
 }
 
 void NewPauseScreen::drawTrigger(const STriggerRenderConfig &config, CObjectList *list, CScriptTrigger *trigger) const {
@@ -405,133 +373,12 @@ void NewPauseScreen::show() {
 }
 
 void NewPauseScreen::HandleInputs() {
-  duk_push_global_object(ctx);
-  duk_get_prop_string(ctx, -1, "onInput");
-
-  if (duk_is_function(ctx, -1)) {
-    if (duk_pcall(ctx, 0) != DUK_EXEC_SUCCESS) {
-      printf("OnInput error: %s\r\n", duk_safe_to_string(ctx, -1));
-    }
-  }
-  duk_pop(ctx);
-
-  duk_pop(ctx);
-}
-
-void NewPauseScreen::setupScriptFunctions() {
-  duk_push_global_object(ctx);
-
-  duk_push_c_function(ctx, &script_require, 1);
-  duk_put_prop_string(ctx, -2, "nativeRequire");
-
-  duk_push_c_function(ctx, &script_drawText, 3);
-  duk_put_prop_string(ctx, -2, "drawText");
-
-  duk_push_c_function(ctx, &script_osReport, 1);
-  duk_put_prop_string(ctx, -2, "OSReport");
-
-  duk_push_c_function(ctx, &script_readU32, 1);
-  duk_put_prop_string(ctx, -2, "readU32");
-  duk_push_c_function(ctx, &script_readS32, 1);
-  duk_put_prop_string(ctx, -2, "readS32");
-  duk_push_c_function(ctx, &script_readFloat, 1);
-  duk_put_prop_string(ctx, -2, "readFloat");
-  duk_push_c_function(ctx, &script_readDouble, 1);
-  duk_put_prop_string(ctx, -2, "readDouble");
-
-  duk_push_c_function(ctx, &script_writeU32, 2);
-  duk_put_prop_string(ctx, -2, "writeU32");
-  duk_push_c_function(ctx, &script_writeS32, 2);
-  duk_put_prop_string(ctx, -2, "writeS32");
-  duk_push_c_function(ctx, &script_writeFloat, 2);
-  duk_put_prop_string(ctx, -2, "writeFloat");
-  duk_push_c_function(ctx, &script_writeDouble, 2);
-  duk_put_prop_string(ctx, -2, "writeDouble");
-
-  duk_push_c_function(ctx, &script_readPadsRaw, 0);
-  duk_put_prop_string(ctx, -2, "readPadsRaw");
-
-  duk_push_c_function(ctx, &script_readPads, 0);
-  duk_put_prop_string(ctx, -2, "readPads");
-
-  duk_push_c_function(ctx, &script_getGameState, 0);
-  duk_put_prop_string(ctx, -2, "getGameState");
-
-  duk_push_c_function(ctx, &script_getPlayer, 0);
-  duk_put_prop_string(ctx, -2, "getPlayer");
-
-  duk_push_c_function(ctx, &script_isPauseScreen, 0);
-  duk_put_prop_string(ctx, -2, "isPauseScreen");
-
-  duk_push_c_function(ctx, &script_drawBegin, 1);
-  duk_put_prop_string(ctx, -2, "drawBegin");
-
-  duk_push_c_function(ctx, &script_drawEnd, 0);
-  duk_put_prop_string(ctx, -2, "drawEnd");
-
-  duk_push_c_function(ctx, &script_drawFlush, 0);
-  duk_put_prop_string(ctx, -2, "drawFlush");
-
-  duk_push_c_function(ctx, &script_drawVertex, 3);
-  duk_put_prop_string(ctx, -2, "drawVertex");
-
-  duk_push_c_function(ctx, &script_drawTexcoord, 2);
-  duk_put_prop_string(ctx, -2, "drawTexcoord");
-
-  duk_push_c_function(ctx, &script_drawColor, 4);
-  duk_put_prop_string(ctx, -2, "drawColor");
-
-  duk_push_c_function(ctx, &script_setTextColor, 4);
-  duk_put_prop_string(ctx, -2, "setTextColor");
-
-  duk_push_c_function(ctx, &script_warp, 2);
-  duk_put_prop_string(ctx, -2, "warp");
-
-  duk_push_c_function(ctx, &script_getWorld, 0);
-  duk_put_prop_string(ctx, -2, "getWorld");
-
-  duk_push_c_function(ctx, &script_setInventory, 1);
-  duk_put_prop_string(ctx, -2, "setInventory");
-
-  duk_push_c_function(ctx, &script_getFPS, 0);
-  duk_put_prop_string(ctx, -2, "getFPS");
-
-  duk_push_c_function(ctx, &script_getEntities, 0);
-  duk_put_prop_string(ctx, -2, "getEntities");
-
-  duk_pop(ctx);
-}
-
-void script_fatal(void *udata, const char *msg) {
-  NewPauseScreen::instance->fatalError = msg;
-  printf("Script Fatal: %s\r\n", msg);
+  on_input();
 }
 
 
-duk_ret_t script_require(duk_context *ctx) {
-  const char *path = duk_require_string(ctx, 0);
-
-  ReadFileResult res = readFileSync(path);
-  printf("Script length: %u\r\n", res.len);
-
-  duk_push_string(ctx, path);
-
-  if (duk_pcompile_string_filename(ctx, 0, (char *) res.data) != 0) {
-    printf("Error compiling %s\r\n", duk_safe_to_string(ctx, -1));
-    delete res.data;
-    return duk_throw(ctx);
-  } else {
-    delete res.data;
-//    if (duk_pcall(ctx, 0) != DUK_EXEC_SUCCESS) {
-//      OSReport("Error executing file: %s\r\n", duk_safe_to_string(ctx, -1));
-//      duk_throw(ctx);
-//    }
-  }
-
-  return 1;
-}
-
-duk_ret_t script_drawText(duk_context *ctx) {
+// draw text
+/*duk_ret_t script_drawText(duk_context *ctx) {
   const char *str = duk_require_string(ctx, 0);
   duk_double_t x = duk_require_number(ctx, 1);
   duk_double_t y = duk_require_number(ctx, 2);
@@ -539,127 +386,10 @@ duk_ret_t script_drawText(duk_context *ctx) {
   TextRenderer::RenderText(str, x, y);
 
   return 0;
-}
+}*/
 
-duk_ret_t script_osReport(duk_context *ctx) {
-  const char *str = duk_safe_to_string(ctx, 0);
-  printf("JS message: %s\r\n", str);
-  return 0;
-}
-
-duk_ret_t script_readU32(duk_context *ctx) {
-  double addrDouble = duk_require_number(ctx, 0);
-  uint64 addrLong = (uint64) addrDouble;
-  u32 addr = (u32) addrLong;
-
-  if (VALID_PTR(addr)) {
-    duk_uint_t value = *((duk_uint_t *) addr);
-    duk_push_uint(ctx, value);
-  } else {
-    duk_push_uint(ctx, addr);
-  }
-
-  return 1;
-}
-
-duk_ret_t script_readS32(duk_context *ctx) {
-  double addrDouble = duk_require_number(ctx, 0);
-  uint64 addrLong = (uint64) addrDouble;
-  u32 addr = (u32) addrLong;
-
-  if (VALID_PTR(addr)) {
-    duk_int_t value = *((duk_int_t *) addr);
-    duk_push_int(ctx, value);
-  } else {
-    duk_push_uint(ctx, addr);
-  }
-
-  return 1;
-}
-
-duk_ret_t script_readFloat(duk_context *ctx) {
-  double addrDouble = duk_require_number(ctx, 0);
-  uint64 addrLong = (uint64) addrDouble;
-  u32 addr = (u32) addrLong;
-
-  if (VALID_PTR(addr)) {
-    float value = *((float *) addr);
-    duk_push_number(ctx, value);
-  } else {
-    duk_push_int(ctx, addr);
-  }
-
-  return 1;
-}
-
-duk_ret_t script_readDouble(duk_context *ctx) {
-  double addrDouble = duk_require_number(ctx, 0);
-  uint64 addrLong = (uint64) addrDouble;
-  u32 addr = (u32) addrLong;
-
-  if (VALID_PTR(addr)) {
-    double value = *((float *) addr);
-    duk_push_number(ctx, value);
-  } else {
-    duk_push_int(ctx, addr);
-  }
-
-  return 1;
-}
-
-duk_ret_t script_writeU32(duk_context *ctx) {
-  double addrDouble = duk_require_number(ctx, 0);
-  double num = duk_require_number(ctx, 1);
-  uint64 addrLong = (uint64) addrDouble;
-  u32 addr = (u32) addrLong;
-
-  if (VALID_PTR(addr)) {
-    *((u32 *) addr) = (u32) num;
-  }
-
-  return 0;
-}
-
-duk_ret_t script_writeS32(duk_context *ctx) {
-  double addrDouble = duk_require_number(ctx, 0);
-  double num = duk_require_number(ctx, 1);
-  uint64 addrLong = (uint64) addrDouble;
-  u32 addr = (u32) addrLong;
-
-  if (VALID_PTR(addr)) {
-    *((s32 *) addr) = (s32) num;
-  }
-
-  return 0;
-}
-
-duk_ret_t script_writeFloat(duk_context *ctx) {
-  double addrDouble = duk_require_number(ctx, 0);
-  double num = duk_require_number(ctx, 1);
-  uint64 addrLong = (uint64) addrDouble;
-  u32 addr = (u32) addrLong;
-
-  if (VALID_PTR(addr)) {
-    *((float *) addr) = (float) num;
-  }
-
-  return 0;
-}
-
-duk_ret_t script_writeDouble(duk_context *ctx) {
-  double addrDouble = duk_require_number(ctx, 0);
-  double num = duk_require_number(ctx, 1);
-  uint64 addrLong = (uint64) addrDouble;
-  u32 addr = (u32) addrLong;
-
-  if (VALID_PTR(addr)) {
-    *((double *) addr) = num;
-  }
-
-  return 0;
-}
-
-duk_ret_t script_readPadsRaw(duk_context *ctx) {
+//readpadsraw
+/*duk_ret_t script_readPadsRaw(duk_context *ctx) {
   PADStatus pads[PAD_MAX_CONTROLLERS];
   PADRead(pads);
 
@@ -735,9 +465,10 @@ duk_ret_t script_readPadsRaw(duk_context *ctx) {
   }
 
   return 1;
-}
+}*/
 
-duk_ret_t script_readPads(duk_context *ctx) {
+//readpads
+/*duk_ret_t script_readPads(duk_context *ctx) {
   CFinalInput *inputs = NewPauseScreen::instance->inputs;
 
   duk_push_array(ctx);
@@ -977,125 +708,17 @@ duk_ret_t script_readPads(duk_context *ctx) {
   }
 
   return 1;
-}
+}*/
 
-duk_ret_t script_getGameState(duk_context *ctx) {
-  CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
-  CGameState *gameState = globals->x134_gameState;
+//ispausescreen
+//duk_ret_t script_isPauseScreen(duk_context *ctx) {
+//  duk_push_boolean(ctx, NewPauseScreen::instance->active);
+//
+//  return 1;
+//}
 
-  if (gameState) {
-    duk_push_object(ctx);
-    {
-      duk_push_number(ctx, gameState->PlayTime());
-      duk_put_prop_string(ctx, -2, "playtime");
-
-      duk_push_number(ctx, gameState->MLVL());
-      duk_put_prop_string(ctx, -2, "mlvl");
-    }
-  } else {
-    duk_push_null(ctx);
-  }
-
-  return 1;
-}
-
-duk_ret_t script_getPlayer(duk_context *ctx) {
-  CStateManager *stateManager = CStateManager_INSTANCE;
-  CPlayer *player = stateManager->Player();
-  CPlayerState *playerState = stateManager->GetPlayerState();
-
-  if (player != nullptr && playerState != nullptr) {
-    duk_push_object(ctx);
-    {
-      duk_push_uint(ctx, (duk_uint_t) player);
-      duk_put_prop_string(ctx, -2, "address");
-
-      duk_push_object(ctx);
-      {
-        CVector3f pos = player->GetPhysicsState().x0_translation;
-
-        duk_push_number(ctx, pos.x);
-        duk_put_prop_string(ctx, -2, "x");
-
-        duk_push_number(ctx, pos.y);
-        duk_put_prop_string(ctx, -2, "y");
-
-        duk_push_number(ctx, pos.z);
-        duk_put_prop_string(ctx, -2, "z");
-      }
-      duk_put_prop_string(ctx, -2, "pos");
-
-      duk_push_object(ctx);
-      {
-        CVector3f speed = *player->GetVelocity();
-
-        duk_push_number(ctx, speed.x);
-        duk_put_prop_string(ctx, -2, "x");
-
-        duk_push_number(ctx, speed.y);
-        duk_put_prop_string(ctx, -2, "y");
-
-        duk_push_number(ctx, speed.z);
-        duk_put_prop_string(ctx, -2, "z");
-      }
-      duk_put_prop_string(ctx, -2, "speed");
-
-      duk_push_object(ctx);
-      {
-        CVector3f angular = *player->GetAngularVelocity();
-
-        duk_push_number(ctx, angular.x);
-        duk_put_prop_string(ctx, -2, "x");
-
-        duk_push_number(ctx, angular.y);
-        duk_put_prop_string(ctx, -2, "y");
-
-        duk_push_number(ctx, angular.z);
-        duk_put_prop_string(ctx, -2, "z");
-      }
-      duk_put_prop_string(ctx, -2, "rotation");
-
-      duk_push_array(ctx);
-      {
-        for (duk_uarridx_t i = 0; i < CPlayerState::kItem_Max; i++) {
-          duk_push_int(ctx, playerState->GetPowerups()[(CPlayerState::EItemType) i].mAmount);
-          duk_put_prop_index(ctx, -2, i);
-        }
-      }
-      duk_put_prop_string(ctx, -2, "itemAmount");
-
-      duk_push_array(ctx);
-      {
-        for (duk_uarridx_t i = 0; i < CPlayerState::kItem_Max; i++) {
-          duk_push_int(ctx, playerState->GetPowerups()[(CPlayerState::EItemType) i].mCapacity);
-          duk_put_prop_index(ctx, -2, i);
-        }
-      }
-      duk_put_prop_string(ctx, -2, "itemCapacity");
-
-      duk_push_int(ctx, playerState->mCurrentSuit);
-      duk_put_prop_string(ctx, -2, "currentSuit");
-
-      if (playerState->GetHealthInfo()) {
-        duk_push_number(ctx, playerState->GetHealthInfo()->GetHealth());
-      } else {
-        duk_push_number(ctx, 99);
-      }
-      duk_put_prop_string(ctx, -2, "health");
-    }
-  } else {
-    duk_push_null(ctx);
-  }
-
-  return 1;
-}
-
-duk_ret_t script_isPauseScreen(duk_context *ctx) {
-  duk_push_boolean(ctx, NewPauseScreen::instance->active);
-
-  return 1;
-}
-
+//drawing funcs
+/*
 duk_ret_t script_drawBegin(duk_context *ctx) {
   duk_int_t primitive = duk_require_int(ctx, 0);
 
@@ -1154,8 +777,10 @@ duk_ret_t script_drawColor(duk_context *ctx) {
   CGraphics::StreamColor(r, g, b, a);
 
   return 0;
-}
+}*/
 
+// text color
+/*
 duk_ret_t script_setTextColor(duk_context *ctx) {
   float r = (float) duk_require_number(ctx, 0);
   float g = (float) duk_require_number(ctx, 1);
@@ -1166,8 +791,11 @@ duk_ret_t script_setTextColor(duk_context *ctx) {
 
   return 0;
 }
+*/
 
-duk_ret_t script_warp(duk_context *ctx) {
+
+// warp
+/*duk_ret_t script_warp(duk_context *ctx) {
   duk_double_t worldIDDouble = duk_require_number(ctx, 0);
   duk_double_t areaIDDouble = duk_require_number(ctx, 1);
   CAssetId worldID = (CAssetId) ((uint64) worldIDDouble);
@@ -1189,62 +817,13 @@ duk_ret_t script_warp(duk_context *ctx) {
   NewPauseScreen::instance->hide();
 
   return 0;
-}
+}*/
 
-duk_ret_t script_getWorld(duk_context *ctx) {
-  CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
-  const CWorld *world = stateManager->GetWorld();
-
-  if (world) {
-    duk_push_object(ctx);
-    {
-      duk_push_int(ctx, world->GetCurrentAreaId());
-      duk_put_prop_string(ctx, -2, "area");
-    }
-  } else {
-    duk_push_null(ctx);
-  }
-
-  return 1;
-}
-
-duk_ret_t script_setInventory(duk_context *ctx) {
-  CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
-  CPlayer *player = stateManager->Player();
-  CPlayerState *playerState = stateManager->GetPlayerState();
-
-  duk_require_object(ctx, 0);
-
-  duk_get_prop_string(ctx, 0, "itemCapacity");
-  for (duk_uarridx_t i = 0; i < CPlayerState::kItem_Max; i++) {
-    duk_get_prop_index(ctx, -1, i);
-    playerState->GetPowerups()[(CPlayerState::EItemType) i].mCapacity = duk_get_int(ctx, -1);
-    duk_pop(ctx);
-  }
-  duk_pop(ctx);
-  duk_get_prop_string(ctx, 0, "itemAmount");
-  for (duk_uarridx_t i = 0; i < CPlayerState::kItem_Max; i++) {
-    duk_get_prop_index(ctx, -1, i);
-    playerState->GetPowerups()[(CPlayerState::EItemType) i].mAmount = duk_get_int(ctx, -1);
-    duk_pop(ctx);
-  }
-  duk_pop(ctx);
-
-  duk_get_prop_string(ctx, 0, "health");
-  playerState->GetHealthInfo()->SetHealth((float) duk_get_number(ctx, -1));
-  duk_pop(ctx);
-
-  duk_get_prop_string(ctx, 0, "currentSuit");
-  playerState->mCurrentSuit = (CPlayerState::EPlayerSuit) duk_get_int(ctx, -1);
-  duk_pop(ctx);
-
-  return 0;
-}
-
-duk_ret_t script_getFPS(duk_context *ctx) {
+// fps
+/*duk_ret_t script_getFPS(duk_context *ctx) {
   duk_push_number(ctx, CGraphics::GetFPS());
   return 1;
-}
+}*/
 
 bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
   // TODO: properly fix the in-game renderer? Or handle this better.
@@ -1253,7 +832,8 @@ bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
   return true;
 }
 
-duk_ret_t script_getEntities(duk_context *ctx) {
+// entities
+/*duk_ret_t script_getEntities(duk_context *ctx) {
   CStateManager *mgr = CStateManager_INSTANCE;
   CObjectList *list = mgr->GetAllObjs();
   if (list == nullptr) {
@@ -1285,4 +865,4 @@ duk_ret_t script_getEntities(duk_context *ctx) {
     id = entry.next;
   }
   return 1;
-}
+}*/

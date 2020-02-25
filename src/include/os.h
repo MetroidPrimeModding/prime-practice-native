@@ -11,6 +11,8 @@ extern "C" {
 extern void OSYieldThread(void);
 extern u32 PADRead(PADStatus *status);
 
+extern void OSReport(const char*);
+
 
 #ifdef __cplusplus
 }

@@ -268,12 +268,6 @@ def compile_object(sourcePath, outPath):
         "-Isrc/",
         "-Isrc/include/",
         "-I%s/libogc/include/" % devkitProRoot,
-        "-I%s/newlib/newlib/include/" % projDir,
-        "-I%s/newlib/newlib/libc/include/" % projDir,
-        "-I%s/newlib/newlib/libm/common/" % projDir,
-        "-I%s/newlib/newlib/libm/stdio/" % projDir,
-        # We want all our C++ to come from libcxx, which we compile
-        "-I%s/libcxx/include" % projDir,
         "-I%s/include" % primeApiRoot,
     ]
 
@@ -321,6 +315,7 @@ def link_objects(objList):
         "-L%s/powerpc-eabi/lib" % devkitPPCRoot,
         "-nodefaultlibs",
         "-nostdlib",
+        "-flto",
         '-lgcc',
         # '-lc',
         '-lsysbase',
@@ -419,7 +414,10 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
             ".init",
             ".rela.init", ".rela.text", ".rela.fini", ".rela.rodata", ".rela.eh_frame", ".rela.data",
             ".fini",
-            ".eh_frame"  # Not actually used?
+            ".eh_frame",  # Not actually used?
+            # for rust
+            ".got2", ".rela.got2",
+            ".gcc_except_table"
         ]
         shouldKeep = name in keepSections
         if not shouldKeep:
@@ -529,6 +527,9 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
                 if relocType == 26:
                     rel.write_byte(11) # I patched rel14 to be rel32
                     # rel.write_byte(26)
+                elif relocType == 18:
+                    # per the docs, R_PPC_PLTREL24 -> R_PPC_REL24
+                    rel.write_byte(10)
                 else:
                     rel.write_byte(relocType)
 
@@ -607,74 +608,6 @@ def compile_rel():
     sourceFiles = []
     sourceFiles.extend(glob.glob(("%s/src/**/*.cpp" % projDir), recursive=True))
     sourceFiles.extend(glob.glob(("%s/src/**/*.c" % projDir), recursive=True))
-    # Pull in a few things we need from newlib - can't use the default -lm compile because it uses sbss/sdata
-    sourceFiles.append("%s/newlib/newlib/libc/reent/impure.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/errno/errno.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/common/s_matherr.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/common/s_lib_ver.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/common/s_trunc.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/common/s_log2.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/common/s_cbrt.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/common/s_nan.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/common/sf_nan.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/common/s_isnan.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/math/s_ceil.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/math/e_log10.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/math/w_log10.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/math/e_sqrt.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libm/math/w_sqrt.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/time.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/gmtime.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/gmtime_r.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/lcltime.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/lcltime_r.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/gettzinfo.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/month_lengths.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/tzlock.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/tzset.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/tzset_r.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/tzvars.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/tzcalc_limits.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/mktime.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/time/difftime.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/div.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/dtoa.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/mprec.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/strtoul.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/strtol.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/strtod.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/mbtowc_r.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/wctomb_r.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/gdtoa-gethex.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdlib/gdtoa-hexnan.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/machine/powerpc/setjmp.S" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/ctype/ctype_.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/string/strlcpy.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/string/strcat.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/string/strcasecmp.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/string/strncasecmp.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/locale/locale.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/locale/localeconv.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/ungetc.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/siscanf.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/snprintf.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/vsnprintf.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/stdio.c" % projDir)
-    # sourceFiles.append("%s/newlib/newlib/libc/stdio/vfprintf.c" % projDir)
-    # sourceFiles.append("%s/newlib/newlib/libc/machine/powerpc/vfprintf.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/nano-vfscanf.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/nano-vfscanf_float.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/nano-vfscanf_i.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/nano-vfprintf.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/nano-vfprintf_float.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/nano-vfprintf_i.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/sprintf.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/sscanf.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/sccl.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/findfp.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/fclose.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/fflush.c" % projDir)
-    sourceFiles.append("%s/newlib/newlib/libc/stdio/fwalk.c" % projDir)
 
     sourceFiles = [file for file in sorted(sourceFiles) if file.find("build/ApplyCodePatches.cpp") == -1]
     sourceFiles = [file for file in sorted(sourceFiles) if file.find("script/ApplyCodePatches_Template.cpp") == -1]
@@ -700,7 +633,8 @@ def compile_rel():
         objectFiles.append(get_object_path(generatedFile))
         if verbose: print('')
 
-    objectFiles.append('%s/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/libpractice_mod_rust.rlib' % projDir)
+    objectFiles.extend(glob.glob(('%s/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/*.a' % projDir), recursive=True))
+    # objectFiles.append('%s/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/libpractice_mod_rust.rlib' % projDir)
 
     # Link
     if not link_objects(objectFiles):

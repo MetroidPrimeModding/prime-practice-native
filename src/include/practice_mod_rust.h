@@ -1,20 +1,40 @@
+#ifndef PRACTICE_MOD_RUST_H
+#define PRACTICE_MOD_RUST_H
+
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
 #include <new>
 
+struct ModConfig {
+  bool show_speed;
+  bool show_pos;
+  bool show_high_p_pos;
+  bool show_room_timers;
+  bool show_igt;
+  bool show_input;
+  bool show_fps;
+  bool show_unknown_triggers;
+  bool show_load_triggers;
+  bool show_door_triggers;
+  bool show_force_triggers;
+  bool show_camera_hint_triggers;
+};
+
 extern "C" {
 
-extern void free(const void *ptr);
+extern void draw_text(const uint8_t *str, uint32_t len, float x, float y);
 
 const uint8_t *hello();
 
-extern void *malloc(uint32_t len);
-
 void on_frame();
 
-extern void printf(const uint8_t *fmt);
+void on_input();
 
-extern void sprintf(uint8_t *s, const uint8_t *fmt);
+extern void rust_error(const uint8_t *fmt, uint32_t len);
+
+extern void text_color(float r, float g, float b, float a);
 
 } // extern "C"
+
+#endif // PRACTICE_MOD_RUST_H

@@ -1,0 +1,5 @@
+include_guard = "PRACTICE_MOD_RUST_H"
+
+[export]
+exclude = ["malloc", "free", "OSReport"]
+include = ["ModConfig"]

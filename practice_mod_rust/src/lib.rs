@@ -1,6 +1,8 @@
 #![no_std]
 #![feature(alloc_error_handler)]
+#![feature(lang_items)]
 
+#[macro_use]
 extern crate alloc;
 
 use core::alloc::{GlobalAlloc, Layout};
@@ -9,9 +11,7 @@ use core::fmt::{self, Write};
 
 // Set up calls into our other code, courtesy the randomprime repo
 extern "C" {
-    pub fn printf(fmt: *const u8, ...);
-
-    pub fn sprintf(s: *mut u8, fmt: *const u8, ...);
+    fn rust_error(fmt: *const u8, len: u32);
 
     fn malloc(len: u32) -> *mut c_void;
     fn free(ptr: *const c_void);
@@ -36,7 +36,7 @@ pub struct MPStdout;
 impl fmt::Write for MPStdout {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         unsafe {
-            printf("%s".as_bytes().as_ptr(), s.as_bytes().as_ptr());
+            rust_error(s.as_ptr(), s.len() as u32);
         }
         Ok(())
     }
@@ -54,19 +54,13 @@ fn halt() -> ! {
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    if cfg!(debug_assertions) {
-        writeln!(MPStdout, "{}", info).ok();
-    }
-
+    writeln!(MPStdout, "{}\n", info).ok();
     halt()
 }
 
 #[alloc_error_handler]
 fn alloc_error(_layout: Layout) -> ! {
-    if cfg!(debug_assertions) {
-        writeln!(MPStdout, "Alloc failed").ok();
-    }
-
+    writeln!(MPStdout, "Alloc failed\n").ok();
     halt()
 }
 
@@ -80,4 +74,6 @@ pub mod hooks;
 
 pub use hooks::on_frame;
 
+pub mod cpp_interface;
+pub mod globals;
 pub mod practice_mod_memory_object;

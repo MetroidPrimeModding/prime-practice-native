@@ -78,11 +78,10 @@ set(SOURCE_FILES
         src/TextRenderer.cpp
         src/duk_mem.h
         src/duk_mem.cpp
-        src/duk_config.h
-        src/duktape.h
         src/prime-practice.cpp
         src/readFile.cpp
         src/libc.c
-        src/include/rust_interface.hpp)
+        src/include/practice_mod_rust.hpp
+        src/practice_mod_rust.cpp)
 
 add_executable(default-prime-practice ${SOURCE_FILES})

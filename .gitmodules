@@ -1,6 +1,0 @@
-[submodule "newlib"]
-	path = newlib
-	url = git@github.com:Pwootage/newlib.git
-[submodule "libcxx"]
-	path = libcxx
-	url = git@github.com:llvm-mirror/libcxx.git

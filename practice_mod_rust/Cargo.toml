@@ -8,8 +8,18 @@ edition = "2018"
 
 [dependencies]
 mp_memory = { path = "mp_memory" }
+libm = "0.2.1"
 
 [workspace]
 members = [
   "mp_memory"
 ]
+
+[lib]
+crate-type = ["staticlib"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

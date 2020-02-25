@@ -1,10 +1,8 @@
 use alloc::string::String;
-use mp_memory::memory_object::{MemoryOffset, MemoryView};
+use mp_memory::{MemoryOffset, MemoryView};
 
 #[derive(Copy, Clone)]
 pub struct RealMemoryView;
-
-pub static REAL_MEMORY: RealMemoryView = RealMemoryView;
 
 impl MemoryView for RealMemoryView {
     fn u8(&self, offset: MemoryOffset) -> Option<u8> {
