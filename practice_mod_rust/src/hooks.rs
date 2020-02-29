@@ -49,7 +49,7 @@ pub extern "C" fn on_frame() {
 pub extern "C" fn on_input() {}
 
 fn draw_igt(pos: TextLocation) -> Option<()> {
-    let state = globals::global_objects().gameState()?;
+    let state = globals::global_objects().gameState()?.deref()?;
     let time = state.playtime()?.value()?;
 
     let ms = ((time * 1000.0) % 1000.0) as u32;
@@ -64,7 +64,7 @@ fn draw_igt(pos: TextLocation) -> Option<()> {
 }
 
 fn draw_player_speed(pos: TextLocation) -> Option<()> {
-    let player = globals::state_manager().player()?;
+    let player = globals::state_manager().player()?.deref()?;
 
     let velocity = player.sup()?.velocity()?;
     let (x, y, z) = (
@@ -93,7 +93,7 @@ fn draw_player_speed(pos: TextLocation) -> Option<()> {
 }
 
 fn draw_player_pos(pos: TextLocation) -> Option<()> {
-    let player = globals::state_manager().player()?;
+    let player = globals::state_manager().player()?.deref()?;
 
     let player_pos = player.sup()?.translation()?;
     let (x, y, z) = (
@@ -110,7 +110,7 @@ fn draw_player_pos(pos: TextLocation) -> Option<()> {
 }
 
 fn draw_player_high_p_pos(pos: TextLocation) -> Option<()> {
-    let player = globals::state_manager().player()?;
+    let player = globals::state_manager().player()?.deref()?;
 
     let player_pos = player.sup()?.translation()?;
     let (x, y, z) = (
@@ -144,10 +144,16 @@ fn draw_room_timers(pos: TextLocation) -> Option<()> {
         (v * 60.0) as u32
     }
 
-    let fps = get_fps() as u32;
-
-    let time = globals::global_objects().gameState()?.playtime()?.value()?;
-    let room = globals::state_manager().world()?.currentAreaID()?.value()?;
+    let time = globals::global_objects()
+        .gameState()?
+        .deref()?
+        .playtime()?
+        .value()?;
+    let room = globals::state_manager()
+        .world()?
+        .deref()?
+        .currentAreaID()?
+        .value()?;
 
     let text: String;
     unsafe {

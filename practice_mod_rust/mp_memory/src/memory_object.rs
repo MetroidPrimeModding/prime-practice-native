@@ -84,27 +84,25 @@ macro_rules! memory_object {
             pub memory: alloc::rc::Rc<dyn crate::MemoryView>,
             pub offset: crate::MemoryOffset,
         }
+        impl crate::game_types::Constructable for $name {
+            fn new(
+                memory: &alloc::rc::Rc<dyn crate::MemoryView>,
+                offset: crate::MemoryOffset,
+            ) -> Self {
+                $name {
+                    memory: alloc::rc::Rc::clone(memory),
+                    offset: offset,
+                }
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! memory_field {
-  ($name: ident : $type: ident @ $offset: expr) => {
+  ($name: ident : $type: ty; @ $offset: expr) => {
     pub fn $name(&self) -> Option<$type> {
-      Some($type { memory: alloc::rc::Rc::clone(&self.memory), offset: self.offset + $offset })
-    }
-  };
-  ($name: ident : $type: ident deref $offset: expr) => {
-    pub fn $name(&self) -> Option<$type> {
-      let ptr = self.memory.u32(self.offset + $offset)?;
-      Some($type { memory: alloc::rc::Rc::clone(&self.memory), offset: ptr.into() })
-    }
-  };
-  ($name: ident : $type: ident deref_twice $offset: expr) => {
-    pub fn $name(&self) -> Option<$type> {
-      let ptr = self.memory.u32(self.offset + $offset)?;
-      let ptr = self.memory.u32(ptr)?;
-      Some($type { memory: alloc::rc::Rc::clone(&self.memory), offset: ptr.into() })
+      Some(<$type>::new(&self.memory, self.offset + $offset))
     }
   };
   (primitive $name: ident : $type: ident @ $offset: expr) => {
@@ -112,12 +110,11 @@ macro_rules! memory_field {
       self.memory.$type(self.offset)
     }
   };
-  (array $name: ident : $type: ident @ $offset: expr; stride $stride: expr; size $size: expr) => {
+  (array $name: ident : $type: ty; @ $offset: expr; size $size: expr) => {
     pub fn $name(&self) -> Option<crate::game_types::Array<$type>> {
       Some($crate::game_types::Array {
         memory: alloc::rc::Rc::clone(&self.memory),
         offset: self.offset + $offset,
-        stride: $stride,
         length: $size,
         phantom: core::marker::PhantomData,
       })
@@ -128,23 +125,14 @@ macro_rules! memory_field {
 #[macro_export]
 macro_rules! memory_super {
     ($name:ident) => {
-        memory_field!(sup: $name @ 0x0);
+        memory_field!(sup: $name; @ 0x0);
     };
 }
 
 #[macro_export]
-macro_rules! memory_arary_constructable {
+macro_rules! sized_constructable {
     ($name: ident size $size: expr) => {
-        impl crate::game_types::ArrayConstructable for $name {
-            fn new(
-                memory: &alloc::rc::Rc<dyn crate::MemoryView>,
-                offset: crate::MemoryOffset,
-            ) -> Self {
-                $name {
-                    memory: alloc::rc::Rc::clone(memory),
-                    offset: offset,
-                }
-            }
+        impl crate::game_types::SizedConstructable for $name {
             fn size() -> u32 {
                 $size
             }
@@ -158,7 +146,7 @@ macro_rules! primitive {
         impl $name {
           memory_field!(primitive value: $type @ 0x0);
         }
-        memory_arary_constructable!($name size $size);
+        sized_constructable!($name size $size);
     };
 }
 
@@ -173,32 +161,36 @@ pub mod game_types {
     //   pub offset: MemoryOffset
     // }
 
-    pub trait ArrayConstructable {
+    pub trait Constructable {
         fn new(memory: &Rc<dyn MemoryView>, offset: MemoryOffset) -> Self;
+    }
+
+    pub trait SizedConstructable: Constructable {
         fn size() -> u32;
     }
 
-    #[derive(Clone)]
-    pub struct Array<T: ArrayConstructable> {
+    pub struct Array<T: SizedConstructable> {
         pub memory: Rc<dyn MemoryView>,
         pub offset: MemoryOffset,
-        pub stride: u32,
         pub length: u32,
         pub phantom: PhantomData<T>,
     }
 
-    impl<T: ArrayConstructable> Array<T> {
+    impl<T: SizedConstructable> Array<T> {
+        pub fn size(&self) -> u32 {
+            self.length * T::size()
+        }
+
         pub fn get(&self, index: u32) -> Option<T> {
             if index > self.length {
                 return None;
             }
-            let offset = self.offset + self.stride * index;
+            let offset = self.offset + T::size() * index;
             offset.if_valid()?;
             Some(T::new(&self.memory, offset))
         }
     }
 
-    #[derive(Copy, Clone)]
     pub struct Enum<T> {
         pub offset: MemoryOffset,
         pub phantom: PhantomData<T>,
@@ -208,6 +200,40 @@ pub mod game_types {
         pub fn value(&self, view: &dyn MemoryView) -> Option<T> {
             let value = view.i32(self.offset)?;
             Some(T::from(value))
+        }
+    }
+
+    pub struct Pointer<T: Constructable> {
+        pub memory: Rc<dyn MemoryView>,
+        pub offset: MemoryOffset,
+        pub phantom: PhantomData<T>,
+    }
+
+    impl<T: Constructable> Constructable for Pointer<T> {
+        fn new(memory: &Rc<dyn MemoryView>, offset: MemoryOffset) -> Self {
+            return Pointer {
+                memory: Rc::clone(memory),
+                offset,
+                phantom: PhantomData,
+            };
+        }
+    }
+
+    impl<T: Constructable> SizedConstructable for Pointer<T> {
+        fn size() -> u32 {
+            4
+        }
+    }
+
+    impl<T: Constructable> Pointer<T> {
+        pub fn value(&self) -> Option<MemoryOffset> {
+            let off = self.offset.if_valid()?;
+            Some(MemoryOffset(off))
+        }
+
+        pub fn deref(&self) -> Option<T> {
+            self.offset.if_valid()?;
+            Some(T::new(&self.memory, self.offset))
         }
     }
 

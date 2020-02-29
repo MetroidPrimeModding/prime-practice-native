@@ -9,8 +9,9 @@ pub use memory_object::*;
 
 #[allow(non_snake_case)]
 pub mod mp1 {
-    mod entities;
+    pub mod entities;
     mod game_objects;
     pub use game_objects::*;
-    mod math;
+    pub mod math;
+    pub mod rstl;
 }
