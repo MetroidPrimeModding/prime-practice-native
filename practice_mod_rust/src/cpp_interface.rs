@@ -161,22 +161,6 @@ pub struct ModConfig {
     pub show_camera_hint_triggers: bool,
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct TextLocation {
-    pub x: f32,
-    pub y: f32,
-}
-
-impl TextLocation {
-    pub fn from(x: impl Into<f32> + Copy, y: impl Into<f32> + Copy) -> Self {
-        return TextLocation {
-            x: x.into(),
-            y: y.into(),
-        };
-    }
-}
-
 pub static CONFIG: ModConfig = ModConfig {
     show_speed: false,
     show_pos: false,
@@ -194,7 +178,6 @@ pub static CONFIG: ModConfig = ModConfig {
 
 pub mod text_renderer {
     use super::c_interface;
-    use crate::cpp_interface::TextLocation;
 
     pub fn get_fps() -> f32 {
         unsafe { c_interface::get_fps() }
@@ -204,11 +187,27 @@ pub mod text_renderer {
         unsafe { c_interface::text_color(r, g, b, a) }
     }
 
-    pub fn draw_text(str: &str, loc: TextLocation) {
-        unsafe { c_interface::draw_text(str.as_ptr(), str.len() as u32, loc.x, loc.y) }
+    pub fn draw_text(str: &str, x: f32, y: f32) {
+        unsafe { c_interface::draw_text(str.as_ptr(), str.len() as u32, x, y) }
     }
 
     pub fn is_pause_screen() -> bool {
         unsafe { c_interface::is_pause_screen() }
+    }
+
+    pub fn pressed_up() -> bool {
+        unsafe { c_interface::pad_p_d_up(0) || c_interface::pad_p_l_a_up(0) }
+    }
+
+    pub fn pressed_up_fast() -> bool {
+        unsafe { c_interface::pad_p_l(0) || c_interface::pad_p_l_a_left(0) }
+    }
+
+    pub fn pressed_down() -> bool {
+        unsafe { c_interface::pad_p_d_down(0) || c_interface::pad_p_l_a_down(0) }
+    }
+
+    pub fn pressed_down_fast() -> bool {
+        unsafe { c_interface::pad_p_r(0) || c_interface::pad_p_l_a_right(0) }
     }
 }

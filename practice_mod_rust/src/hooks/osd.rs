@@ -1,9 +1,8 @@
 use crate::cpp_interface::text_renderer::{draw_text, get_fps};
-use crate::cpp_interface::TextLocation;
 use crate::globals;
 use alloc::string::String;
 
-pub fn draw_igt(pos: TextLocation) -> Option<()> {
+pub fn draw_igt(x: f32, y: f32) -> Option<()> {
     let state = globals::global_objects().gameState()?.deref()?;
     let time = state.playtime()?.value()?;
 
@@ -14,11 +13,11 @@ pub fn draw_igt(pos: TextLocation) -> Option<()> {
 
     let text = format!("{:02}:{:02}:{:02}.{:03}", hours, minutes, sec, ms);
 
-    draw_text(&text, pos);
+    draw_text(&text, x, y);
     Some(())
 }
 
-pub fn draw_player_speed(pos: TextLocation) -> Option<()> {
+pub fn draw_player_speed(x: f32, y: f32) -> Option<()> {
     let player = globals::state_manager().player()?.deref()?;
 
     let velocity = player.sup()?.velocity()?;
@@ -42,12 +41,12 @@ pub fn draw_player_speed(pos: TextLocation) -> Option<()> {
         x, y, z, hspeed, rx, ry, rz, rspeed
     );
 
-    draw_text(&text, pos);
+    draw_text(&text, x, y);
 
     Some(())
 }
 
-pub fn draw_player_pos(pos: TextLocation) -> Option<()> {
+pub fn draw_player_pos(x: f32, y: f32) -> Option<()> {
     let player = globals::state_manager().player()?.deref()?;
 
     let player_pos = player.sup()?.translation()?;
@@ -59,12 +58,12 @@ pub fn draw_player_pos(pos: TextLocation) -> Option<()> {
 
     let text = format!("p {:7.2}x {:7.2}y {:7.2}z", x, y, z);
 
-    draw_text(&text, pos);
+    draw_text(&text, x, y);
 
     Some(())
 }
 
-pub fn draw_player_high_p_pos(pos: TextLocation) -> Option<()> {
+pub fn draw_player_high_p_pos(x: f32, y: f32) -> Option<()> {
     let player = globals::state_manager().player()?.deref()?;
 
     let player_pos = player.sup()?.translation()?;
@@ -76,16 +75,16 @@ pub fn draw_player_high_p_pos(pos: TextLocation) -> Option<()> {
 
     let text = format!("p {:7.7}x {:7.7}y {:7.7}z", x, y, z);
 
-    draw_text(&text, pos);
+    draw_text(&text, x, y);
 
     Some(())
 }
 
-pub fn draw_fps(pos: TextLocation) -> Option<()> {
+pub fn draw_fps(x: f32, y: f32) -> Option<()> {
     let fps = get_fps() as u32;
 
     let text = format!("{}", fps);
-    draw_text(&text, pos);
+    draw_text(&text, x, y);
 
     Some(())
 }
@@ -94,7 +93,7 @@ static mut CURRENT_ROOM: u32 = 0;
 static mut LAST_ROOM_TIME: f64 = 0.0;
 static mut CURRENT_ROOM_START: f64 = 0.0;
 
-pub fn draw_room_timers(pos: TextLocation) -> Option<()> {
+pub fn draw_room_timers(x: f32, y: f32) -> Option<()> {
     fn time_to_frames(v: f64) -> u32 {
         (v * 60.0) as u32
     }
@@ -128,7 +127,7 @@ pub fn draw_room_timers(pos: TextLocation) -> Option<()> {
         );
     }
 
-    draw_text(&text, pos);
+    draw_text(&text, x, y);
 
     Some(())
 }

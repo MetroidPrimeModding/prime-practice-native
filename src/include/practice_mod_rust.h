@@ -6,6 +6,12 @@
 #include <cstdlib>
 #include <new>
 
+static const float CHAR_DIM = 8.0;
+
+static const float LINE_HEIGHT = (CHAR_DIM + LINE_PADDING);
+
+static const float LINE_PADDING = 2.0;
+
 struct ModConfig {
   bool show_speed;
   bool show_pos;
