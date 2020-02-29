@@ -1,54 +1,9 @@
+use crate::cpp_interface::text_renderer::{draw_text, get_fps};
+use crate::cpp_interface::TextLocation;
+use crate::globals;
 use alloc::string::String;
 
-use libm;
-
-use crate::cpp_interface::text_renderer::{draw_text, get_fps, set_text_color};
-use crate::cpp_interface::{TextLocation, CONFIG};
-use crate::globals;
-
-const CHAR_DIM: f32 = 8.0;
-const LINE_PADDING: f32 = 2.0;
-const LINE_HEIGHT: f32 = CHAR_DIM + LINE_PADDING;
-
-#[no_mangle]
-pub extern "C" fn on_frame() {
-    let mut pos = TextLocation { x: 10.0, y: 10.0 };
-    set_text_color(1.0, 1.0, 1.0, 1.0);
-    if CONFIG.show_igt || CONFIG.show_input {
-        // draw_text("Prime Practice Mod", pos);
-        if CONFIG.show_igt {
-            draw_igt(pos);
-            pos.x += 110.0;
-        }
-        pos.y += LINE_HEIGHT;
-        pos.x = 10.0;
-        //TODO: input
-    }
-    if CONFIG.show_speed {
-        draw_player_speed(pos);
-        pos.y += LINE_HEIGHT;
-    }
-    if CONFIG.show_pos {
-        draw_player_pos(pos);
-        pos.y += LINE_HEIGHT;
-    }
-    if CONFIG.show_high_p_pos {
-        draw_player_high_p_pos(pos);
-        pos.y += LINE_HEIGHT;
-    }
-    if CONFIG.show_room_timers {
-        draw_room_timers(pos);
-        pos.y += LINE_HEIGHT;
-    }
-    if CONFIG.show_fps {
-        draw_fps(TextLocation { x: 610.0, y: 452.0 });
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn on_input() {}
-
-fn draw_igt(pos: TextLocation) -> Option<()> {
+pub fn draw_igt(pos: TextLocation) -> Option<()> {
     let state = globals::global_objects().gameState()?.deref()?;
     let time = state.playtime()?.value()?;
 
@@ -63,7 +18,7 @@ fn draw_igt(pos: TextLocation) -> Option<()> {
     Some(())
 }
 
-fn draw_player_speed(pos: TextLocation) -> Option<()> {
+pub fn draw_player_speed(pos: TextLocation) -> Option<()> {
     let player = globals::state_manager().player()?.deref()?;
 
     let velocity = player.sup()?.velocity()?;
@@ -92,7 +47,7 @@ fn draw_player_speed(pos: TextLocation) -> Option<()> {
     Some(())
 }
 
-fn draw_player_pos(pos: TextLocation) -> Option<()> {
+pub fn draw_player_pos(pos: TextLocation) -> Option<()> {
     let player = globals::state_manager().player()?.deref()?;
 
     let player_pos = player.sup()?.translation()?;
@@ -109,7 +64,7 @@ fn draw_player_pos(pos: TextLocation) -> Option<()> {
     Some(())
 }
 
-fn draw_player_high_p_pos(pos: TextLocation) -> Option<()> {
+pub fn draw_player_high_p_pos(pos: TextLocation) -> Option<()> {
     let player = globals::state_manager().player()?.deref()?;
 
     let player_pos = player.sup()?.translation()?;
@@ -126,7 +81,7 @@ fn draw_player_high_p_pos(pos: TextLocation) -> Option<()> {
     Some(())
 }
 
-fn draw_fps(pos: TextLocation) -> Option<()> {
+pub fn draw_fps(pos: TextLocation) -> Option<()> {
     let fps = get_fps() as u32;
 
     let text = format!("{}", fps);
@@ -139,7 +94,7 @@ static mut CURRENT_ROOM: u32 = 0;
 static mut LAST_ROOM_TIME: f64 = 0.0;
 static mut CURRENT_ROOM_START: f64 = 0.0;
 
-fn draw_room_timers(pos: TextLocation) -> Option<()> {
+pub fn draw_room_timers(pos: TextLocation) -> Option<()> {
     fn time_to_frames(v: f64) -> u32 {
         (v * 60.0) as u32
     }

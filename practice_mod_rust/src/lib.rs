@@ -19,13 +19,29 @@ extern "C" {
 
 struct MPAlloc;
 
+static mut ALLOC_BYTES: u32 = 0;
+static mut MAX_ALLOC_BYTES: u32 = 0;
+
 unsafe impl GlobalAlloc for MPAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        ALLOC_BYTES += layout.size() as u32;
+        if ALLOC_BYTES > MAX_ALLOC_BYTES {
+            MAX_ALLOC_BYTES = ALLOC_BYTES;
+        }
         malloc(layout.size() as u32) as *mut u8
     }
-    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        ALLOC_BYTES -= layout.size() as u32;
         free(ptr as *const c_void)
     }
+}
+
+pub fn allocated_bytes() -> u32 {
+    unsafe { ALLOC_BYTES }
+}
+
+pub fn max_allocated_bytes() -> u32 {
+    unsafe { MAX_ALLOC_BYTES }
 }
 
 #[global_allocator]

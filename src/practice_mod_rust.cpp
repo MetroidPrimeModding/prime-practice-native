@@ -1,5 +1,6 @@
 #include <include/os.h>
 #include <include/prime/CGraphics.hpp>
+#include <include/NewPauseScreen.hpp>
 #include "include/practice_mod_rust.h"
 #include "include/TextRenderer.hpp"
 
@@ -23,4 +24,8 @@ void rust_error(const uint8_t *fmt, uint32_t len) {
 
 float get_fps() {
   return CGraphics::GetFPS();
+}
+
+bool is_pause_screen() {
+  return NewPauseScreen::instance->active;
 }

@@ -46,12 +46,7 @@ set(SOURCE_FILES
         src/include/prime/CMainFlow.hpp
         src/include/prime/CArchitectureMessage.hpp
         src/include/GetField.hpp
-        src/include/UI/UIElement.hpp
-        src/include/UI/UITextElement.hpp
-        src/include/UI/UIElementList.hpp
-        src/include/UI/UIHeapUsageElement.hpp
         src/include/GX.hpp
-        src/include/readFile.hpp
         src/include/prime/CMFGame.hpp
         src/include/prime/CIOWinManager.hpp
         src/include/prime/CGameAllocator.hpp
@@ -71,17 +66,15 @@ set(SOURCE_FILES
         src/include/prime/CScriptCameraHint.hpp
         src/include/STriggerRenderConfig.hpp
         src/new.cpp
-        src/UI/UIElement.cpp
-        src/UI/UITextElement.cpp
-        src/UI/UIHeapUsageElement.cpp
         src/NewPauseScreen.cpp
         src/TextRenderer.cpp
         src/duk_mem.h
         src/duk_mem.cpp
         src/prime-practice.cpp
-        src/readFile.cpp
         src/libc.c
-        src/include/practice_mod_rust.hpp
-        src/practice_mod_rust.cpp)
+        src/include/practice_mod_rust.h
+        src/practice_mod_rust.cpp
+        src/practice_mod_rust_input.cpp
+        )
 
 add_executable(default-prime-practice ${SOURCE_FILES})

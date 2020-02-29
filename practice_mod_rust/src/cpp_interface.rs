@@ -6,6 +6,141 @@ mod c_interface {
         pub fn text_color(r: f32, g: f32, b: f32, a: f32);
         #[no_mangle]
         pub fn get_fps() -> f32;
+        #[no_mangle]
+        pub fn is_pause_screen() -> bool;
+
+        #[no_mangle]
+        pub fn pad_start(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_r(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_l(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_z(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_y(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_x(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_b(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_a(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_d_right(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_d_left(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_d_down(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_d_up(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_l_trigger(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_r_trigger(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_l_a_right(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_l_a_left(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_l_a_down(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_l_a_up(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_r_a_right(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_r_a_left(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_r_a_down(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_p_r_a_up(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_start(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_r(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_l(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_z(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_y(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_x(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_b(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_a(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_d_right(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_d_left(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_d_down(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_d_up(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_l_trigger(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_r_trigger(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_l_a_right(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_l_a_left(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_l_a_down(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_l_a_up(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_r_a_right(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_r_a_left(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_r_a_down(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_d_r_a_up(pad_index: u32) -> bool;
+        #[no_mangle]
+        pub fn pad_a_start(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_r(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_l(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_z(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_y(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_x(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_b(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_a(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_d_right(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_d_left(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_d_down(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_d_up(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_r_trigger(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_l_trigger(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_r_a_right(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_r_a_left(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_r_a_down(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_r_a_up(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_l_a_right(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_l_a_left(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_l_a_down(pad_index: u32) -> f32;
+        #[no_mangle]
+        pub fn pad_a_l_a_up(pad_index: u32) -> f32;
     }
 }
 
@@ -71,5 +206,9 @@ pub mod text_renderer {
 
     pub fn draw_text(str: &str, loc: TextLocation) {
         unsafe { c_interface::draw_text(str.as_ptr(), str.len() as u32, loc.x, loc.y) }
+    }
+
+    pub fn is_pause_screen() -> bool {
+        unsafe { c_interface::is_pause_screen() }
     }
 }
