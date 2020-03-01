@@ -10,6 +10,9 @@ pub mod c_interface {
         pub fn is_pause_screen() -> bool;
 
         #[no_mangle]
+        pub fn warp(world: u32, area: u32);
+
+        #[no_mangle]
         pub fn pad_start(pad_index: u32) -> bool;
         #[no_mangle]
         pub fn pad_p_r(pad_index: u32) -> bool;
@@ -193,6 +196,10 @@ pub mod text_renderer {
 
     pub fn is_pause_screen() -> bool {
         unsafe { c_interface::is_pause_screen() }
+    }
+
+    pub fn warp(world: u32, area: u32) {
+        unsafe { c_interface::warp(world, area) }
     }
 
     pub fn input_up() -> bool {

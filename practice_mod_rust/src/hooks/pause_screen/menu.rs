@@ -2,7 +2,7 @@ use crate::cpp_interface::text_renderer::{
     draw_text, input_down, input_down_fast, input_pressed_back, input_pressed_ok, input_up,
     input_up_fast, set_text_color,
 };
-use crate::hooks::pause_screen::HandleInputResult::StopPropagation;
+use crate::hooks::pause_screen::HandleInputResult::{Deselect, StopPropagation};
 use crate::hooks::pause_screen::OnSelectResult::Deslelect;
 use crate::hooks::LINE_HEIGHT;
 use crate::MPStdout;
@@ -18,6 +18,7 @@ pub enum OnSelectResult {
 }
 
 pub enum HandleInputResult {
+    Deselect,
     Propagate,
     StopPropagation,
 }
@@ -69,6 +70,9 @@ impl Menu {
     }
 
     pub fn draw(&self) {
+        if !self.active {
+            return;
+        }
         let mut y_off = 0f32;
         let scroll_off = 30i32;
 
@@ -95,7 +99,15 @@ impl Menu {
 
     pub fn handle_input(&mut self) -> HandleInputResult {
         if self.has_selected {
-            return self.children[self.cursor as usize].handle_input();
+            let res = self.children[self.cursor as usize].handle_input();
+            if let Deselect = res {
+                writeln!(MPStdout, "Deselect recieved");
+                self.deselect();
+                return StopPropagation;
+            }
+            if let StopPropagation = res {
+                return StopPropagation;
+            }
         }
         if self.scroll_timer > 0 {
             self.scroll_timer -= 1;
@@ -172,17 +184,16 @@ impl<'a> MenuItem for SubmenuMenuItem<'a> {
     }
 
     fn handle_input(&mut self) -> HandleInputResult {
-        if let StopPropagation = self.submenu.handle_input() {
-            return StopPropagation;
-        }
+        self.submenu.handle_input();
 
         if input_pressed_back() {
+            writeln!(MPStdout, "Sending deselect");
             self.submenu.active = false;
             self.submenu.deselect();
-            return StopPropagation;
+            return Deselect;
         }
 
-        Propagate
+        StopPropagation
     }
 
     fn draw(&self, x: f32, y: f32) {

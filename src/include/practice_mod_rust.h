@@ -6,12 +6,6 @@
 #include <cstdlib>
 #include <new>
 
-static const float CHAR_DIM = 8.0;
-
-static const float LINE_HEIGHT = (CHAR_DIM + LINE_PADDING);
-
-static const float LINE_PADDING = 2.0;
-
 struct ModConfig {
   bool show_speed;
   bool show_pos;
@@ -176,6 +170,8 @@ extern bool pad_start(uint32_t pad_index);
 extern void rust_error(const uint8_t *fmt, uint32_t len);
 
 extern void text_color(float r, float g, float b, float a);
+
+extern void warp(uint32_t world, uint32_t area);
 
 } // extern "C"
 
