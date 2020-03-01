@@ -5,10 +5,8 @@ use crate::cpp_interface::text_renderer::{
 use crate::hooks::pause_screen::HandleInputResult::{Deselect, StopPropagation};
 use crate::hooks::pause_screen::OnSelectResult::Deslelect;
 use crate::hooks::LINE_HEIGHT;
-use crate::MPStdout;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
-use core::fmt::Write;
 use HandleInputResult::Propagate;
 use OnSelectResult::DoNothing;
 
@@ -101,7 +99,6 @@ impl Menu {
         if self.has_selected {
             let res = self.children[self.cursor as usize].handle_input();
             if let Deselect = res {
-                writeln!(MPStdout, "Deselect recieved");
                 self.deselect();
                 return StopPropagation;
             }
@@ -187,7 +184,6 @@ impl<'a> MenuItem for SubmenuMenuItem<'a> {
         self.submenu.handle_input();
 
         if input_pressed_back() {
-            writeln!(MPStdout, "Sending deselect");
             self.submenu.active = false;
             self.submenu.deselect();
             return Deselect;

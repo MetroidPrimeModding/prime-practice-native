@@ -316,6 +316,7 @@ def link_objects(objList):
         "-nodefaultlibs",
         "-nostdlib",
         "-flto",
+        "-Os",
         '-lgcc',
         # '-lc',
         '-lsysbase',

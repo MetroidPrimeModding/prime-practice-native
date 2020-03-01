@@ -67,9 +67,9 @@ impl<'a> MenuItem for WarpWorldItem<'a> {
             }
         }
 
-        self.cursor = self.cursor % self.children.len() as i32;
+        self.cursor = self.cursor % self.warps.len() as i32;
         if self.cursor < 0 {
-            self.cursor += self.children.len() as i32;
+            self.cursor += self.warps.len() as i32;
         }
 
         if input_pressed_ok() {

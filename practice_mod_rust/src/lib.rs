@@ -75,13 +75,17 @@ fn halt() -> ! {
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    writeln!(MPStdout, "{}\n", info).ok();
+    if cfg!(debug_assertions) {
+        writeln!(MPStdout, "{}\n", info).ok();
+    }
     halt()
 }
 
 #[alloc_error_handler]
 fn alloc_error(_layout: Layout) -> ! {
-    writeln!(MPStdout, "Alloc failed\n").ok();
+    if cfg!(debug_assertions) {
+        writeln!(MPStdout, "Alloc failed\n").ok();
+    }
     halt()
 }
 
