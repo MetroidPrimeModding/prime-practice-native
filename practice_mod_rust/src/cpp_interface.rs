@@ -1,4 +1,4 @@
-mod c_interface {
+pub mod c_interface {
     extern "C" {
         #[no_mangle]
         pub fn draw_text(str: *const u8, len: u32, x: f32, y: f32);
@@ -195,19 +195,31 @@ pub mod text_renderer {
         unsafe { c_interface::is_pause_screen() }
     }
 
-    pub fn pressed_up() -> bool {
+    pub fn input_up() -> bool {
         unsafe { c_interface::pad_p_d_up(0) || c_interface::pad_p_l_a_up(0) }
     }
 
-    pub fn pressed_up_fast() -> bool {
+    pub fn input_up_fast() -> bool {
         unsafe { c_interface::pad_p_l(0) || c_interface::pad_p_l_a_left(0) }
     }
 
-    pub fn pressed_down() -> bool {
+    pub fn input_down() -> bool {
         unsafe { c_interface::pad_p_d_down(0) || c_interface::pad_p_l_a_down(0) }
     }
 
-    pub fn pressed_down_fast() -> bool {
+    pub fn input_down_fast() -> bool {
         unsafe { c_interface::pad_p_r(0) || c_interface::pad_p_l_a_right(0) }
+    }
+
+    pub fn input_pressed_start() -> bool {
+        unsafe { c_interface::pad_start(0) }
+    }
+
+    pub fn input_pressed_ok() -> bool {
+        unsafe { c_interface::pad_p_a(0) }
+    }
+
+    pub fn input_pressed_back() -> bool {
+        unsafe { c_interface::pad_p_b(0) }
     }
 }

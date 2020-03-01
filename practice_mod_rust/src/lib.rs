@@ -5,6 +5,11 @@
 #[macro_use]
 extern crate alloc;
 
+#[macro_use]
+extern crate lazy_static;
+
+extern crate spin;
+
 use core::alloc::{GlobalAlloc, Layout};
 use core::ffi::c_void;
 use core::fmt::{self, Write};

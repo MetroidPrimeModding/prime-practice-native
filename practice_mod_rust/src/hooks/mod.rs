@@ -13,10 +13,14 @@ pub extern "C" fn on_frame() {
     if CONFIG.show_igt || CONFIG.show_input {
         // draw_text("Prime Practice Mod", pos);
         if CONFIG.show_igt {
-            osd::draw_igt(x + 110.0, y);
+            osd::draw_igt(x, y);
+            x += 110.0;
+        }
+        if CONFIG.show_input {
+            osd::draw_input(x, y);
         }
         y += LINE_HEIGHT;
-        //TODO: input
+        x = 10.0;
     }
     if CONFIG.show_speed {
         osd::draw_player_speed(x, y);
