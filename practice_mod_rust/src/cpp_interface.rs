@@ -196,19 +196,19 @@ pub mod text_renderer {
     }
 
     pub fn input_up() -> bool {
-        unsafe { c_interface::pad_p_d_up(0) || c_interface::pad_p_l_a_up(0) }
+        unsafe { c_interface::pad_d_d_up(0) || c_interface::pad_d_l_a_up(0) }
     }
 
     pub fn input_up_fast() -> bool {
-        unsafe { c_interface::pad_p_l(0) || c_interface::pad_p_l_a_left(0) }
+        unsafe { c_interface::pad_d_l(0) || c_interface::pad_d_l_a_left(0) }
     }
 
     pub fn input_down() -> bool {
-        unsafe { c_interface::pad_p_d_down(0) || c_interface::pad_p_l_a_down(0) }
+        unsafe { c_interface::pad_d_d_down(0) || c_interface::pad_d_l_a_down(0) }
     }
 
     pub fn input_down_fast() -> bool {
-        unsafe { c_interface::pad_p_r(0) || c_interface::pad_p_l_a_right(0) }
+        unsafe { c_interface::pad_d_r(0) || c_interface::pad_d_l_a_right(0) }
     }
 
     pub fn input_pressed_start() -> bool {

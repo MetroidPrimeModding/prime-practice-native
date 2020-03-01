@@ -3,9 +3,12 @@ use crate::cpp_interface::text_renderer::{
     input_up_fast, set_text_color,
 };
 use crate::hooks::pause_screen::HandleInputResult::StopPropagation;
+use crate::hooks::pause_screen::OnSelectResult::Deslelect;
 use crate::hooks::LINE_HEIGHT;
+use crate::MPStdout;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
+use core::fmt::Write;
 use HandleInputResult::Propagate;
 use OnSelectResult::DoNothing;
 
@@ -21,7 +24,7 @@ pub enum HandleInputResult {
 
 pub trait MenuItem: Sync + Send {
     fn on_select(&mut self) -> OnSelectResult {
-        DoNothing
+        Deslelect
     }
     fn handle_input(&mut self) -> HandleInputResult {
         Propagate
@@ -35,16 +38,16 @@ pub struct Menu {
     pub y: f32,
     pub has_selected: bool,
     pub active: bool,
-    pub scroll_timer: u32,
+    pub scroll_timer: i32,
     children: Vec<Box<dyn MenuItem>>,
 }
 
 impl Menu {
-    pub fn new(children: Vec<Box<dyn MenuItem>>) -> Self {
+    pub fn new(x: f32, y: f32, children: Vec<Box<dyn MenuItem>>) -> Self {
         Menu {
             cursor: 0,
-            x: 0.0,
-            y: 0.0,
+            x,
+            y,
             has_selected: false,
             active: false,
             scroll_timer: 0,
@@ -100,13 +103,13 @@ impl Menu {
         if input_down() {
             if self.scroll_timer <= 0 {
                 self.cursor += 1;
-                self.scroll_timer = 4;
+                self.scroll_timer = 8;
             }
         }
         if input_up() {
             if self.scroll_timer <= 0 {
                 self.cursor -= 1;
-                self.scroll_timer = 4;
+                self.scroll_timer = 8;
             }
         }
         if input_down_fast() {

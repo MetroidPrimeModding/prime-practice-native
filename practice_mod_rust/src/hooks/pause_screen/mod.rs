@@ -1,14 +1,21 @@
-use crate::cpp_interface::text_renderer::draw_text;
-use crate::hooks::pause_screen::OnSelectResult::DoNothing;
-use crate::{allocated_bytes, max_allocated_bytes};
+use crate::cpp_interface::text_renderer::{draw_text, is_pause_screen};
+use crate::hooks::pause_screen::OnSelectResult::{Deslelect, DoNothing};
+use crate::{allocated_bytes, max_allocated_bytes, MPStdout};
 use alloc::boxed::Box;
+use core::fmt::Write;
 pub use menu::*;
 use spin::Mutex;
 
 mod menu;
 
+const MENU_2_OFFSET_X: f32 = 170.0;
+const MENU_3_OFFSET_X: f32 = 310.0;
+const PAUSE_MENU_OFFSET: f32 = 50.0;
+
 lazy_static! {
-    static ref MAIN_MENU: Mutex<Menu> = Mutex::new(Menu::new(vec![
+    static ref MAIN_MENU: Mutex<Menu> = Mutex::new(Menu::new(
+    10.0, PAUSE_MENU_OFFSET,
+    vec![
         Box::new(CallbackMenuItem {
             name: "Room Options [soon]",
             callback: noop,
@@ -62,13 +69,18 @@ pub fn draw() {
     let max = max_allocated_bytes();
     draw_text(&format!("dyn {}/max {}", mem, max), 10.0, 452.0);
 
-    // unsafe {
     let mut menu = MAIN_MENU.lock();
     menu.active = true;
     menu.draw();
-    // }
+}
+
+pub fn handle_input() {
+    if is_pause_screen() {
+        let mut menu = MAIN_MENU.lock();
+        menu.handle_input();
+    }
 }
 
 fn noop(_: &dyn MenuItem) -> OnSelectResult {
-    DoNothing
+    Deslelect
 }

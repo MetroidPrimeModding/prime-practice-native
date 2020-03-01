@@ -47,7 +47,9 @@ pub extern "C" fn on_frame() {
 }
 
 #[no_mangle]
-pub extern "C" fn on_input() {}
+pub extern "C" fn on_input() {
+    pause_screen::handle_input();
+}
 
 mod osd;
 mod pause_screen;
