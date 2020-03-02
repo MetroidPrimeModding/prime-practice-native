@@ -1,113 +1,56 @@
-use crate::cpp_interface::text_renderer::{
-    draw_text, input_down, input_down_fast, input_pressed_back, input_pressed_ok, input_up,
-    input_up_fast, set_text_color, warp,
-};
-use crate::hooks::pause_screen::HandleInputResult::{Deselect, StopPropagation};
-use crate::hooks::pause_screen::OnSelectResult::DoNothing;
-use crate::hooks::pause_screen::{
-    HandleInputResult, MenuItem, OnSelectResult, MENU_3_OFFSET_X, PAUSE_MENU_OFFSET,
-};
-use crate::hooks::LINE_HEIGHT;
+use crate::cpp_interface::text_renderer::warp;
+use crate::hooks::pause_screen::view::HandleInputResult::{DoNothing, Push};
+use crate::hooks::pause_screen::{Menu, MenuItem};
+use alloc::boxed::Box;
 use alloc::vec::Vec;
 
-pub struct WarpWorldItem<'a> {
-    pub name: &'a str,
-    pub world_id: u32,
-    pub warps: &'static [Warp],
-    pub active: bool,
-    pub cursor: i32,
-    pub scroll_timer: i32,
+pub fn create_warps_menu<'a>() -> Menu<'a> {
+    Menu::new(vec![
+        MenuItem {
+            name: "Frigate",
+            on_select: Box::new(|| Push(Box::new(create_menu_for_warps(0x158EFE17, &FRIGATE)))),
+        },
+        MenuItem {
+            name: "Tallon Overworld",
+            on_select: Box::new(|| Push(Box::new(create_menu_for_warps(0x39F2DE28, &TALLON)))),
+        },
+        MenuItem {
+            name: "Chozo Ruins",
+            on_select: Box::new(|| Push(Box::new(create_menu_for_warps(0x83F6FF6F, &CHOZO)))),
+        },
+        MenuItem {
+            name: "Magmoor Caverns",
+            on_select: Box::new(|| Push(Box::new(create_menu_for_warps(0x3EF8237C, &MAGMOOR)))),
+        },
+        MenuItem {
+            name: "Phendrana Drifts",
+            on_select: Box::new(|| Push(Box::new(create_menu_for_warps(0xA8BE6291, &PHENDRANA)))),
+        },
+        MenuItem {
+            name: "Phazon Mines",
+            on_select: Box::new(|| Push(Box::new(create_menu_for_warps(0xB1AC4D65, &MINES)))),
+        },
+        MenuItem {
+            name: "Impact Crater",
+            on_select: Box::new(|| Push(Box::new(create_menu_for_warps(0xC13B09D1, &CRATER)))),
+        },
+    ])
 }
 
-impl<'a> WarpWorldItem<'a> {
-    pub fn new(name: &'a str, world_id: u32, warps: &'static [Warp]) -> Self {
-        WarpWorldItem {
-            name,
-            world_id,
-            warps,
-            active: false,
-            cursor: 0,
-            scroll_timer: 0,
-        }
-    }
-}
+fn create_menu_for_warps<'a>(world_id: u32, warps: &'static [Warp]) -> Menu<'a> {
+    let mut menu = Vec::with_capacity(warps.len());
 
-impl<'a> MenuItem for WarpWorldItem<'a> {
-    fn on_select(&mut self) -> OnSelectResult {
-        self.active = true;
-        DoNothing
+    for w in warps {
+        menu.push(MenuItem {
+            name: w.name,
+            on_select: Box::new(move || {
+                warp(world_id, w.area);
+                DoNothing
+            }),
+        })
     }
 
-    fn handle_input(&mut self) -> HandleInputResult {
-        if self.scroll_timer > 0 {
-            self.scroll_timer -= 1;
-        }
-        if input_down() {
-            if self.scroll_timer <= 0 {
-                self.cursor += 1;
-                self.scroll_timer = 8;
-            }
-        }
-        if input_up() {
-            if self.scroll_timer <= 0 {
-                self.cursor -= 1;
-                self.scroll_timer = 8;
-            }
-        }
-        if input_down_fast() {
-            if self.scroll_timer <= 0 {
-                self.cursor += 10;
-                self.scroll_timer = 15;
-            }
-        }
-        if input_up_fast() {
-            if self.scroll_timer <= 0 {
-                self.cursor -= 10;
-                self.scroll_timer = 15;
-            }
-        }
-
-        self.cursor = self.cursor % self.warps.len() as i32;
-        if self.cursor < 0 {
-            self.cursor += self.warps.len() as i32;
-        }
-
-        if input_pressed_ok() {
-            warp(self.world_id, self.warps[self.cursor as usize].area)
-        }
-
-        if input_pressed_back() {
-            self.active = false;
-            return Deselect;
-        }
-
-        StopPropagation
-    }
-
-    fn draw(&self, x: f32, y: f32) {
-        draw_text(&self.name, x, y);
-        if self.active {
-            let mut y_off = 0f32;
-            let scroll_off = 30i32;
-
-            if self.cursor > scroll_off {
-                y_off = (self.cursor - scroll_off) as f32 * -LINE_HEIGHT
-            }
-
-            for (i, warp) in self.warps.iter().enumerate() {
-                let mut y = LINE_HEIGHT * i as f32 + y_off;
-                if y < 0.0 || y > 400.0 {
-                    continue;
-                }
-                if self.cursor == i as i32 {
-                    set_text_color(1.0, 1.0, 1.0, 1.0);
-                } else {
-                    set_text_color(0.4, 0.4, 0.4, 1.0);
-                }
-                draw_text(warp.name, MENU_3_OFFSET_X, PAUSE_MENU_OFFSET + y);
-            }
-        }
-    }
+    Menu::new(menu)
 }
 
 pub struct Warp {
