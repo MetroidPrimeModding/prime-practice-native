@@ -69,10 +69,21 @@ set(SOURCE_FILES
         src/libc.c
         src/practice_mod_rust.cpp
         src/practice_mod_rust_input.cpp
-        src/ApplyCodePatches.cpp
         )
 
-add_prime_library(default-prime-practice ${SOURCE_FILES})
-target_link_libraries(default-prime-practice.preplf
+patch_function("CGraphics::EndScene()"
+        "RenderHook()")
+patch_function("CPauseScreen::Draw()"
+        "PauseScreenDrawReplacement(CPauseScreen *)")
+patch_function("CPauseScreen::ProcessControllerInput(const CStateManager &, const CFinalInput &)"
+        "PauseControllerInputHandler(CPauseScreen *, CStateManager &, const CFinalInput &)")
+patch_function("CMainFlow::OnMessage(const CArchitectureMessage&, CArchitectureQueue&)"
+        "IOWinMessageHook(CMainFlow *, const CArchitectureMessage &, CArchitectureQueue &)")
+patch_function("CStateManager::DrawDebugStuff() const"
+        "drawDebugStuff(CStateManager *)")
+
+add_prime_library(default-prime-practice default.dol ${SOURCE_FILES})
+target_link_libraries(default-prime-practice
         "${CMAKE_SOURCE_DIR}/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/libpractice_mod_rust.a"
-    )
+        )
+

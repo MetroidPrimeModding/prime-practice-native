@@ -279,7 +279,7 @@ class DolFile:
         for textSecIdx in range(0, 7):
             # Grab offset/address, check if valid
             secOffset = self.textSecOffsets[textSecIdx]
-            if secOffset is 0: continue
+            if secOffset == 0: continue
 
             secAddress = self.textSecAddresses[textSecIdx]
             secSize = self.textSecSizes[textSecIdx]
@@ -297,7 +297,7 @@ class DolFile:
                     LI = extend_sign_bit(instruction & 0x3FFFFFC, 24)
                     AA = (instruction >> 1) & 0x1
                     target = LI
-                    if AA is 0: target = target + address
+                    if AA == 0: target = target + address
 
                     if target == origSymAddress:
                         patch = {}
@@ -309,7 +309,7 @@ class DolFile:
         for dataSecIdx in range(0, 11):
             # Grab offset/address, check if valid
             secOffset = self.dataSecOffsets[dataSecIdx]
-            if secOffset is 0: continue
+            if secOffset == 0: continue
 
             secAddress = self.dataSecAddresses[dataSecIdx]
             secSize = self.dataSecSizes[dataSecIdx]

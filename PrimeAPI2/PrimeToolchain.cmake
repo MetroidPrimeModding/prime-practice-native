@@ -83,9 +83,23 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_PRIME_CXX_FLAGS}")
 include_directories("${DEVKITPRO}/libogc/include/")
 
 # Macro to get the required link arguments in place
-macro(add_prime_library name base_dol list_file)
-    add_executable(${name}.preplf ${ARGN})
-    set_target_properties(${name}.preplf PROPERTIES LINK_FLAGS
-        "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
+macro(add_prime_library name base_dol)
+    add_executable(${name} ${ARGN} "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp")
+    set_target_properties(${name} PROPERTIES LINK_FLAGS
+            "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
+            )
+    add_custom_command(
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
+            COMMAND python3 "parse_and_generate_patch.py"
+            -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
+            ${PRIME_PATCH_FUNCTIONS}
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/PrimeAPI2/python/"
     )
+endmacro()
+
+macro(patch_function orig dest)
+    list(APPEND PRIME_PATCH_FUNCTIONS
+            -p "'${orig}'" "'${dest}'"
+            )
 endmacro()

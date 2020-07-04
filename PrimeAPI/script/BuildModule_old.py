@@ -1,4 +1,4 @@
-from Mangle import *
+from mangle import *
 from DolFile import *
 from PreplfFile import *
 import glob

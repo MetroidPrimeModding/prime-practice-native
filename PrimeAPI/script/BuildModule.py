@@ -23,7 +23,6 @@ buildDir = ""
 moduleName = "Mod"
 outFile = ""
 dolFile = DolFile()
-dolPatches = []
 verbose = False
 buildDebug = False
 
@@ -90,148 +89,6 @@ def get_object_path(sourceFile):
     # Hash is appended to solve the "multiple files named the same thing" problem
     hash = hex(zlib.crc32(bytes(sourceFile, 'utf-8')))[2:]
     return "%s/%s-%s.o" % (buildDir, os.path.splitext(os.path.split(sourceFile)[1])[0], hash)
-
-
-def generate_scoped_decl(declText, declType):
-    # This allows us to forward-declare scoped classes and functions which are scoped inside of a namespace or a class. While
-    # normally you wouldn't be allowed to declare a namespace with the same name as a class, in this case ApplyCodePatches is
-    # compiled separately from the other modules and therefore doesn't know of any name conflicts. Using namespaces like this
-    # causes the compiler to generate an identical symbol to the class member, which can then later be resolved by the linker.
-    scopes = split_scopes(declText)
-    baseName = scopes[-1]
-    del scopes[-1]
-    outText = ""
-
-    for scope in scopes:
-        outText += "namespace %s { " % scope
-
-    outText += "%s %s;" % (declType, baseName)
-
-    for scope in scopes:
-        outText += " }"
-
-    outText += '\n'
-    return outText
-
-
-def generate_patch_code():
-    template = open("%s/script/ApplyCodePatches_Template.cpp" % primeApiRoot, "r")
-    code = template.read()
-    template.close()
-
-    # Find memory locations that need patches
-    sortedPatches = sorted(dolPatches, key=lambda patch: patch['address'])
-    classDecls = ""
-    funcDecls = ""
-    funcCode = ""
-    usedSymbols = []
-    usedSymbols = []
-
-    for patch in dolPatches:
-        address = patch['address']
-        symbol = patch['symbol']
-        type = patch['type']
-
-        # For function pointers, use static_cast to ensure the correct overload is used
-        argsStart = symbol.find('(')
-
-        if argsStart != -1:
-            argsEnd = symbol.rfind(')')
-            assert (argsEnd != -1)
-
-            funcName = symbol[0:argsStart]
-            symbolRef = "reinterpret_cast<void*>(&%s)" % (funcName)
-
-        else:
-            symbolRef = "&%s" % symbol
-
-        # Generate code for this patch
-        if type == R_PPC_REL24:
-            patchCode = '\n\tRelocate_Rel24((void*) 0x%08X, %s);' % (address, symbolRef)
-
-        elif type == R_PPC_ADDR32:
-            patchCode = '\n\tRelocate_Addr32((void*) 0x%08X, %s);' % (address, symbolRef)
-
-        else:
-            continue
-
-        if not symbol in usedSymbols:
-            paramsStart = symbol.find('(')
-            isFunction = paramsStart != -1
-
-            if isFunction:
-                # Add forward decl for classes referenced in the function parameters
-                paramsEnd = symbol.rfind(')')
-                params = split_params(symbol[paramsStart + 1:paramsEnd])
-
-                for param in params:
-                    paramStr = ''.join([chr for chr in param if not chr in "*&"])
-                    paramWords = paramStr.split(' ')
-
-                    for word in paramWords:
-                        if word and word != 'const' and word != 'unsigned' and word != 'signed':
-                            # this is probably our type name!
-                            if not is_basic_type(word):
-                                classDecls += generate_scoped_decl(word, "class")
-                            break
-
-                funcDecls += generate_scoped_decl(symbol, "void")
-                usedSymbols.append(symbol)
-
-        funcCode = funcCode + patchCode
-
-    cpptext = code % (classDecls + funcDecls, funcCode)
-
-    # Save file
-    cppname = "%s/src/ApplyCodePatches.cpp" % projDir
-    out = open(cppname, "w")
-    out.write(cpptext)
-    out.close()
-    return cppname
-
-
-def parse_code_macros(sourcePath):
-    # Parse file, look for PATCH_SYMBOL macros
-    # This implementation leaves a bit to be desired - namely, it doesn't account for commented-out
-    # code or #ifdef'd out code, and won't correctly mangle templates that have default parameters
-    # print("Reading file %s" % sourcePath)
-    sourceFile = open(sourcePath, 'r', encoding="ISO-8859-1")
-    regex = re.compile("^PATCH_SYMBOL\((.*)\((.*)\)(.*),(.*)\((.*)\)(.*)\)")
-    pos = 0
-
-    while True:
-        line = sourceFile.readline()
-        if not line:
-            break
-
-        # Replace spaces except ones denoting const parameters
-        line = line.strip()
-        strippedLine = ""
-
-        for chrIdx in range(0, len(line)):
-            chr = line[chrIdx]
-
-            if chr != ' ':
-                strippedLine += chr
-
-            else:
-                if chrIdx >= 5 and line[chrIdx - 5: chrIdx] == "const":
-                    # Verify this const precedes a type name by verifying the next non-whitespace character is not a comma
-                    for chrIdx2 in range(chrIdx, len(line)):
-                        if line[chrIdx2] != ' ':
-                            if line[chrIdx2] != ',':
-                                strippedLine += chr
-                            break
-
-        match = regex.search(strippedLine)
-
-        if match is not None:
-            origSymbol = "%s(%s)%s" % (match.group(1), match.group(2), match.group(3))
-            patchSymbol = "%s(%s)%s" % (match.group(4), match.group(5), match.group(6))
-            pos = match.endpos
-
-            dolPatches.extend(dolFile.generate_patches(mangle(origSymbol), patchSymbol))
-
 
 def convert_preplf_to_rel(preplfPath, outRelPath):
     preplf = PreplfFile(preplfPath)
@@ -498,10 +355,6 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
 
 def compile_rel():
     # We assume it's been built
-
-    # Generate patching code
-    parse_code_macros("%s/src/prime-practice.cpp" % projDir)
-    generatedFile = generate_patch_code()
 
     # We now have a .preplf file in the build folder... final step is to convert it to .rel
     if not convert_preplf_to_rel("/Users/pwootage/projects/virtualbox_folder/prime-practice-native/cmake-build-debug-remote/default-prime-practice.preplf", outFile):

@@ -6,20 +6,7 @@
 #include <PrimeAPI.h>
 
 // Generated Forward Decls
-class CPauseScreen;
-class CPauseScreen;
-class CStateManager;
-class CFinalInput;
-class CMainFlow;
-class CArchitectureMessage;
-class CArchitectureQueue;
-class CStateManager;
-void RenderHook();
-void PauseScreenDrawReplacement(CPauseScreen*);
-void PauseControllerInputHandler(CPauseScreen*,CStateManager&,const CFinalInput&);
-void IOWinMessageHook(CMainFlow*,const CArchitectureMessage&,CArchitectureQueue&);
-void drawDebugStuff(CStateManager*);
-
+%s
 // Function Prototypes
 void Relocate_Addr32(void *pRelocAddress, void *pSymbolAddress);
 void Relocate_Rel24(void *pRelocAddress, void *pSymbolAddress);
@@ -41,12 +28,5 @@ void Relocate_Rel24(void *pRelocAddress, void *pSymbolAddress)
 }
 
 void ApplyCodePatches()
-{
-	Relocate_Rel24((void*) 0x80005734, reinterpret_cast<void*>(&RenderHook));
-	Relocate_Rel24((void*) 0x800061F4, reinterpret_cast<void*>(&RenderHook));
-	Relocate_Rel24((void*) 0x802BDC5C, reinterpret_cast<void*>(&RenderHook));
-	Relocate_Rel24((void*) 0x80108DB4, reinterpret_cast<void*>(&PauseScreenDrawReplacement));
-	Relocate_Rel24((void*) 0x80107A28, reinterpret_cast<void*>(&PauseControllerInputHandler));
-	Relocate_Addr32((void*) 0x803D9934, reinterpret_cast<void*>(&IOWinMessageHook));
-	Relocate_Rel24((void*) 0x80046B88, reinterpret_cast<void*>(&drawDebugStuff));
+{%s
 }
