@@ -22,7 +22,9 @@ crate-type = ["staticlib"]
 
 [profile.dev]
 panic = "abort"
+lto = "fat"
 
 [profile.release]
 panic = "abort"
 opt-level = "z"
+lto = "fat"

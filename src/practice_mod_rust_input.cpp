@@ -2,7 +2,6 @@
 #include <include/prime/CGraphics.hpp>
 #include <include/prime/CFinalInput.hpp>
 #include <include/NewPauseScreen.hpp>
-#include "include/practice_mod_rust.h"
 #include "include/TextRenderer.hpp"
 
 //inline CFinalInput* getInput(uint32_t pad) {

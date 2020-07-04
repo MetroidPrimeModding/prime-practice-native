@@ -1,16 +1,11 @@
 cmake_minimum_required(VERSION 3.6)
 
 set(CMAKE_CXX_STANDARD 11)
-#if (NOT CLION)
-#    set(CMAKE_TOOLCHAIN_FILE HanafudaToolchain.cmake)
-#endif ()
+set(CMAKE_TOOLCHAIN_FILE PrimeAPI2/PrimeToolchain.cmake)
 project(prime-practice-native)
-
-add_compile_options(-D CLION)
 
 include_directories(PrimeAPI/include)
 include_directories(src/)
-include_directories(/opt/devkitpro/libogc/include/)
 
 set(SOURCE_FILES
         PrimeAPI/include/rstl/string.h
@@ -72,9 +67,12 @@ set(SOURCE_FILES
         src/duk_mem.cpp
         src/prime-practice.cpp
         src/libc.c
-        src/include/practice_mod_rust.h
         src/practice_mod_rust.cpp
         src/practice_mod_rust_input.cpp
+        src/ApplyCodePatches.cpp
         )
 
-add_executable(default-prime-practice ${SOURCE_FILES})
+add_prime_library(default-prime-practice ${SOURCE_FILES})
+target_link_libraries(default-prime-practice.preplf
+        "${CMAKE_SOURCE_DIR}/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/libpractice_mod_rust.a"
+    )

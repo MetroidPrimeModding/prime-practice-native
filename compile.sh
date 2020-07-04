@@ -1,10 +1,12 @@
-#!/usr/bin/env bash -e
+#!/bin/bash -xe
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$DIR/practice_mod_rust"
-./build.sh
-cd "$DIR"
+#cd "$DIR/practice_mod_rust"
+#./build.sh
+#cd "$DIR"
 
+rm -rf build
+mkdir -p build
 python3 ./PrimeAPI/script/BuildModule.py . default.dol -v
 ret=$?
 if [ $ret -eq 0 ]; then

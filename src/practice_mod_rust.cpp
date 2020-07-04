@@ -3,7 +3,7 @@
 #include <include/NewPauseScreen.hpp>
 #include <include/prime/CSfxManager.hpp>
 #include <include/prime/CMain.hpp>
-#include "include/practice_mod_rust.h"
+//#include "include/practice_mod_rust.h"
 #include "include/TextRenderer.hpp"
 #include "include/prime/CWorld.hpp"
 

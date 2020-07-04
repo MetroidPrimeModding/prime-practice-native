@@ -4,7 +4,6 @@
 #include "PrimeAPI.h"
 #include "include/types.h"
 #include "include/GX.hpp"
-#include "practice_mod_rust.h"
 
 #define TEX_CHARS_WIDE 16
 #define CHAR_TEX_DIM (1.0f/16.0f)

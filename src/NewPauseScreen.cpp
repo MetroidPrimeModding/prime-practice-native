@@ -12,7 +12,6 @@
 #include "include/prime/CWorld.hpp"
 #include "include/prime/CMain.hpp"
 #include "include/prime/CSfxManager.hpp"
-#include "include/practice_mod_rust.h"
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -112,7 +111,8 @@ void NewPauseScreen::Render() {
   CGraphics::SetIdentityModelMatrix();
   CGraphics::SetIdentityViewPointMatrix();
 
-  on_frame();
+  //on_frame();
+  TextRenderer::RenderText("Hello, world", 100, 100);
 
   if (fatalError) {
     TextRenderer::RenderText(fatalError, 100, 100);
@@ -373,7 +373,7 @@ void NewPauseScreen::show() {
 }
 
 void NewPauseScreen::HandleInputs() {
-  on_input();
+  //on_input();
 }
 
 

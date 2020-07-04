@@ -13,7 +13,7 @@ import zlib
 primeApiRoot = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
 devkitPPCRoot = ""
 gccPath = ""
-# gccVersion = ""
+gccVersion = ""
 ldPath = ""
 linkerPath = ""
 
@@ -183,7 +183,7 @@ def generate_patch_code():
     cpptext = code % (classDecls + funcDecls, funcCode)
 
     # Save file
-    cppname = "%s/src/ApplyCodePatches.cpp" % projDir
+    cppname = "%s/ApplyCodePatches.cpp" % buildDir
     out = open(cppname, "w")
     out.write(cpptext)
     out.close()
@@ -231,6 +231,115 @@ def parse_code_macros(sourcePath):
             pos = match.endpos
 
             dolPatches.extend(dolFile.generate_patches(mangle(origSymbol), patchSymbol))
+
+
+def compile_object(sourcePath, outPath):
+    # Create output directory
+    if not os.path.exists(outPath):
+        os.makedirs(outPath)
+
+    if ".lib." not in sourcePath:
+        parse_code_macros(sourcePath)
+
+    if os.path.exists(get_object_path(sourcePath)) and os.path.getmtime(sourcePath) < os.path.getmtime(
+            get_object_path(sourcePath)):
+        print("%s object newer than source - not re-compiling. Delete object to re-compile." % sourcePath)
+        return True
+
+    print("Compiling %s" % sourcePath)
+
+    # Check extension
+    ext = get_extension(sourcePath)
+
+    if ext == ".cpp":
+        lang = "-std=c++17"
+    elif ext == ".c":
+        lang = ""
+    elif ext == '.S':
+        lang = ""
+    else:
+        print("%s: unrecognized extension (%s)" % (sourcePath, ext))
+        return False
+
+    # Compile
+    includeDirs = [
+        "-nostdlib",
+        "-I.",
+        "-Isrc/",
+        "-Isrc/include/",
+        "-I%s/libogc/include/" % devkitProRoot,
+        "-I%s/include" % primeApiRoot,
+    ]
+
+    args = [
+        # compilerPath,
+        gccPath,
+        lang,
+        "-Os",
+        " ".join(includeDirs),
+    ]
+    if "c++" in lang:
+        args += [
+            "-Wno-delete-incomplete",
+            "-fno-rtti"
+        ]
+    args += [
+        "-fno-function-sections",
+        "-fno-data-sections",
+        "-fno-exceptions",
+        "-mno-sdata",
+        "-DSTRING_ONLY",
+        "-D_LIBCPP_HAS_NO_THREADS",
+        "-D_LDBL_EQ_DBL",
+        "-c",
+        "%s" % sourcePath,
+        "-o %s" % get_object_path(sourcePath)
+    ]
+
+    # Run compiler
+    command = ' '.join(args)
+    if verbose:
+        print(">>> %s" % command)
+    ret = subprocess.call(command, shell=True)
+    return ret == 0
+
+
+def link_objects(objList):
+    print("Linking objects")
+
+    args = [
+        ldPath,
+        # '-shared',
+        ' '.join(objList),
+        "-L%s/lib/gcc/powerpc-eabi/%s" % (devkitPPCRoot, gccVersion),
+        "-L%s/powerpc-eabi/lib" % devkitPPCRoot,
+        "-nodefaultlibs",
+        "-nostdlib",
+        "-flto",
+        "-Os",
+        '-lgcc',
+        # '-lc',
+        '-lsysbase',
+        "-r",
+        "-d",
+        "-x",
+        "-z nocopyreloc",
+        "-call_shared",
+        "--strip-discarded",
+        "--gc-sections",
+        "-e _prolog",
+        "--unresolved-symbols=ignore-in-object-files",
+        "-o %s/%s.preplf" % (buildDir, moduleName),
+        "-T %s/eppc.ld" % (primeApiRoot),
+        "-Map %s/%s.map" % (buildDir, moduleName)
+    ]
+
+    # Run linker
+    command = ' '.join(args)
+    if verbose:
+        print(">>> %s" % command)
+    ret = subprocess.call(command, shell=True)
+    return ret == 0
 
 
 def convert_preplf_to_rel(preplfPath, outRelPath):
@@ -497,14 +606,43 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
 
 
 def compile_rel():
-    # We assume it's been built
+    sourceFiles = []
+    sourceFiles.extend(glob.glob(("%s/src/**/*.cpp" % projDir), recursive=True))
+    sourceFiles.extend(glob.glob(("%s/src/**/*.c" % projDir), recursive=True))
+
+    sourceFiles = [file for file in sorted(sourceFiles) if file.find("build/ApplyCodePatches.cpp") == -1]
+    sourceFiles = [file for file in sorted(sourceFiles) if file.find("script/ApplyCodePatches_Template.cpp") == -1]
+    sourceFiles = [file for file in sorted(sourceFiles) if file.find("cmake-build-debug") == -1]
+
+    # Compile/link source files
+    objectFiles = []
+
+    for sourceFile in sourceFiles:
+        if not compile_object(sourceFile, buildDir):
+            return False
+        else:
+            objectFiles.append(get_object_path(sourceFile))
+            if verbose: print('')
 
     # Generate patching code
-    parse_code_macros("%s/src/prime-practice.cpp" % projDir)
     generatedFile = generate_patch_code()
+    genBuildSuccess = compile_object(generatedFile, buildDir)
+
+    if not genBuildSuccess:
+        return False
+    else:
+        objectFiles.append(get_object_path(generatedFile))
+        if verbose: print('')
+
+    objectFiles.extend(glob.glob(('%s/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/*.a' % projDir), recursive=True))
+    # objectFiles.append('%s/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/libpractice_mod_rust.rlib' % projDir)
+
+    # Link
+    if not link_objects(objectFiles):
+        return False
 
     # We now have a .preplf file in the build folder... final step is to convert it to .rel
-    if not convert_preplf_to_rel("/Users/pwootage/projects/virtualbox_folder/prime-practice-native/cmake-build-debug-remote/default-prime-practice.preplf", outFile):
+    if not convert_preplf_to_rel("%s/%s.preplf" % (buildDir, moduleName), outFile):
         return False
 
     return True
@@ -531,22 +669,22 @@ def main():
     ldPath = devkitPPCRoot + '/bin/powerpc-eabi-ld'
     
     # Get GCC version
-    # try:
-    #   proc = subprocess.Popen([gccPath, '-dumpversion'], stdout=subprocess.PIPE)
-    #   tmpVersion = ''
-    #   while proc.returncode == None:
-    #     tmpVersion += proc.stdout.readline().decode('utf-8')
-    #     proc.communicate()
-    #
-    #   if proc.returncode == 0:
-    #     gccVersion = tmpVersion.rstrip()
-    #     print('Successfully retrieved GCC version, using %s' % gccVersion)
-    #   else:
-    #     print('Unable to determine GCC version, aborting')
-    #     sys.exit(1)
-    # except:
-    #   print('Unable to determine GCC version, aborting')
-    #   sys.exit(1)
+    try:
+      proc = subprocess.Popen([gccPath, '-dumpversion'], stdout=subprocess.PIPE)
+      tmpVersion = ''
+      while proc.returncode == None:
+        tmpVersion += proc.stdout.readline().decode('utf-8')
+        proc.communicate()
+      
+      if proc.returncode == 0:
+        gccVersion = tmpVersion.rstrip()
+        print('Successfully retrieved GCC version, using %s' % gccVersion)
+      else:
+        print('Unable to determine GCC version, aborting')
+        sys.exit(1)
+    except:
+      print('Unable to determine GCC version, aborting')
+      sys.exit(1)
 
     # Parse commandline argments
     if not parse_commandline():
