@@ -1,4 +1,4 @@
-from stream import *
+from Stream import *
 
 # Elf Section Type definitions
 EST_NULL = 0

@@ -1,4 +1,4 @@
-from stream import *
+from Stream import *
 import os
 import struct
 
