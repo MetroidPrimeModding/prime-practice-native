@@ -1,94 +1,46 @@
-from Mangle import *
-from DolFile import *
-from PreplfFile import *
-import glob
 import os
-import re
-import subprocess
-import sys
+import argparse
 import cxxfilt
-import zlib
-# Environment
+from mangle import mangle
+from preplf import *
+from stream import *
+from dol import *
 
-primeApiRoot = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
-devkitPPCRoot = ""
-gccPath = ""
-# gccVersion = ""
-ldPath = ""
-linkerPath = ""
-
-# Configuration
-projDir = ""
-buildDir = ""
-moduleName = "Mod"
-outFile = ""
+DIR = os.path.dirname(os.path.realpath(__file__))
 dolFile = DolFile()
-verbose = False
-buildDebug = False
 
+def main():
+    parser = argparse.ArgumentParser(description='Patch generator')
+    parser.add_argument(
+        "-o", "--outRel",
+        help="Output REL",
+        required=True
+    )
+    parser.add_argument(
+        "-i", "--inElf",
+        help="Input ELF",
+        required=True
+    )
+    parser.add_argument(
+        "-d", "--inDol",
+        help="Input dol",
+        required=True
+    )
+    args = parser.parse_args()
 
-def parse_commandline():
-    global projDir, buildDir, moduleName, outFile, verbose, buildDebug
-
-    if len(sys.argv) < 3:
-        print("Please specify a project directory and a dol to link to!")
-        return False
-
-    # Set project directory
-    projDir = sys.argv[1]
-    if projDir.endswith("/") or projDir.endswith("/"):
-        projDir = projDir[:-1]
-
-    buildDir = "%s/build" % projDir
-
-    # Read DOL
-    dolFile.read(sys.argv[2])
+    dolFile.read(args.inDol)
 
     if dolFile.buildVersion >= 3:
         print(
             "The specified dol file belongs to a Wii version of the game. The Wii versions are currently not supported.")
         return False
 
-    if not dolFile.load_symbols(primeApiRoot + "/symbols"):
+    if not dolFile.load_symbols("%s/symbols" % DIR):
+        raise IOError("Unable to load symbols")
+
+    if not convert_preplf_to_rel(args.inElf, args.outRel):
         return False
 
-    # Check other arguments
-    argIdx = 3
-
-    while argIdx < len(sys.argv):
-        arg = sys.argv[argIdx]
-
-        if arg == "-debug":
-            buildDebug = True
-
-        elif arg == "-m":
-            moduleName = sys.argv[argIdx + 1]
-            argIdx += 1
-
-        elif arg == "-o":
-            outFile = sys.argv[argIdx + 1]
-            argIdx += 1
-
-        elif arg == "-v":
-            verbose = True
-
-        argIdx += 1
-
-    # Set default values for some arguments
-    if not outFile:
-        outFile = "%s/%s.rel" % (buildDir, moduleName)
-
-    return True
-
-
-def get_extension(sourceFile):
-    return os.path.splitext(sourceFile)[1]
-
-
-def get_object_path(sourceFile):
-    # Hash is appended to solve the "multiple files named the same thing" problem
-    hash = hex(zlib.crc32(bytes(sourceFile, 'utf-8')))[2:]
-    return "%s/%s-%s.o" % (buildDir, os.path.splitext(os.path.split(sourceFile)[1])[0], hash)
 
 def convert_preplf_to_rel(preplfPath, outRelPath):
     preplf = PreplfFile(preplfPath)
@@ -351,68 +303,6 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
     rel.save_file(outRelPath)
     print("Saved REL to %s" % outRelPath)
     return True
-
-
-def compile_rel():
-    # We assume it's been built
-
-    # We now have a .preplf file in the build folder... final step is to convert it to .rel
-    if not convert_preplf_to_rel("/Users/pwootage/projects/virtualbox_folder/prime-practice-native/cmake-build-debug-remote/default-prime-practice.preplf", outFile):
-        return False
-
-    return True
-
-
-def main():
-    # Verify there is a valid installation of devkitPPC
-    global devkitPPCRoot, devkitProRoot
-    devkitProRoot = os.getenv("DEVKITPRO")
-    devkitPPCRoot = os.getenv("DEVKITPPC")
-
-    if devkitPPCRoot is None:
-        print("Error: The DEVKITPPC environment variable is undefined. BuildModule.py requires DevKitPPC")
-
-    if devkitProRoot is None:
-        print("Error: The DEVKITPRO environment variable is undefined. BuildModule.py requires DevKitPro")
-
-    if devkitPPCRoot is None or devkitProRoot is None:
-        sys.exit(1)
-
-    # Set globals
-    global linkerPath, gccPath, gccVersion, ldPath
-    gccPath = devkitPPCRoot + '/bin/powerpc-eabi-gcc'
-    ldPath = devkitPPCRoot + '/bin/powerpc-eabi-ld'
-    
-    # Get GCC version
-    # try:
-    #   proc = subprocess.Popen([gccPath, '-dumpversion'], stdout=subprocess.PIPE)
-    #   tmpVersion = ''
-    #   while proc.returncode == None:
-    #     tmpVersion += proc.stdout.readline().decode('utf-8')
-    #     proc.communicate()
-    #
-    #   if proc.returncode == 0:
-    #     gccVersion = tmpVersion.rstrip()
-    #     print('Successfully retrieved GCC version, using %s' % gccVersion)
-    #   else:
-    #     print('Unable to determine GCC version, aborting')
-    #     sys.exit(1)
-    # except:
-    #   print('Unable to determine GCC version, aborting')
-    #   sys.exit(1)
-
-    # Parse commandline argments
-    if not parse_commandline():
-        sys.exit(1)
-
-    # Apply DOL patches
-    shouldContinue = True
-
-    # Compile
-    compileSuccess = compile_rel() if shouldContinue else False
-
-    print("***** COMPILE %s! *****" % ("SUCCEEDED" if compileSuccess else "FAILED"))
-
 
 if __name__ == "__main__":
     main()

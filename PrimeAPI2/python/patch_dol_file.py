@@ -3,7 +3,6 @@ from mangle import *
 import os
 import argparse
 
-dolPatches = []
 dolFile = DolFile()
 
 DIR = os.path.dirname(os.path.realpath(__file__))

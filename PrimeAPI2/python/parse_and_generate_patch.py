@@ -9,6 +9,41 @@ dolFile = DolFile()
 DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+def main():
+    parser = argparse.ArgumentParser(description='Patch generator')
+    parser.add_argument(
+        "-p", "--patch",
+        action='append',
+        nargs=2,
+        help="Format: originalSymbol newSymbol (ex. -p 'CGraphics::EndScene()' 'RenderHook()')",
+        required=True
+    )
+    parser.add_argument(
+        "-o", "--outFile",
+        help="Output file",
+        required=True
+    )
+    parser.add_argument(
+        "-i", "--inDol",
+        help="Input dol",
+        required=True
+    )
+    args = parser.parse_args()
+
+    dolFile.read(args.inDol)
+
+    if dolFile.buildVersion >= 3:
+        print(
+            "The specified dol file belongs to a Wii version of the game. The Wii versions are currently not supported.")
+        return False
+
+    if not dolFile.load_symbols("%s/symbols" % DIR):
+        raise IOError("Unable to load symbols")
+
+    parse_code_macros(args.patch)
+    generate_patch_code(args.outFile)
+
+
 def parse_code_macros(patches):
     # Parse file, look for PATCH_SYMBOL macros
     # This implementation leaves a bit to be desired - namely, it doesn't account for commented-out
@@ -147,41 +182,6 @@ def generate_patch_code(outFile):
     out = open(outFile, "w")
     out.write(cpptext)
     out.close()
-
-
-def main():
-    parser = argparse.ArgumentParser(description='Patch generator')
-    parser.add_argument(
-        "-p", "--patch",
-        action='append',
-        nargs=2,
-        help="Format: originalSymbol newSymbol (ex. -p 'CGraphics::EndScene()' 'RenderHook()')",
-        required=True
-    )
-    parser.add_argument(
-        "-o", "--outFile",
-        help="Output file",
-        required=True
-    )
-    parser.add_argument(
-        "-i", "--inDol",
-        help="Input dol",
-        required=True
-    )
-    args = parser.parse_args()
-
-    dolFile.read(args.inDol)
-
-    if dolFile.buildVersion >= 3:
-        print(
-            "The specified dol file belongs to a Wii version of the game. The Wii versions are currently not supported.")
-        return False
-
-    if not dolFile.load_symbols("%s/symbols" % DIR):
-        raise IOError("Unable to load symbols")
-
-    parse_code_macros(args.patch)
-    generate_patch_code(args.outFile)
 
 
 if __name__ == "__main__":

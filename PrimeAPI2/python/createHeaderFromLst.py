@@ -2,7 +2,7 @@ from demangle import demangle
 
 lst_lines = []
 
-with open("../symbols/v1.088.lst") as f:
+with open("../../PrimeAPI/symbols/v1.088.lst") as f:
     lst_lines += f.readlines()
 
 

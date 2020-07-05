@@ -70,7 +70,7 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
         --gc-sections
         "-e _prolog"
         "--unresolved-symbols=ignore-in-object-files"
-        "-T ../PrimeAPI/eppc.ld"
+        "-T ../PrimeAPI2/eppc.ld"
         )
 
 list(JOIN CMAKE_PRIME_C_FLAGS_LIST " " CMAKE_PRIME_C_FLAGS)
@@ -109,6 +109,20 @@ macro(add_prime_library name base_dol)
             SOURCES "${base_dol}"
     )
     add_dependencies(${name} patch_dol)
+
+    add_custom_command(
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
+            COMMAND python3 "convert_to_rel.py"
+            -d "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
+            -i "${CMAKE_CURRENT_BINARY_DIR}/${name}"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/PrimeAPI2/python/"
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${name}"
+    )
+    add_custom_target(
+            build_mod
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
+    )
 endmacro()
 
 macro(patch_function orig dest)
