@@ -96,6 +96,19 @@ macro(add_prime_library name base_dol)
             ${PRIME_PATCH_FUNCTIONS}
             WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/PrimeAPI2/python/"
     )
+    add_custom_command(
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            COMMAND python3 "patch_dol_file.py"
+            -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/PrimeAPI2/python/"
+    )
+    add_custom_target(
+            patch_dol
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            SOURCES "${base_dol}"
+    )
+    add_dependencies(${name} patch_dol)
 endmacro()
 
 macro(patch_function orig dest)

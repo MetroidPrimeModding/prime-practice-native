@@ -408,19 +408,6 @@ def main():
     # Apply DOL patches
     shouldContinue = True
 
-    if not dolFile.is_patched():
-        print("Detected DOL file is unpatched. Applying patch...")
-        dolFilename = dolFile.filename
-        nameEnd = dolFilename.rfind('.')
-        nameBase = dolFilename[0:nameEnd]
-        patchedName = "%s_mod.dol" % nameBase
-        patchFile = "%s/script/DolPatch.bin" % primeApiRoot
-
-        shouldContinue = dolFile.apply_patch(patchFile, patchedName)
-
-        if shouldContinue:
-            print("Saved patched DOL to %s" % patchedName)
-
     # Compile
     compileSuccess = compile_rel() if shouldContinue else False
 
