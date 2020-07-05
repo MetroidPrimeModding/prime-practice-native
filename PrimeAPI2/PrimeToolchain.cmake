@@ -123,6 +123,15 @@ macro(add_prime_library name base_dol)
             build_mod
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
     )
+
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
+            DESTINATION "files/")
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            DESTINATION "files/"
+            RENAME "default.dol")
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            DESTINATION "sys/"
+            RENAME "main.dol")
 endmacro()
 
 macro(patch_function orig dest)

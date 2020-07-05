@@ -86,4 +86,3 @@ add_prime_library(default-prime-practice default.dol ${SOURCE_FILES})
 target_link_libraries(default-prime-practice
         "${CMAKE_SOURCE_DIR}/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/libpractice_mod_rust.a"
         )
-
