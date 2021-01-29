@@ -202,6 +202,8 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
                 if (symbol['sectionIndex'] == 0) != isDol:
                     continue
 
+                isAbs = symbol['sectionIndex'] == 65521
+
                 # This is a valid relocation, so we have at least one - write the "change section" directive
                 if not wroteSectionCommand:
                     rel.write_short(0)
@@ -236,9 +238,14 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
 
                 # Internal relocs are easy - just copy data from the ELF reloc/symbol
                 if not isDol:
-                    rel.write_byte(symbol['sectionIndex'])
-                    rel.write_long(symbol['value'] + reloc['addend'])
-                    # this is basically just the section-relative offset to the symbol
+                    if isAbs:
+                        # Absolute (e.g. in-dol) symbol
+                        rel.write_byte(0)
+                        rel.write_long(symbol['value'])
+                    else:
+                        rel.write_byte(symbol['sectionIndex'])
+                        rel.write_long(symbol['value'] + reloc['addend'])
+                        # this is basically just the section-relative offset to the symbol
 
                 # DOL relocs will require looking up the address of the symbol in the DOL
                 else:

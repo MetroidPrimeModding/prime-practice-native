@@ -53,7 +53,7 @@ set(CMAKE_PRIME_CXX_FLAGS_LIST
         )
 
 set(CMAKE_PRIME_LINK_FLAGS_LIST
-        "-L${DEVKITPPC}/lib/gcc/powerpc-eabi/10.1.0"
+        "-L${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0"
         "-L${DEVKITPPC}/powerpc-eabi/lib"
         -nostdlib
         -nodefaultlibs
@@ -65,6 +65,7 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
         -d
         -x
         "-z nocopyreloc"
+        "-z combreloc"
         -call_shared
         --strip-discarded
         --gc-sections
@@ -84,7 +85,10 @@ include_directories("${DEVKITPRO}/libogc/include/")
 
 # Macro to get the required link arguments in place
 macro(add_prime_library name base_dol)
-    add_executable(${name} ${ARGN} "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp")
+    add_executable(${name} ${ARGN}
+            "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
+            "${CMAKE_SOURCE_DIR}/PrimeAPI2/python/symbols/prac_mod_symbols.o"
+            )
     set_target_properties(${name} PROPERTIES LINK_FLAGS
             "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
             )
