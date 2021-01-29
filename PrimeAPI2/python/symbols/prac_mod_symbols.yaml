@@ -9,9 +9,149 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x8037F9AC
-  - Name:            'EndScene__9CGraphicsFv'
+  - Name:            '_ZnwjPKcS0_'
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
-    Value:           0x8030BAC0
+    Value:           0x8031586C
+  - Name:            '_ZN9CGraphics16DisableAllLightsEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030C97C
+  - Name:            '_ZN3CGX8SetZModeEb10_GXCompareb'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030887C
+  - Name:            '_ZN3CGX12SetBlendModeE12_GXBlendMode14_GXBlendFactorS1_10_GXLogicOp'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x803088D0
+  - Name:            '_ZN9CGraphics11SetCullModeE12ERglCullMode'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030BA70
+  - Name:            'GXLoadTexObj'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8037A494
+  - Name:            '_ZN3CGX15SetNumTevStagesEh'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80308C90
+  - Name:            '_ZN3CGX11SetTevOrderE13_GXTevStageID13_GXTexCoordID11_GXTexMapID12_GXChannelID'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030894C
+  - Name:            '_ZN3CGX13SetTevColorInE13_GXTevStageID14_GXTevColorArgS1_S1_S1_'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80308BEC
+  - Name:            '_ZN3CGX13SetTevAlphaInE13_GXTevStageID14_GXTevAlphaArgS1_S1_S1_'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80308B94
+  - Name:            'memcpy'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80003490
+  - Name:            '_ZN9CMainFlow9OnMessageERK20CArchitectureMessageR18CArchitectureQueue'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80023908
+  - Name:            '_ZN9CGraphics12StreamVertexEfff'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030b638
+  - Name:            '_ZN3CGX13SetTevColorOpE13_GXTevStageID8_GXTevOp10_GXTevBias11_GXTevScaleh11_GXTevRegID'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80308b38
+  - Name:            '_ZN3CGX13SetTevAlphaOpE13_GXTevStageID8_GXTevOp10_GXTevBias11_GXTevScaleh11_GXTevRegID'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80308a80
+  - Name:            '_ZN9CGraphics8SetOrthoEffffff'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030c554
+  - Name:            '_ZN9CGraphics8EndSceneEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030bac0
+  - Name:            '_ZN10CGameState13StateForWorldEj'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x801d39d8
+  - Name:            '_ZN12CPauseScreen15StartTransitionEfRK13CStateManagerNS_10ESubScreenEi'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x800736fc
+  - Name:            '_ZN11CSfxManager8SfxStartEtssbsbi'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x802e9d74
+  - Name:            '_ZNK12CPauseScreen8IsLoadedEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80072ae8
+  - Name:            '_ZNK12CPauseScreen12InputEnabledEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80072af0
+  - Name:            '_ZNK11CFinalInput6PStartEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000cf38
+  - Name:            '_ZNK11CFinalInput2DLEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d298
+  - Name:            '_ZNK11CFinalInput2DREv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d280
+  - Name:            '_ZN9CGraphics14StreamTexcoordEff'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030b464
+  - Name:            'GXInitTexObj'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80379e64
+  - Name:            'GXInitTexObjLOD'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8037a120
+  - Name:            '_ZN7CMemory4FreeEPKv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80315930
+  - Name:            '_ZN9CGraphics11StreamBeginE13ERglPrimitive'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030b668
+  - Name:            '_ZN9CGraphics11StreamColorEffff'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030b4cc
+  - Name:            '_ZN9CGraphics11FlushStreamEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030b034
+  - Name:            '_ZN9CGraphics9StreamEndEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030b410
+  - Name:            'strlen'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x803901c0
+  - Name:            '_ZN9CGraphics22SetIdentityModelMatrixEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030c598
+  - Name:            '_ZN9CGraphics26SetIdentityViewPointMatrixEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8030c6c4
 
 ...

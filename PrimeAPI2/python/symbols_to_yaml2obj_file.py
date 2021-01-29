@@ -50,6 +50,16 @@ args = [
     # probably shouldn't hardcode this
     '/opt/homebrew/Cellar/llvm/11.0.0/bin/yaml2obj'
 ]
-res = subprocess.run(args, check=True, capture_output=True, input=compiledYaml.encode('utf-8'))
+try:
+    res = subprocess.run(args, check=True, capture_output=True, input=compiledYaml.encode('utf-8'))
+except subprocess.CalledProcessError as e:
+    print(e.stdout.decode("utf-8"))
+    print(e.stderr.decode("utf-8"))
+    # for line in e.stdout:
+    #     print(line)
+    # for line in e.stderr:
+    #     print(line)
+
+
 with open('symbols/prac_mod_symbols.o', mode='wb') as f:
     f.write(res.stdout)

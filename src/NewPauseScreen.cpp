@@ -112,7 +112,7 @@ void NewPauseScreen::Render() {
   CGraphics::SetIdentityViewPointMatrix();
 
   //on_frame();
-  TextRenderer::RenderText("Hello, world, from CMake", 100, 100);
+  TextRenderer::RenderText("Hello, world, from CMake and direct object linking", 100, 100);
 
   if (fatalError) {
     TextRenderer::RenderText(fatalError, 100, 100);

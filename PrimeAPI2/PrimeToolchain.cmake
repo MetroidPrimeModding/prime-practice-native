@@ -66,11 +66,11 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
         -x
         "-z nocopyreloc"
         "-z combreloc"
-        -call_shared
+#        -call_shared
         --strip-discarded
         --gc-sections
         "-e _prolog"
-        "--unresolved-symbols=ignore-in-object-files"
+        "--unresolved-symbols=report-all"
         "-T ../PrimeAPI2/eppc.ld"
         )
 

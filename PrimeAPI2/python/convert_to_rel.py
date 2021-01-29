@@ -260,13 +260,16 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
                         unresolvedSymbolCount += 1
                         print("Error: Failed to locate dol symbol: %s / %s (GCC: %s)" % (
                             remangled, demangled, symbolName))
-                        rel.write_byte(0)
-                        rel.write_long(0)
-                        relocWriteSuccess = False
-                        continue
-
+                    else:
+                        print("Missing symbol: 0x%x %s" % (dolSymbolAddr, symbolName))
                     rel.write_byte(0)
-                    rel.write_long(dolSymbolAddr)
+                    rel.write_long(0)
+                    relocWriteSuccess = False
+                    continue
+
+
+                    # rel.write_byte(0)
+                    # rel.write_long(dolSymbolAddr)
 
                 curOffset += offset
 
