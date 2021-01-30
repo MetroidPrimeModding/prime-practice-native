@@ -204,6 +204,10 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
 
                 isAbs = symbol['sectionIndex'] == 65521
 
+                # if symbol['name'] == '' and symbol['value'] == 0:
+                #     print('IGNORING', symbol)
+                #     continue
+
                 # This is a valid relocation, so we have at least one - write the "change section" directive
                 if not wroteSectionCommand:
                     rel.write_short(0)
@@ -228,13 +232,15 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
                 rel.write_short(offset)
                 relocType = reloc['relocType']
                 if relocType == 26:
-                    # print("TWENTY SIX")
+                    print("TWENTY SIX")
                     rel.write_byte(11) # I patched rel14 to be rel32
                     # rel.write_byte(26)
                 elif relocType == 18:
-                    # print("EIGHTEEN")
+                    print("EIGHTEEN")
                     # per the docs, R_PPC_PLTREL24 -> R_PPC_REL24
                     rel.write_byte(10)
+                elif relocType == 11:
+                    print("Uhoh, ELEVEN")
                 else:
                     rel.write_byte(relocType)
 
@@ -262,6 +268,7 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
                         unresolvedSymbolCount += 1
                         print("Error: Failed to locate dol symbol: %s / %s (GCC: %s)" % (remangled, demangled, symbolName), symbol)
                     else:
+                        unresolvedSymbolCount += 1
                         print("Missing symbol: 0x%x %s" % (dolSymbolAddr, symbolName))
                     rel.write_byte(0)
                     rel.write_long(0)

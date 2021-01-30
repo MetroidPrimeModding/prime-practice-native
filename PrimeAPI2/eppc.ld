@@ -1,6 +1,6 @@
+ENTRY(_prolog)
 SECTIONS
 {
-    ENTRY(_prolog)
 	.init :
 	{
 		*(.init)

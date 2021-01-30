@@ -27,10 +27,10 @@ set(CMAKE_C_COMPILE_OBJECT "<CMAKE_C_COMPILER> -c <INCLUDES> <FLAGS> -o <OBJECT>
 set(CMAKE_CXX_COMPILE_OBJECT "<CMAKE_CXX_COMPILER> -c <INCLUDES> <FLAGS> -o <OBJECT> <SOURCE>")
 
 # Link object files to an executable
-set(CMAKE_C_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
-set(CMAKE_CXX_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
-#set(CMAKE_C_LINK_EXECUTABLE "ld.lld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
-#set(CMAKE_CXX_LINK_EXECUTABLE "ld.lld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
+#set(CMAKE_C_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
+#set(CMAKE_CXX_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
+set(CMAKE_C_LINK_EXECUTABLE "ld.lld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
+set(CMAKE_CXX_LINK_EXECUTABLE "ld.lld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
 
 # Thing that doesn't work
 set(CMAKE_C_OUTPUT_EXTENSION ".o")
@@ -45,6 +45,7 @@ set(CMAKE_PRIME_C_FLAGS_LIST
         -fno-function-sections
         -fno-data-sections
         -fno-exceptions
+        -fno-asynchronous-unwind-tables
         -mno-sdata
         )
 
@@ -55,22 +56,20 @@ set(CMAKE_PRIME_CXX_FLAGS_LIST
         )
 
 set(CMAKE_PRIME_LINK_FLAGS_LIST
-        "-L${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0"
-        "-L${DEVKITPPC}/powerpc-eabi/lib"
         -nostdlib
-        -nodefaultlibs
-        -flto
-        -Os
-        -lgcc
-        -lsysbase
+#        -nodefaultlibs
+#        -flto
+#        -Os
+#        -lgcc
+#        -lsysbase
         -r
-        -d
-        -x
-        "-z nocopyreloc"
-        "-z combreloc"
-        -call_shared
-        --strip-discarded
-        --gc-sections
+#        -d
+#        -x
+#        "-z nocopyreloc"
+#        "-z combreloc"
+#        -call_shared
+#        --strip-discarded
+#        --gc-sections
         "-e _prolog"
         "--unresolved-symbols=report-all"
         "-T ../PrimeAPI2/eppc.ld"
