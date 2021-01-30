@@ -29,6 +29,8 @@ set(CMAKE_CXX_COMPILE_OBJECT "<CMAKE_CXX_COMPILER> -c <INCLUDES> <FLAGS> -o <OBJ
 # Link object files to an executable
 set(CMAKE_C_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
 set(CMAKE_CXX_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
+#set(CMAKE_C_LINK_EXECUTABLE "ld.lld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
+#set(CMAKE_CXX_LINK_EXECUTABLE "ld.lld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
 
 # Thing that doesn't work
 set(CMAKE_C_OUTPUT_EXTENSION ".o")
@@ -66,7 +68,7 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
         -x
         "-z nocopyreloc"
         "-z combreloc"
-#        -call_shared
+        -call_shared
         --strip-discarded
         --gc-sections
         "-e _prolog"

@@ -228,9 +228,11 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
                 rel.write_short(offset)
                 relocType = reloc['relocType']
                 if relocType == 26:
+                    # print("TWENTY SIX")
                     rel.write_byte(11) # I patched rel14 to be rel32
                     # rel.write_byte(26)
                 elif relocType == 18:
+                    # print("EIGHTEEN")
                     # per the docs, R_PPC_PLTREL24 -> R_PPC_REL24
                     rel.write_byte(10)
                 else:
@@ -258,8 +260,7 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
 
                     if dolSymbolAddr is None:
                         unresolvedSymbolCount += 1
-                        print("Error: Failed to locate dol symbol: %s / %s (GCC: %s)" % (
-                            remangled, demangled, symbolName))
+                        print("Error: Failed to locate dol symbol: %s / %s (GCC: %s)" % (remangled, demangled, symbolName), symbol)
                     else:
                         print("Missing symbol: 0x%x %s" % (dolSymbolAddr, symbolName))
                     rel.write_byte(0)

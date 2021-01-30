@@ -53,6 +53,10 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x80003490
+  - Name:            'memset'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x800033a8
   - Name:            '_ZN9CMainFlow9OnMessageERK20CArchitectureMessageR18CArchitectureQueue'
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
@@ -153,5 +157,157 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x8030c6c4
+  - Name:            '_ZN9CGraphics6GetFPSEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80309854
+  - Name:            '_ZN6CWorld13SetPauseStateEb'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80055ff4
+  - Name:            '_ZN10CGameState17SetCurrentWorldIdEj'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x801d3944
+  - Name:            '_ZN10CGameState17CurrentWorldStateEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x801d39ac
+  - Name:            '_ZN11CWorldState21SetDesiredAreaAssetIdEj'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x801d4d3c
+  - Name:            '_ZNK11CFinalInput7ALADownEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d6c8
+  - Name:            '_ZNK11CFinalInput7ALALeftEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d6b0
+  - Name:            '_ZNK11CFinalInput8ALARightEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d698
+  - Name:            '_ZNK11CFinalInput5ALAUpEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d6e0
+  - Name:            '_ZNK11CFinalInput9ALTriggerEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d630
+  - Name:            '_ZNK11CFinalInput2AREv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d4f4
+  - Name:            '_ZNK11CFinalInput7ARADownEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d668
+  - Name:            '_ZNK11CFinalInput7ARALeftEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d650
+  - Name:            '_ZNK11CFinalInput8ARARightEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d638
+  - Name:            '_ZNK11CFinalInput5ARAUpEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d680
+  - Name:            '_ZNK11CFinalInput9ARTriggerEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d628
+  - Name:            '_ZNK11CFinalInput2DAEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d310
+  - Name:            '_ZNK11CFinalInput7DRADownEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d40c
+  - Name:            '_ZNK11CFinalInput7DRALeftEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d3e8
+  - Name:            '_ZNK11CFinalInput8DRARightEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d3c8
+  - Name:            '_ZNK11CFinalInput5DRAUpEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d430
+  - Name:            '_ZNK11CFinalInput7DLADownEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d494
+  - Name:            '_ZNK11CFinalInput7DLALeftEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d470
+  - Name:            '_ZNK11CFinalInput8DLARightEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d450
+  - Name:            '_ZNK11CFinalInput5DLAUpEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d4b8
+  - Name:            '_ZNK11CFinalInput2DBEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d2f8
+  - Name:            '_ZNK11CFinalInput7DDPDownEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d358
+  - Name:            '_ZNK11CFinalInput7DDPLeftEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d340
+  - Name:            '_ZNK11CFinalInput8DDPRightEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d328
+  - Name:            '_ZNK11CFinalInput5DDPUpEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d370
+  - Name:            '_ZNK11CFinalInput9DLTriggerEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d3a8
+  - Name:            '_ZNK11CFinalInput9DRTriggerEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d388
+  - Name:            '_ZNK11CFinalInput6DStartEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d268
+  - Name:            '_ZNK11CFinalInput2DXEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d2e0
+  - Name:            '_ZNK11CFinalInput2DYEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d2c8
+  - Name:            '_ZNK11CFinalInput2DZEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d2b0
+  - Name:            '_ZNK11CFinalInput2PAEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000cfe0
+  - Name:            '_ZNK11CFinalInput2PBEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000cfc8
 
 ...
