@@ -7,7 +7,7 @@ void Menu::render(int x, int y) const {
   }
 }
 
-void Menu::tick(CFinalInput *inputs) {
+Menu *Menu::tick(CFinalInput *inputs) {
   if (this->scrollTimer > 0) {
     this->scrollTimer--;
   }
@@ -47,9 +47,13 @@ void Menu::tick(CFinalInput *inputs) {
       this->scrollTimer = 4;
     }
   }
-  if (inputs->PA()) {
-    this->clickItem(this->cursor);
+  if (inputs->PB()) {
+    return this->backMenu();
   }
+  if (inputs->PA()) {
+    return this->clickItem(this->cursor);
+  }
+  return nullptr;
 }
 
 void Menu::scrollTo(int index) {

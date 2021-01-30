@@ -70,8 +70,11 @@ set(SOURCE_FILES
         src/practice_mod_rust.cpp
         src/UI/Menu.h
         src/UI/Menu.cpp
+        src/UI/Menus.h
         src/UI/MainMenu.h
         src/UI/MainMenu.cpp
+        src/UI/WarpMenu.h
+        src/UI/WarpMenu.cpp
         )
 
 patch_function("CGraphics::EndScene()"

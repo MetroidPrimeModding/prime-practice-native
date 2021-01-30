@@ -49,15 +49,6 @@ void operator delete(void *ptr) {
   CMemory::Free(ptr);
 }
 
-// Patches
-// @formatter:off
-PATCH_SYMBOL(CGraphics::EndScene(), RenderHook())
-PATCH_SYMBOL(CPauseScreen::Draw(), PauseScreenDrawReplacement(CPauseScreen *))
-PATCH_SYMBOL(CPauseScreen::ProcessControllerInput(const CStateManager &, const CFinalInput &), PauseControllerInputHandler(CPauseScreen *, CStateManager &, const CFinalInput &))
-PATCH_SYMBOL(CMainFlow::OnMessage(const CArchitectureMessage&, CArchitectureQueue&), IOWinMessageHook(CMainFlow *, const CArchitectureMessage &, CArchitectureQueue &))
-PATCH_SYMBOL(CStateManager::DrawDebugStuff() const, drawDebugStuff(CStateManager *))
-// @formatter:on
-
 // Impls
 void _prolog() {
   MODULE_INIT;

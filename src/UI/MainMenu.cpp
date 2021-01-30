@@ -4,8 +4,9 @@
 
 #include <include/TextRenderer.hpp>
 #include "MainMenu.h"
+#include "Menus.h"
 
-MainMenu MAIN_MENU;
+MainMenu MENU_MAIN;
 
 void MainMenu::render(int x, int y) const {
   TextRenderer::SetColor(1, 1, 1, 1);
@@ -43,6 +44,23 @@ void MainMenu::renderItem(int index, int x, int y) const {
   }
 }
 
-void MainMenu::clickItem(int index) {
+Menu * MainMenu::clickItem(int index) {
+  auto item = MainMenuItem{index};
+  switch (item) {
+    case MainMenuItem::INVENTORY:
+      return nullptr;
+    case MainMenuItem::PLAYER:
+      return nullptr;
+    case MainMenuItem::WARP:
+      return &MENU_WARP_MAIN;
+    case MainMenuItem::CONFIG:
+      return nullptr;
+    default:
+    case MainMenuItem::END:
+      return nullptr;
+  }
+}
 
+Menu *MainMenu::backMenu() const {
+  return &MENU_MAIN;
 }

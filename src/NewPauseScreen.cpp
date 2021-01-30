@@ -2,6 +2,7 @@
 #include <include/prime/CScriptCameraHint.hpp>
 #include <include/STriggerRenderConfig.hpp>
 #include <UI/MainMenu.h>
+#include "UI/Menus.h"
 #include "include/os.h"
 #include "include/NewPauseScreen.hpp"
 #include "include/TextRenderer.hpp"
@@ -24,7 +25,7 @@ NewPauseScreen::NewPauseScreen() {
   TextRenderer::Init();
   this->hide();
   inputs = new CFinalInput[4];
-  currentMenu = &MAIN_MENU;
+  currentMenu = &MENU_MAIN;
 
   // Patch CScriptTrigger so we can attach a value to it
   // CScriptTrigger::CScriptTrigger
@@ -367,7 +368,10 @@ void NewPauseScreen::show() {
 }
 
 void NewPauseScreen::HandleInputs() {
-  this->currentMenu->tick(&this->inputs[0]);
+  auto menu = this->currentMenu->tick(&this->inputs[0]);
+  if (menu != nullptr) {
+    this->currentMenu = menu;
+  }
   //on_input();
 }
 
