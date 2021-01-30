@@ -68,7 +68,6 @@ set(SOURCE_FILES
         src/prime-practice.cpp
         src/libc.c
         src/practice_mod_rust.cpp
-        src/practice_mod_rust_input.cpp
         src/UI/Menu.h
         src/UI/Menu.cpp
         src/UI/MainMenu.h
