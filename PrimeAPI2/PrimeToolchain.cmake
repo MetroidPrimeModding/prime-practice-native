@@ -4,13 +4,13 @@ set(CMAKE_SYSTEM_NAME powerpc-elf-prime)
 set(DEVKITPRO "/opt/devkitpro")
 set(DEVKITPPC "/opt/devkitpro/devkitPPC")
 
+if (NOT DEFINED LLVM_DIR)
+    message(FATAL_ERROR "Must specify LLVM_DIR")
+endif()
+
 # Set toolchain programs
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_CXX_COMPILER "clang++")
-#set(CMAKE_C_COMPILER "${DEVKITPPC}/bin/powerpc-eabi-gcc")
-#set(CMAKE_CXX_COMPILER "${DEVKITPPC}/bin/powerpc-eabi-g++")
-#set(CMAKE_C_LINK_EXECUTABLE  "${DEVKITPPC}/bin/powerpc-eabi-ld")
-#set(CMAKE_CXX_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld")
+set(CMAKE_C_COMPILER "${LLVM_DIR}/bin/clang")
+set(CMAKE_CXX_COMPILER "${LLVM_DIR}/bin/clang++")
 
 # Set triple for CMake's identification
 set(triple powerpc-none-unknown-elf)
@@ -29,10 +29,8 @@ set(CMAKE_C_COMPILE_OBJECT "<CMAKE_C_COMPILER> -c <INCLUDES> <FLAGS> -o <OBJECT>
 set(CMAKE_CXX_COMPILE_OBJECT "<CMAKE_CXX_COMPILER> -c <INCLUDES> <FLAGS> -o <OBJECT> <SOURCE>")
 
 # Link object files to an executable
-#set(CMAKE_C_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
-#set(CMAKE_CXX_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
-set(CMAKE_C_LINK_EXECUTABLE "ld.lld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
-set(CMAKE_CXX_LINK_EXECUTABLE "ld.lld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
+set(CMAKE_C_LINK_EXECUTABLE "${LLVM_DIR}/bin/ld.lld <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
+set(CMAKE_CXX_LINK_EXECUTABLE "${LLVM_DIR}/bin/ld.lld <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES> -o <TARGET> <OBJECTS>")
 
 # Thing that doesn't work
 set(CMAKE_C_OUTPUT_EXTENSION ".o")

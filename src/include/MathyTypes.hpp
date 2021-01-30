@@ -54,10 +54,10 @@ public:
       res.matrix[9] = mat[9];
       res.matrix[10] = mat[10];
       res.matrix[11] = mat[11];
-      res.matrix[12] = mat[12];
-      res.matrix[13] = mat[13];
-      res.matrix[14] = mat[14];
-      res.matrix[15] = mat[15];
+//      res.matrix[12] = mat[12];
+//      res.matrix[13] = mat[13];
+//      res.matrix[14] = mat[14];
+//      res.matrix[15] = mat[15];
 
       return res;
     }
