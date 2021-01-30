@@ -12682,6 +12682,7 @@
 0x8037F638 OSDumpContext
 0x8037F8E0 OSSwitchFPUContext
 0x8037F964 __OSContextInit
+0x8037F9AC OSReport
 0x8037FA2C OSPanic
 0x8037FB58 OSSetErrorHandler
 0x8037FD70 __OSUnhandledException
