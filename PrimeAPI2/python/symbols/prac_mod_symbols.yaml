@@ -313,5 +313,61 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x8000cfc8
+  - Name:            '_ZNK11CFinalInput7PDPDownEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d028
+  - Name:            '_ZNK11CFinalInput7PLADownEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d1f4
+  - Name:            '_ZNK11CFinalInput7PRADownEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d10c
+  - Name:            '_ZNK11CFinalInput5PDPUpEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d040
+  - Name:            '_ZNK11CFinalInput5PLAUpEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d230
+  - Name:            '_ZNK11CFinalInput5PRAUpEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d148
+  - Name:            '_ZNK11CFinalInput7PDPLeftEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d010
+  - Name:            '_ZNK11CFinalInput7PLALeftEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d1b8
+  - Name:            '_ZNK11CFinalInput7PRALeftEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d0d0
+  - Name:            '_ZNK11CFinalInput8PDPRightEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000cff8
+  - Name:            '_ZNK11CFinalInput8PLARightEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d180
+  - Name:            '_ZNK11CFinalInput8PRARightEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d098
+  - Name:            '_ZNK11CFinalInput9PLTriggerEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d078
+  - Name:            '_ZNK11CFinalInput9PRTriggerEv'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8000d058
 
 ...

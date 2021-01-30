@@ -1,6 +1,7 @@
 #include <include/prime/CScriptDoor.hpp>
 #include <include/prime/CScriptCameraHint.hpp>
 #include <include/STriggerRenderConfig.hpp>
+#include <UI/MainMenu.h>
 #include "include/os.h"
 #include "include/NewPauseScreen.hpp"
 #include "include/TextRenderer.hpp"
@@ -22,11 +23,8 @@ NewPauseScreen::NewPauseScreen() {
 
   TextRenderer::Init();
   this->hide();
-  fatalError = nullptr;
   inputs = new CFinalInput[4];
-//  hudElement.addChild(new UIHeapUsageElement(10, 460));
-
-//  menuElement.addChild(new UITextElement("Prime practice mod menu", 5, 35));
+  currentMenu = &MAIN_MENU;
 
   // Patch CScriptTrigger so we can attach a value to it
   // CScriptTrigger::CScriptTrigger
@@ -57,16 +55,16 @@ NewPauseScreen::NewPauseScreen() {
 
   // nop out our region and overwrite
   for (u32 i = 0x8001FEF4; i <= 0x8001FF38; i += 4) {
-    *((u32*) i) = 0x60000000; // nop
+    *((u32 *) i) = 0x60000000; // nop
   }
-  *((u32*)0x8001FEF4) = 0x38e0003C; // li r7, 60
-  *((u32*)0x8001FEF8) = 0x7CE53BD6; // divw r7, r5, r7
-  *((u32*)0x8001FEFC) = 0x1CC7003C; // muli r6, r7, 60
-  *((u32*)0x8001FF00) = 0x7CC62850; // sub r6, r5, r6
-  *((u32*)0x8001FF04) = 0x7CE53B78; // mr r5, r7
+  *((u32 *) 0x8001FEF4) = 0x38e0003C; // li r7, 60
+  *((u32 *) 0x8001FEF8) = 0x7CE53BD6; // divw r7, r5, r7
+  *((u32 *) 0x8001FEFC) = 0x1CC7003C; // muli r6, r7, 60
+  *((u32 *) 0x8001FF00) = 0x7CC62850; // sub r6, r5, r6
+  *((u32 *) 0x8001FF04) = 0x7CE53B78; // mr r5, r7
 
   // Swap what text is used for ELAPSED to blank
-  *((u32*)0x8001FFB8) = 0x3880005C; // li r4, 92 - which is blank
+  *((u32 *) 0x8001FFB8) = 0x3880005C; // li r4, 92 - which is blank
 }
 
 void NewPauseScreen::Render() {
@@ -97,10 +95,10 @@ void NewPauseScreen::Render() {
 
   CGX::SetNumTevStages(1);
   CGX::SetTevOrder(
-    GXTevStage0,
-    GXTexCoord0,
-    GXTexMap0,
-    GXChannelColor0A0
+      GXTevStage0,
+      GXTexCoord0,
+      GXTexMap0,
+      GXChannelColor0A0
   );
   CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_TEXC, GxTevColorArg_RASC, GxTevColorArg_ZERO);
   CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_TEXA, GxTevAlphaArg_RASA, GxTevAlphaArg_ZERO);
@@ -112,11 +110,7 @@ void NewPauseScreen::Render() {
   CGraphics::SetIdentityViewPointMatrix();
 
   //on_frame();
-  TextRenderer::RenderText("Hello, world, from clang + LLD! 4", 100, 100);
-
-  if (fatalError) {
-    TextRenderer::RenderText(fatalError, 100, 100);
-  }
+  NewPauseScreen::RenderMenu();
 }
 
 void NewPauseScreen::RenderWorld() {
@@ -249,14 +243,14 @@ void NewPauseScreen::drawTrigger(const STriggerRenderConfig &config, CObjectList
   CVector3f origin = transform->origin();
   CAABox *aabb = trigger->getBounds();
   CVector3f min(
-    origin.x + aabb->min.x,
-    origin.y + aabb->min.y,
-    origin.z + aabb->min.z
+      origin.x + aabb->min.x,
+      origin.y + aabb->min.y,
+      origin.z + aabb->min.z
   );
   CVector3f max(
-    origin.x + aabb->max.x,
-    origin.y + aabb->max.y,
-    origin.z + aabb->max.z
+      origin.x + aabb->max.x,
+      origin.y + aabb->max.y,
+      origin.z + aabb->max.z
   );
 
   //-z
@@ -373,6 +367,7 @@ void NewPauseScreen::show() {
 }
 
 void NewPauseScreen::HandleInputs() {
+  this->currentMenu->tick(&this->inputs[0]);
   //on_input();
 }
 
@@ -824,6 +819,12 @@ bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
   // For now the garble is preferable so it renders always
 //    return this->active;
   return true;
+}
+
+void NewPauseScreen::RenderMenu() {
+  if (this->active) {
+    currentMenu->render(20, 20);
+  }
 }
 
 // entities

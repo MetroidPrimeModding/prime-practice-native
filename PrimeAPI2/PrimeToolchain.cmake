@@ -77,6 +77,9 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
 #        --gc-sections
         "-e _prolog"
         "--unresolved-symbols=report-all"
+        --error-unresolved-symbols
+        --no-allow-shlib-undefined
+        --no-undefined
         "-T ../PrimeAPI2/eppc.ld"
         )
 

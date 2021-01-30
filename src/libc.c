@@ -55,3 +55,6 @@ void *_realloc_r (struct _reent *reent_ptr, void *ptr, size_t size) {
 void *_calloc_r (struct _reent *reent_ptr, size_t nmemb, size_t size) {
   return prime_calloc(reent_ptr, nmemb, size);
 }
+
+// basic impl of pure virtual error so we can use virtual methods
+void __cxa_pure_virtual() { while (1); }

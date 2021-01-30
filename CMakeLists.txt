@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_TOOLCHAIN_FILE PrimeAPI2/PrimeToolchain.cmake)
 project(prime-practice-native)
 
@@ -69,6 +69,10 @@ set(SOURCE_FILES
         src/libc.c
         src/practice_mod_rust.cpp
         src/practice_mod_rust_input.cpp
+        src/UI/Menu.h
+        src/UI/Menu.cpp
+        src/UI/MainMenu.h
+        src/UI/MainMenu.cpp
         )
 
 patch_function("CGraphics::EndScene()"
