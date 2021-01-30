@@ -5,8 +5,10 @@ set(DEVKITPRO "/opt/devkitpro")
 set(DEVKITPPC "/opt/devkitpro/devkitPPC")
 
 # Set toolchain programs
-set(CMAKE_C_COMPILER "${DEVKITPPC}/bin/powerpc-eabi-gcc")
-set(CMAKE_CXX_COMPILER "${DEVKITPPC}/bin/powerpc-eabi-g++")
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
+#set(CMAKE_C_COMPILER "${DEVKITPPC}/bin/powerpc-eabi-gcc")
+#set(CMAKE_CXX_COMPILER "${DEVKITPPC}/bin/powerpc-eabi-g++")
 #set(CMAKE_C_LINK_EXECUTABLE  "${DEVKITPPC}/bin/powerpc-eabi-ld")
 #set(CMAKE_CXX_LINK_EXECUTABLE "${DEVKITPPC}/bin/powerpc-eabi-ld")
 
@@ -40,13 +42,18 @@ set(CMAKE_CXX_OUTPUT_EXTENSION ".o")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nostdlib")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdlib")
 set(CMAKE_PRIME_C_FLAGS_LIST
+        -target powerpc-unknown-eabi
+        -mllvm --relocation-model=static
         -nostdlib
-        #        -nostdinc
+        -nostdinc
+        -ffreestanding
+        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0/include"
+        -isystem "${DEVKITPPC}/powerpc-eabi/include"
         -fno-function-sections
         -fno-data-sections
         -fno-exceptions
         -fno-asynchronous-unwind-tables
-        -mno-sdata
+#        -mno-sdata
         )
 
 set(CMAKE_PRIME_CXX_FLAGS_LIST

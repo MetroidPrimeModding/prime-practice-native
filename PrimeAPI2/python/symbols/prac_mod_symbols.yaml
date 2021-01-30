@@ -13,6 +13,10 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x8031586C
+  - Name:            '_ZnwmPKcS0_'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8031586c
   - Name:            '_ZN9CGraphics16DisableAllLightsEv'
     Index:           SHN_ABS
     Binding:         STB_GLOBAL

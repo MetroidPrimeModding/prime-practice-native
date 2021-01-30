@@ -112,7 +112,7 @@ void NewPauseScreen::Render() {
   CGraphics::SetIdentityViewPointMatrix();
 
   //on_frame();
-  TextRenderer::RenderText("Hello, world, from LLD! 2", 100, 100);
+  TextRenderer::RenderText("Hello, world, from clang + LLD! 4", 100, 100);
 
   if (fatalError) {
     TextRenderer::RenderText(fatalError, 100, 100);

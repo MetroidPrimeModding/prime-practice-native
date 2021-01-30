@@ -204,10 +204,6 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
 
                 isAbs = symbol['sectionIndex'] == 65521
 
-                # if symbol['name'] == '' and symbol['value'] == 0:
-                #     print('IGNORING', symbol)
-                #     continue
-
                 # This is a valid relocation, so we have at least one - write the "change section" directive
                 if not wroteSectionCommand:
                     rel.write_short(0)
