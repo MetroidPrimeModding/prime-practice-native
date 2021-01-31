@@ -89,3 +89,7 @@
 0x8000d098 _ZNK11CFinalInput8PRARightEv
 0x8000d078 _ZNK11CFinalInput9PLTriggerEv
 0x8000d058 _ZNK11CFinalInput9PRTriggerEv
+0x8038DCDC sprintf
+0x8038DDBC vsprintf
+0x8038DE34 vprintf
+0x8038DEB0 printf

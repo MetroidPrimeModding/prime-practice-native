@@ -369,5 +369,21 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x8000d058
+  - Name:            'sprintf'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8038DCDC
+  - Name:            'vsprintf'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8038DDBC
+  - Name:            'vprintf'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8038DE34
+  - Name:            'printf'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8038DEB0
 
 ...

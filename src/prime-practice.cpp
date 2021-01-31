@@ -21,7 +21,6 @@
 #include "include/prime/CMFGame.hpp"
 #include "include/prime/CIOWinManager.hpp"
 #include "include/prime/CMainFlow.hpp"
-#include "printf.h"
 
 // Forward decls
 class CPlayer;
@@ -58,9 +57,9 @@ extern int _INIT_START;
 void _prolog() {
   MODULE_INIT;
   char buffer[32];
-  snprintf(buffer, sizeof(buffer), "_INIT_START= %8x\n", (int)(&_INIT_START));
+  sprintf(buffer, "_INIT_START= %8x\n", (int)(&_INIT_START));
   OSReport(buffer);
-  snprintf(buffer, sizeof(buffer), "_prolog= %8x\n", (int)(&_prolog));
+  sprintf(buffer, "_prolog= %8x\n", (int)(&_prolog));
   OSReport(buffer);
 }
 
