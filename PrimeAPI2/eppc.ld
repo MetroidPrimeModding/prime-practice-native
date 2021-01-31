@@ -4,6 +4,7 @@ SECTIONS
 	.init :
 	{
 		*(.init)
+		_INIT_START = .;
 		. = ALIGN(4);
 	}
 

@@ -5,6 +5,7 @@
 #include <include/TextRenderer.hpp>
 #include "WarpMenu.h"
 #include "Menus.h"
+#include "include/NewPauseScreen.hpp"
 
 const WarpArea AREAS_FRIGATE[] = {
     {.name= "Air Lock", .area= 0x07640602},
@@ -417,7 +418,7 @@ Menu *WarpMainMenu::backMenu() const {
   return &MENU_MAIN;
 }
 
-WarpMenu::WarpMenu(const WarpWorld *world) : world(world) {
+constexpr WarpMenu::WarpMenu(const WarpWorld *world) : world(world) {
 }
 
 void WarpMenu::render(int x, int y) const {
@@ -428,7 +429,7 @@ void WarpMenu::render(int x, int y) const {
 }
 
 int WarpMenu::itemCount() const {
-  return 1;
+  return this->world->areaCount;
 }
 
 void WarpMenu::renderItem(int index, int x, int y) const {
@@ -438,12 +439,11 @@ void WarpMenu::renderItem(int index, int x, int y) const {
     TextRenderer::SetColor(0.4, 0.4, 0.4, 1);
   }
 
-//  auto area = this->world->areas[index];
-  TextRenderer::RenderText("area", x, y);
+  TextRenderer::RenderText(this->world->areas[index].name, x, y);
 }
 
 Menu *WarpMenu::clickItem(int index) {
-  // todo
+  warp(this->world->world, this->world->areas[this->currentCursor()].area);
   return nullptr;
 }
 

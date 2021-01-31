@@ -368,11 +368,12 @@ void NewPauseScreen::show() {
 }
 
 void NewPauseScreen::HandleInputs() {
-  auto menu = this->currentMenu->tick(&this->inputs[0]);
-  if (menu != nullptr) {
-    this->currentMenu = menu;
+  if (this->active) {
+    auto menu = this->currentMenu->tick(&this->inputs[0]);
+    if (menu != nullptr) {
+      this->currentMenu = menu;
+    }
   }
-  //on_input();
 }
 
 
@@ -792,13 +793,9 @@ duk_ret_t script_setTextColor(duk_context *ctx) {
 }
 */
 
-
-// warp
-/*duk_ret_t script_warp(duk_context *ctx) {
-  duk_double_t worldIDDouble = duk_require_number(ctx, 0);
-  duk_double_t areaIDDouble = duk_require_number(ctx, 1);
-  CAssetId worldID = (CAssetId) ((uint64) worldIDDouble);
-  CAssetId areaID = (CAssetId) ((uint64) areaIDDouble);
+void warp(uint32_t world, uint32_t area) {
+  CAssetId worldID = (CAssetId) (world);
+  CAssetId areaID = (CAssetId) (area);
 
   CStateManager *mgr = ((CStateManager *) 0x8045A1A8);
   mgr->GetWorld()->SetPauseState(true);
@@ -815,8 +812,7 @@ duk_ret_t script_setTextColor(duk_context *ctx) {
 
   NewPauseScreen::instance->hide();
 
-  return 0;
-}*/
+}
 
 bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
   // TODO: properly fix the in-game renderer? Or handle this better.

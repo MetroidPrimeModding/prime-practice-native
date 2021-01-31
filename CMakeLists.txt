@@ -6,6 +6,8 @@ project(prime-practice-native)
 
 include_directories(PrimeAPI/include)
 include_directories(src/)
+include_directories(extern/fmt-7.1.3/include)
+
 
 set(SOURCE_FILES
         PrimeAPI/include/rstl/string.h
@@ -67,7 +69,6 @@ set(SOURCE_FILES
         src/duk_mem.cpp
         src/prime-practice.cpp
         src/libc.c
-        src/practice_mod_rust.cpp
         src/UI/Menu.h
         src/UI/Menu.cpp
         src/UI/Menus.h
@@ -75,6 +76,8 @@ set(SOURCE_FILES
         src/UI/MainMenu.cpp
         src/UI/WarpMenu.h
         src/UI/WarpMenu.cpp
+        src/printf.h
+        src/printf.c
         )
 
 patch_function("CGraphics::EndScene()"

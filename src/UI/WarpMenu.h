@@ -41,7 +41,7 @@ struct WarpWorld {
 
 class WarpMenu: public Menu {
 public:
-  explicit WarpMenu(const WarpWorld *world);
+  explicit constexpr WarpMenu(const WarpWorld *world);
 
   void render(int x, int y) const override;
   [[nodiscard]] Menu *backMenu() const override;

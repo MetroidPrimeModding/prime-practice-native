@@ -7,6 +7,8 @@
 #include "include/prime/CStateManager.h"
 #include "include/STriggerRenderConfig.hpp"
 
+void warp(uint32_t world, uint32_t area);
+
 class NewPauseScreen {
 public:
     static NewPauseScreen *instance;

@@ -1,5 +1,6 @@
 #include <PrimeAPI.h>
 #include <include/prime/CFontEndUI.hpp>
+#include <include/os.h>
 #include "include/prime/CMain.hpp"
 #include "include/prime/CStateManager.h"
 #include "include/prime/CPlayerState.h"
@@ -20,6 +21,7 @@
 #include "include/prime/CMFGame.hpp"
 #include "include/prime/CIOWinManager.hpp"
 #include "include/prime/CMainFlow.hpp"
+#include "printf.h"
 
 // Forward decls
 class CPlayer;
@@ -50,8 +52,16 @@ void operator delete(void *ptr) {
 }
 
 // Impls
+extern "C" {
+extern int _INIT_START;
+}
 void _prolog() {
   MODULE_INIT;
+  char buffer[32];
+  snprintf(buffer, sizeof(buffer), "_INIT_START= %8x\n", (int)(&_INIT_START));
+  OSReport(buffer);
+  snprintf(buffer, sizeof(buffer), "_prolog= %8x\n", (int)(&_prolog));
+  OSReport(buffer);
 }
 
 void PauseScreenDrawReplacement(CPauseScreen *pause) {

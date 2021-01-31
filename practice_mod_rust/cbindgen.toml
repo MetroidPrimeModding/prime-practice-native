@@ -1,5 +1,0 @@
-include_guard = "PRACTICE_MOD_RUST_H"
-
-[export]
-exclude = ["malloc", "free", "OSReport", "CHAR_DIM", "LINE_HEIGHT", "LINE_PADDING"]
-include = ["ModConfig"]
