@@ -1,7 +1,3 @@
-//
-// Created by Christopher Freestone on 1/30/21.
-//
-
 #include <include/TextRenderer.hpp>
 #include "MainMenu.h"
 #include "Menus.h"

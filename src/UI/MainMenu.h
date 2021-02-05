@@ -1,7 +1,3 @@
-//
-// Created by Christopher Freestone on 1/30/21.
-//
-
 #ifndef PRIME_PRACTICE_NATIVE_MAINMENU_H
 #define PRIME_PRACTICE_NATIVE_MAINMENU_H
 
