@@ -1,4 +1,5 @@
 #include <include/TextRenderer.hpp>
+#include <include/NewPauseScreen.hpp>
 #include "MainMenu.h"
 #include "Menus.h"
 
@@ -16,11 +17,6 @@ int MainMenu::itemCount() const {
 }
 
 void MainMenu::renderItem(int index, int x, int y) const {
-  if (this->currentCursor() == index) {
-    TextRenderer::SetColor(1, 1, 1, 1);
-  } else {
-    TextRenderer::SetColor(0.4, 0.4, 0.4, 1);
-  }
   auto item = MainMenuItem{index};
   switch (item) {
     case MainMenuItem::INVENTORY:
@@ -40,20 +36,24 @@ void MainMenu::renderItem(int index, int x, int y) const {
   }
 }
 
-Menu * MainMenu::clickItem(int index) {
+void MainMenu::clickItem(int index) {
   auto item = MainMenuItem{index};
   switch (item) {
     case MainMenuItem::INVENTORY:
-      return nullptr;
+      // TODO
+      break;
     case MainMenuItem::PLAYER:
-      return nullptr;
+      // TODO
+      break;
     case MainMenuItem::WARP:
-      return &MENU_WARP_MAIN;
+      NewPauseScreen::instance->pushMenu(&MENU_WARP_MAIN);
+      break;
     case MainMenuItem::CONFIG:
-      return nullptr;
+      // todo
+      break;
     default:
     case MainMenuItem::END:
-      return nullptr;
+      break; // do nothing
   }
 }
 

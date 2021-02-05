@@ -19,6 +19,10 @@ char *fontTexData;
 GXTexObj fontTexture;
 float colorR = 1, colorG = 1, colorB = 1, colorA = 1;
 
+void TextRenderer::RenderText(const char *str, int xStart, int yStart) {
+  return TextRenderer::RenderText(str, (float)xStart, (float)yStart);
+}
+
 void TextRenderer::RenderText(const char *str, float xStart, float yStart) {
   if (str == nullptr) {
     return;

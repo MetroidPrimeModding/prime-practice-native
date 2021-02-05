@@ -19,7 +19,7 @@ public:
   [[nodiscard]] Menu *backMenu() const override;
   [[nodiscard]] int itemCount() const override;
   void renderItem(int index, int x, int y) const override;
-  Menu *clickItem(int index) override;
+  void clickItem(int index) override;
 };
 
 #endif //PRIME_PRACTICE_NATIVE_MAINMENU_H

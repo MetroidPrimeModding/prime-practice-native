@@ -25,7 +25,7 @@ NewPauseScreen::NewPauseScreen() {
   TextRenderer::Init();
   this->hide();
   inputs = new CFinalInput[4];
-  currentMenu = &MENU_MAIN;
+  menuStack[0] = &MENU_MAIN;
 
   // Patch CScriptTrigger so we can attach a value to it
   // CScriptTrigger::CScriptTrigger
@@ -369,10 +369,7 @@ void NewPauseScreen::show() {
 
 void NewPauseScreen::HandleInputs() {
   if (this->active) {
-    auto menu = this->currentMenu->tick(&this->inputs[0]);
-    if (menu != nullptr) {
-      this->currentMenu = menu;
-    }
+    this->menuStack[this->topMenu]->tick(&this->inputs[0]);
   }
 }
 
@@ -468,8 +465,31 @@ bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
 
 void NewPauseScreen::RenderMenu() {
   if (this->active) {
-    currentMenu->render(20, 20);
+    // render each menu, left to right
+    int x = 20;
+    int y = 20;
+    for (int i = 0; i < topMenu; i++) {
+      Menu *menu = menuStack[i];
+      menu->render(x, y);
+      x += menu->getWidthInCharacters() * 8;
+    }
   }
+}
+
+void NewPauseScreen::pushMenu(Menu *menu) {
+  if (this->topMenu >= MENU_MAX) {
+    return; // Don't overflow
+  }
+  this->topMenu++;
+  this->menuStack[this->topMenu] = menu;
+}
+
+void NewPauseScreen::popMenu() {
+  if (this->topMenu <= 0) {
+    return; // no underflow
+  }
+  this->menuStack[this->topMenu] = nullptr;
+  this->topMenu--;
 }
 
 // entities

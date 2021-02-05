@@ -1,13 +1,20 @@
+#include <include/TextRenderer.hpp>
 #include "Menu.h"
 #include "MainMenu.h"
+#include "include/NewPauseScreen.hpp"
 
 void Menu::render(int x, int y) const {
   for (int i = 0; i < this->itemCount(); i++) {
+    if (this->currentCursor() == i) {
+      TextRenderer::SetColor(1, 1, 1, 1);
+    } else {
+      TextRenderer::SetColor(0.4, 0.4, 0.4, 1);
+    }
     this->renderItem(i, x, ITEM_HEIGHT * 2 + y + i * ITEM_HEIGHT);
   }
 }
 
-Menu *Menu::tick(CFinalInput *inputs) {
+void Menu::tick(CFinalInput *inputs) {
   if (this->scrollTimer > 0) {
     this->scrollTimer--;
   }
@@ -48,12 +55,11 @@ Menu *Menu::tick(CFinalInput *inputs) {
     }
   }
   if (inputs->PB()) {
-    return this->backMenu();
+    NewPauseScreen::instance->popMenu();
   }
   if (inputs->PA()) {
-    return this->clickItem(this->cursor);
+    this->clickItem(this->cursor);
   }
-  return nullptr;
 }
 
 void Menu::scrollTo(int index) {
@@ -76,5 +82,9 @@ void Menu::scrollBy(int delta) {
 
 int Menu::currentCursor() const {
   return this->cursor;
+}
+
+int Menu::getWidthInCharacters() {
+  return 20;
 }
 

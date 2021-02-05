@@ -17,6 +17,7 @@ class TextRenderer {
 public:
     static void Init();
     static void SetColor(float r, float g, float b, float a);
+    static void RenderText(const char *str, int x, int y);
     static void RenderText(const char *str, float x, float y);
     static void RenderText(const char *str, u32 len, float x, float y);
     static void RenderChar(u8 c, f32 x, f32 y);

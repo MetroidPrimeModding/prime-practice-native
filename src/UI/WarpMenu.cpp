@@ -343,7 +343,7 @@ const WarpWorld WARP_WORLD_CRATER{
 
 void WarpMainMenu::render(int x, int y) const {
   TextRenderer::SetColor(1, 1, 1, 1);
-  TextRenderer::RenderText("Warps", (float) x, (float) y);
+  TextRenderer::RenderText("Warps Menu", (float) x, (float) y);
 
   Menu::render(x, y);
 }
@@ -353,12 +353,6 @@ int WarpMainMenu::itemCount() const {
 }
 
 void WarpMainMenu::renderItem(int index, int x, int y) const {
-  if (this->currentCursor() == index) {
-    TextRenderer::SetColor(1, 1, 1, 1);
-  } else {
-    TextRenderer::SetColor(0.4, 0.4, 0.4, 1);
-  }
-
   auto item = WarpMainMenuItem{index};
   switch (item) {
     case WarpMainMenuItem::FRIGATE:
@@ -387,27 +381,33 @@ void WarpMainMenu::renderItem(int index, int x, int y) const {
   }
 }
 
-Menu *WarpMainMenu::clickItem(int index) {
+void WarpMainMenu::clickItem(int index) {
   auto item = WarpMainMenuItem{index};
   switch (item) {
     case WarpMainMenuItem::FRIGATE:
-      return &MENU_WARP_FRIGATE;
+      NewPauseScreen::instance->pushMenu( &MENU_WARP_FRIGATE);
+      break;
     case WarpMainMenuItem::TALLON:
-      return &MENU_WARP_TALLON;
+      NewPauseScreen::instance->pushMenu( &MENU_WARP_TALLON);
+      break;
     case WarpMainMenuItem::CHOZO:
-      return &MENU_WARP_CHOZO;
+      NewPauseScreen::instance->pushMenu( &MENU_WARP_CHOZO);
+      break;
     case WarpMainMenuItem::MAGMOOR:
-      return &MENU_WARP_MAGMOOR;
+      NewPauseScreen::instance->pushMenu( &MENU_WARP_MAGMOOR);
+      break;
     case WarpMainMenuItem::PHEN:
-      return &MENU_WARP_PHEN;
+      NewPauseScreen::instance->pushMenu( &MENU_WARP_PHEN);
+      break;
     case WarpMainMenuItem::MINES:
-      return &MENU_WARP_MINES;
+      NewPauseScreen::instance->pushMenu( &MENU_WARP_MINES);
+      break;
     case WarpMainMenuItem::CRATER:
-      return &MENU_WARP_CRATER;
+      NewPauseScreen::instance->pushMenu( &MENU_WARP_CRATER);
+      break;
     case WarpMainMenuItem::END:
       break;
   }
-  return nullptr;
 }
 
 Menu *WarpMainMenu::backMenu() const {
@@ -419,7 +419,7 @@ constexpr WarpMenu::WarpMenu(const WarpWorld *world) : world(world) {
 
 void WarpMenu::render(int x, int y) const {
   TextRenderer::SetColor(1, 1, 1, 1);
-  TextRenderer::RenderText("Warps", (float) x, (float) y);
+  TextRenderer::RenderText(this->world->name, (float) x, (float) y);
 
   Menu::render(x, y);
 }
@@ -429,18 +429,11 @@ int WarpMenu::itemCount() const {
 }
 
 void WarpMenu::renderItem(int index, int x, int y) const {
-  if (this->currentCursor() == index) {
-    TextRenderer::SetColor(1, 1, 1, 1);
-  } else {
-    TextRenderer::SetColor(0.4, 0.4, 0.4, 1);
-  }
-
   TextRenderer::RenderText(this->world->areas[index].name, x, y);
 }
 
-Menu *WarpMenu::clickItem(int index) {
+void WarpMenu::clickItem(int index) {
   warp(this->world->world, this->world->areas[this->currentCursor()].area);
-  return nullptr;
 }
 
 Menu *WarpMenu::backMenu() const {

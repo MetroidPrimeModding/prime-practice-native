@@ -77,7 +77,9 @@ set(SOURCE_FILES
         src/UI/WarpMenu.h
         src/UI/WarpMenu.cpp
         src/UI/PlayerMenu.h
-        src/ui/PlayerMenu.cpp
+        src/UI/PlayerMenu.cpp
+        src/UI/EditValueMenu.h
+        src/UI/EditValueMenu.cpp
         )
 
 patch_function("CGraphics::EndScene()"

@@ -8,7 +8,7 @@ constexpr int ITEM_HEIGHT = 10;
 class Menu {
 public:
   virtual void render(int x, int y) const;
-  virtual Menu *tick(CFinalInput *inputs);
+  virtual void tick(CFinalInput *inputs);
 
   void scrollTo(int index);
   void scrollBy(int delta);
@@ -17,7 +17,8 @@ public:
   virtual Menu *backMenu() const = 0;
   virtual int itemCount() const = 0;
   virtual void renderItem(int index, int x, int y) const = 0;
-  virtual Menu *clickItem(int index) = 0;
+  virtual void clickItem(int index) = 0;
+  virtual int getWidthInCharacters();
 private:
   int cursor = 0;
   int scrollTimer = 0;
