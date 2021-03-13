@@ -48,7 +48,7 @@ with open('symbols/prac_mod_symbols.yaml', mode='w') as f:
 
 args = [
     # probably shouldn't hardcode this
-    '/opt/homebrew/Cellar/llvm/11.0.0/bin/yaml2obj'
+    '/opt/homebrew/Cellar/llvm/11.1.0/bin/yaml2obj'
 ]
 try:
     res = subprocess.run(args, check=True, capture_output=True, input=compiledYaml.encode('utf-8'))

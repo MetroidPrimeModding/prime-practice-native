@@ -92,6 +92,10 @@ patch_function("CMainFlow::OnMessage(const CArchitectureMessage&, CArchitectureQ
         "IOWinMessageHook(CMainFlow *, const CArchitectureMessage &, CArchitectureQueue &)")
 patch_function("CStateManager::DrawDebugStuff() const"
         "drawDebugStuff(CStateManager *)")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  patch_function("CMainFlow::AdvanceGameState(CArchitectureQueue&)"
+          "Hook_CMainFlow_AdvanceGameState(CMainFlow*, CArchitectureQueue&)")
+endif()
 
 add_prime_library(default-prime-practice default.dol ${SOURCE_FILES})
 #target_link_libraries(default-prime-practice

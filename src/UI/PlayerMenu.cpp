@@ -3,9 +3,11 @@
 #include "PlayerMenu.h"
 #include "Menus.h"
 
-PlayerMenu MENU_PLAYER;
+PlayerMenu MENU_PLAYER{};
 
-constexpr PlayerMenu::PlayerMenu() = default;
+constexpr PlayerMenu::PlayerMenu() {
+
+}
 
 void PlayerMenu::render(int x, int y) const {
   TextRenderer::SetColor(1, 1, 1, 1);
@@ -126,4 +128,8 @@ void PlayerMenu::clickItem(int index) {
     case PlayerMenuItem::END:
       break; // do nothing
   }
+}
+
+int PlayerMenu::getWidthInCharacters() {
+  return 40;
 }

@@ -440,6 +440,10 @@ Menu *WarpMenu::backMenu() const {
   return &MENU_WARP_MAIN;
 }
 
+int WarpMenu::getWidthInCharacters() {
+  return 20;
+}
+
 WarpMainMenu MENU_WARP_MAIN;
 WarpMenu MENU_WARP_FRIGATE{&WARP_WORLD_FRIGATE};
 WarpMenu MENU_WARP_TALLON{&WARP_WORLD_TALLON};

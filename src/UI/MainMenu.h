@@ -20,6 +20,7 @@ public:
   [[nodiscard]] int itemCount() const override;
   void renderItem(int index, int x, int y) const override;
   void clickItem(int index) override;
+  int getWidthInCharacters() override;
 };
 
 #endif //PRIME_PRACTICE_NATIVE_MAINMENU_H

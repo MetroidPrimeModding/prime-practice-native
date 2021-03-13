@@ -385,5 +385,13 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x8038DEB0
+  - Name:            '_ZN9CMainFlow12SetGameStateE17EClientFlowStatesR18CArchitectureQueue'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80023584
+  - Name:            '_ZN9CMainFlow16AdvanceGameStateER18CArchitectureQueue'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80023854
 
 ...

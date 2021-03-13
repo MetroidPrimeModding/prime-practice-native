@@ -93,3 +93,5 @@
 0x8038DDBC vsprintf
 0x8038DE34 vprintf
 0x8038DEB0 printf
+0x80023584 _ZN9CMainFlow12SetGameStateE17EClientFlowStatesR18CArchitectureQueue
+0x80023854 _ZN9CMainFlow16AdvanceGameStateER18CArchitectureQueue

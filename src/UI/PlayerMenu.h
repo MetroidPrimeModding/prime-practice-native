@@ -32,6 +32,7 @@ public:
   [[nodiscard]] int itemCount() const override;
   void renderItem(int index, int x, int y) const override;
   void clickItem(int index) override;
+  int getWidthInCharacters() override;
 
 private:
   bool saved{false};

@@ -54,12 +54,13 @@ void operator delete(void *ptr) {
 extern "C" {
 extern int _INIT_START;
 }
+
 void _prolog() {
   MODULE_INIT;
   char buffer[32];
-  sprintf(buffer, "_INIT_START= %8x\n", (int)(&_INIT_START));
+  sprintf(buffer, "_INIT_START= %8x\n", (int) (&_INIT_START));
   OSReport(buffer);
-  sprintf(buffer, "_prolog= %8x\n", (int)(&_prolog));
+  sprintf(buffer, "_prolog= %8x\n", (int) (&_prolog));
   OSReport(buffer);
 }
 
@@ -170,3 +171,24 @@ void drawDebugStuff(CStateManager *mgr) {
 //
 //  return thiz;
 //}
+
+// Hooks
+void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue) {
+  // Hook into CMainFlow::AdvanceGameState(). When this function is called with
+  // the game state set to PreFrontEnd, that indicates that engine initialization
+  // is complete and the game is proceeding to the main menu. We hook in here to
+  // bypass the main menu and boot directly into the game.
+  static bool sHasDoneInitialBoot = false;
+
+  // Make sure the patch does not run twice if the player quits out to main menu
+  if (!sHasDoneInitialBoot && pMainFlow->GetGameState() == 7) {
+    sHasDoneInitialBoot = true;
+    CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
+    gameState->SetCurrentWorldId(0x39F2DE28);
+    gameState->CurrentWorldState().SetDesiredAreaAssetId(0xC44E7A07);
+    pMainFlow->SetGameState(kCFS_Game, Queue);
+    return;
+  } else {
+    pMainFlow->AdvanceGameState(Queue);
+  }
+}

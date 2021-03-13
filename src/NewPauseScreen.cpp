@@ -26,6 +26,7 @@ NewPauseScreen::NewPauseScreen() {
   this->hide();
   inputs = new CFinalInput[4];
   menuStack[0] = &MENU_MAIN;
+  topMenu = 0;
 
   // Patch CScriptTrigger so we can attach a value to it
   // CScriptTrigger::CScriptTrigger
@@ -468,8 +469,11 @@ void NewPauseScreen::RenderMenu() {
     // render each menu, left to right
     int x = 20;
     int y = 20;
-    for (int i = 0; i < topMenu; i++) {
+    for (int i = 0; i <= topMenu; i++) {
       Menu *menu = menuStack[i];
+      if (menu == nullptr) {
+        continue;
+      }
       menu->render(x, y);
       x += menu->getWidthInCharacters() * 8;
     }

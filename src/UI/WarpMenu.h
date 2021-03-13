@@ -38,12 +38,13 @@ struct WarpWorld {
 class WarpMenu: public Menu {
 public:
   explicit constexpr WarpMenu(const WarpWorld *world);
-
   void render(int x, int y) const override;
+
   [[nodiscard]] Menu *backMenu() const override;
   [[nodiscard]] int itemCount() const override;
   void renderItem(int index, int x, int y) const override;
   void clickItem(int index) override;
+  int getWidthInCharacters() override;
 
 private:
   const WarpWorld *world;

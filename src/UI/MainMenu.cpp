@@ -43,7 +43,7 @@ void MainMenu::clickItem(int index) {
       // TODO
       break;
     case MainMenuItem::PLAYER:
-      // TODO
+      NewPauseScreen::instance->pushMenu(&MENU_PLAYER);
       break;
     case MainMenuItem::WARP:
       NewPauseScreen::instance->pushMenu(&MENU_WARP_MAIN);
@@ -59,4 +59,8 @@ void MainMenu::clickItem(int index) {
 
 Menu *MainMenu::backMenu() const {
   return &MENU_MAIN;
+}
+
+int MainMenu::getWidthInCharacters() {
+  return 24;
 }
