@@ -25,18 +25,12 @@ enum class PlayerMenuItem : int {
 
 class PlayerMenu : public Menu {
 public:
-  constexpr PlayerMenu();
   void render(int x, int y) const override;
 
-  [[nodiscard]] Menu *backMenu() const override;
   [[nodiscard]] int itemCount() const override;
   void renderItem(int index, int x, int y) const override;
   void clickItem(int index) override;
   int getWidthInCharacters() override;
-
-private:
-  bool saved{false};
-  float savedX{0}, savedY{0}, savedZ{0};
 };
 
 

@@ -4,20 +4,15 @@
 #include "Menus.h"
 
 PlayerMenu MENU_PLAYER{};
+bool saved{false};
+float savedX{0}, savedY{0}, savedZ{0};
 
-constexpr PlayerMenu::PlayerMenu() {
-
-}
 
 void PlayerMenu::render(int x, int y) const {
   TextRenderer::SetColor(1, 1, 1, 1);
   TextRenderer::RenderText("Player Menu", (float) x, (float) y);
 
   Menu::render(x, y);
-}
-
-Menu *PlayerMenu::backMenu() const {
-  return &MENU_MAIN;
 }
 
 int PlayerMenu::itemCount() const {
@@ -28,10 +23,10 @@ void PlayerMenu::renderItem(int index, int x, int y) const {
   auto item = PlayerMenuItem{index};
   switch (item) {
     case PlayerMenuItem::POSITION_INDICATOR:
-      if (this->saved) {
+      if (saved) {
         char buffer[64];
         sprintf(buffer, "Saved pos: %7.3f, %7.3f, %7.3f",
-                this->savedX, this->savedY, this->savedZ);
+                savedX, savedY, savedZ);
         TextRenderer::RenderText(buffer, x, y);
       } else {
         TextRenderer::RenderText("No saved position", x, y);

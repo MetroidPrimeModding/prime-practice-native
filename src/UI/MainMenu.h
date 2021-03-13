@@ -16,7 +16,6 @@ class MainMenu : public Menu {
 public:
   void render(int x, int y) const override;
 
-  [[nodiscard]] Menu *backMenu() const override;
   [[nodiscard]] int itemCount() const override;
   void renderItem(int index, int x, int y) const override;
   void clickItem(int index) override;

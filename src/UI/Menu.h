@@ -12,10 +12,9 @@ public:
 
   void scrollTo(int index);
   void scrollBy(int delta);
-  int currentCursor() const;
+  [[nodiscard]] int currentCursor() const;
 
-  virtual Menu *backMenu() const = 0;
-  virtual int itemCount() const = 0;
+  [[nodiscard]] virtual int itemCount() const = 0;
   virtual void renderItem(int index, int x, int y) const = 0;
   virtual void clickItem(int index) = 0;
   virtual int getWidthInCharacters();

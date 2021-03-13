@@ -8,7 +8,6 @@ public:
   constexpr EditValueMenu();
   void render(int x, int y) const override;
 
-  [[nodiscard]] Menu *backMenu() const override;
   void clickItem(int index) override;
   void tick(CFinalInput *inputs) override;
 

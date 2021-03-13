@@ -410,10 +410,6 @@ void WarpMainMenu::clickItem(int index) {
   }
 }
 
-Menu *WarpMainMenu::backMenu() const {
-  return &MENU_MAIN;
-}
-
 constexpr WarpMenu::WarpMenu(const WarpWorld *world) : world(world) {
 }
 
@@ -434,10 +430,6 @@ void WarpMenu::renderItem(int index, int x, int y) const {
 
 void WarpMenu::clickItem(int index) {
   warp(this->world->world, this->world->areas[this->currentCursor()].area);
-}
-
-Menu *WarpMenu::backMenu() const {
-  return &MENU_WARP_MAIN;
 }
 
 int WarpMenu::getWidthInCharacters() {

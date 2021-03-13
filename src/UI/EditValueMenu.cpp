@@ -5,13 +5,6 @@
 
 constexpr EditValueMenu::EditValueMenu() = default;
 
-Menu *EditValueMenu::backMenu() const {
-  if (this->lastMenu != nullptr) {
-    return this->lastMenu;
-  }
-  return &MENU_MAIN;
-}
-
 void EditValueMenu::clickItem(int index) {
   // Do nothing, we override tick()
 }

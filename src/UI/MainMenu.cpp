@@ -57,10 +57,6 @@ void MainMenu::clickItem(int index) {
   }
 }
 
-Menu *MainMenu::backMenu() const {
-  return &MENU_MAIN;
-}
-
 int MainMenu::getWidthInCharacters() {
   return 24;
 }
