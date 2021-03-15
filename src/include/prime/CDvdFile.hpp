@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_CDVDFILE_HPP
 #define PRIME_PRACTICE_CDVDFILE_HPP
 
-#include "include/types.h"
+#include "types.h"
 
 typedef enum ESeekOrigin {
     ESeekOrigin_Begin = 0,

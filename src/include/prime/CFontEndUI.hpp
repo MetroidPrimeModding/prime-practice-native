@@ -2,8 +2,8 @@
 #define PRIME_PRACTICE_NATIVE_CFONTENDUI_HPP
 
 #include <gctypes.h>
-#include <include/GetField.hpp>
-#include "include/prime/CArchitectureQueue.hpp"
+#include <GetField.hpp>
+#include "prime/CArchitectureQueue.hpp"
 
 class CFrontEndUI {
 public:

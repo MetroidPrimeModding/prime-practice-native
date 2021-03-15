@@ -2,9 +2,9 @@
 #define PRIME_PRACTICE_NATIVE_CTRIGGER_HPP
 
 #include <rstl/vector.h>
-#include "include/MathyTypes.hpp"
+#include "MathyTypes.hpp"
 #include "PrimeAPI.h"
-#include "include/prime/CActor.hpp"
+#include "prime/CActor.hpp"
 
 enum ETriggerFlags : u32 {
     None = 0,

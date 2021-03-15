@@ -1,19 +1,19 @@
-#include <include/prime/CScriptDoor.hpp>
-#include <include/prime/CScriptCameraHint.hpp>
-#include <include/STriggerRenderConfig.hpp>
+#include <prime/CScriptDoor.hpp>
+#include <prime/CScriptCameraHint.hpp>
+#include <STriggerRenderConfig.hpp>
 #include <UI/MainMenu.h>
 #include "UI/Menus.h"
-#include "include/os.h"
-#include "include/NewPauseScreen.hpp"
-#include "include/TextRenderer.hpp"
-#include "include/prime/CScriptRelay.hpp"
-#include "include/prime/CScriptDock.hpp"
-#include "include/prime/CGameGlobalObjects.hpp"
-#include "include/prime/CPlayer.hpp"
-#include "include/prime/CPlayerState.h"
-#include "include/prime/CWorld.hpp"
-#include "include/prime/CMain.hpp"
-#include "include/prime/CSfxManager.hpp"
+#include "os.h"
+#include "NewPauseScreen.hpp"
+#include "TextRenderer.hpp"
+#include "prime/CScriptRelay.hpp"
+#include "prime/CScriptDock.hpp"
+#include "prime/CGameGlobalObjects.hpp"
+#include "prime/CPlayer.hpp"
+#include "prime/CPlayerState.h"
+#include "prime/CWorld.hpp"
+#include "prime/CMain.hpp"
+#include "prime/CSfxManager.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -241,7 +241,7 @@ void NewPauseScreen::drawTrigger(const STriggerRenderConfig &config, CObjectList
     return;
   }
 
-  CTransform *transform = trigger->getTransform();
+  CTransform4f *transform = trigger->getTransform();
   CVector3f origin = transform->origin();
   CAABox *aabb = trigger->getBounds();
   CVector3f min(

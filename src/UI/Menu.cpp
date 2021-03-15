@@ -1,7 +1,7 @@
-#include <include/TextRenderer.hpp>
+#include <TextRenderer.hpp>
 #include "Menu.h"
 #include "MainMenu.h"
-#include "include/NewPauseScreen.hpp"
+#include "NewPauseScreen.hpp"
 
 void Menu::render(int x, int y) const {
   for (int i = 0; i < this->itemCount(); i++) {

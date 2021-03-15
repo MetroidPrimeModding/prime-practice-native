@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_CMATRIX3F_HPP
 #define PRIME_PRACTICE_CMATRIX3F_HPP
 
-#include "include/types.h"
+#include "types.h"
 
 struct CVector3f {
 public:
@@ -28,12 +28,12 @@ struct CAxisAngle : CVector3f {
     inline CAxisAngle(float x, float y, float z) : CVector3f(x, y, z) {}
 };
 
-class CTransform {
+class CTransform4f {
 public:
     float matrix[12];
 
-    static inline CTransform Identity() {
-      CTransform res;
+    static inline CTransform4f Identity() {
+      CTransform4f res;
 
       float mat[16] = {
         1, 0, 0, 0,
@@ -62,7 +62,7 @@ public:
       return res;
     }
 
-    static CTransform Translate(float x, float y, float z);
+    static CTransform4f Translate(float x, float y, float z);
 
     inline CVector3f origin() { return CVector3f(matrix[3], matrix[3 + 4], matrix[3 + 8]); };
 };
@@ -76,6 +76,22 @@ public:
 class CFrustum {
 public:
     float data[16];
+};
+
+class CRelAngle
+{
+public:
+	float mAngle;
+	
+	// All functions inlined in Metroid Prime
+	inline CRelAngle () {}
+	inline CRelAngle(float inAngle) : mAngle(inAngle) {}
+	
+	inline CRelAngle& operator=(float inAngle)
+	{
+		mAngle = inAngle;
+		return *this;
+	}
 };
 
 #endif //PRIME_PRACTICE_CMATRIX3F_HPP

@@ -1,8 +1,8 @@
-#include "include/TextRenderer.hpp"
+#include "TextRenderer.hpp"
 #include "VGA-ROM-L4.h"
 #include <string.h>
-#include "include/GX.hpp"
-#include "include/prime/CGraphics.hpp"
+#include "GX.hpp"
+#include "prime/CGraphics.hpp"
 
 #define WHITE (0xFFFF8080)
 #define BLACK (0x00008080)

@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_CMEMORYCARDSYS_HPP
 #define PRIME_PRACTICE_CMEMORYCARDSYS_HPP
 
-#include "include/prime/CStateManager.h"
+#include "prime/CStateManager.h"
 
 class CSaveWorldIntermediate;
 class CSaveWorld;

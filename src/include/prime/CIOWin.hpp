@@ -2,7 +2,7 @@
 #define PRIME_PRACTICE_CIOWIN_HPP
 
 #include "rstl/string.h"
-#include "include/prime/CArchitectureMessage.hpp"
+#include "prime/CArchitectureMessage.hpp"
 
 class CIOWin {
 //    rstl::string x4_name;

@@ -5,7 +5,7 @@ set(CMAKE_TOOLCHAIN_FILE PrimeAPI2/PrimeToolchain.cmake)
 project(prime-practice-native)
 
 include_directories(PrimeAPI/include)
-include_directories(src/)
+include_directories(src/include)
 include_directories(extern/fmt-7.1.3/include)
 
 
@@ -30,7 +30,7 @@ set(SOURCE_FILES
         src/include/TextRenderer.hpp
         src/include/NewPauseScreen.hpp
         src/include/prime/CGameGlobalObjects.hpp
-        src/include/prime/CHealthInfo.h
+        src/include/prime/CHealthInfo.hpp
         src/include/prime/CMemory.h
         src/include/prime/CPlayerGun.h
         src/include/prime/CPlayerState.h

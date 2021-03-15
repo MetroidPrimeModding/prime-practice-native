@@ -1,11 +1,11 @@
 #ifndef NEW_PAUSE_SCREEN_HPP
 #define NEW_PAUSE_SCREEN_HPP
 
-#include <include/prime/CScriptTrigger.hpp>
-#include <include/prime/CFinalInput.hpp>
+#include <prime/CScriptTrigger.hpp>
+#include <prime/CFinalInput.hpp>
 #include <UI/Menu.h>
-#include "include/prime/CStateManager.h"
-#include "include/STriggerRenderConfig.hpp"
+#include "prime/CStateManager.h"
+#include "STriggerRenderConfig.hpp"
 
 void warp(uint32_t world, uint32_t area);
 

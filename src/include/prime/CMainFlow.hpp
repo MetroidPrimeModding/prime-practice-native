@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_CMAINFLOW_HPP
 #define PRIME_PRACTICE_CMAINFLOW_HPP
 
-#include "include/prime/CIOWin.hpp"
+#include "prime/CIOWin.hpp"
 
 enum EClientFlowStates {
   kCFS_Unspecified = -1,

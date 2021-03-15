@@ -1,7 +1,7 @@
 //#include <cstdio>
-//#include "include/TextRenderer.hpp"
-//#include "include/prime/CGameAllocator.hpp"
-//#include "include/UI/UIHeapUsageElement.hpp"
+//#include "TextRenderer.hpp"
+//#include "prime/CGameAllocator.hpp"
+//#include "UI/UIHeapUsageElement.hpp"
 //
 //void UIHeapUsageElement::draw() {
 //  if (hidden) { return; }

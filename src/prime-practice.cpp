@@ -1,26 +1,26 @@
 #include <PrimeAPI.h>
-#include <include/prime/CFontEndUI.hpp>
-#include <include/os.h>
-#include "include/prime/CMain.hpp"
-#include "include/prime/CStateManager.h"
-#include "include/prime/CPlayerState.h"
-#include "include/prime/CHealthInfo.h"
-#include "include/prime/CMemory.h"
+#include <prime/CFontEndUI.hpp>
+#include <os.h>
+#include "prime/CMain.hpp"
+#include "prime/CStateManager.h"
+#include "prime/CPlayerState.h"
+#include "prime/CHealthInfo.hpp"
+#include "prime/CMemory.h"
 
-#include "include/types.h"
-#include "include/prime/CSimplePool.hpp"
-#include "include/prime/CFinalInput.hpp"
-#include "include/prime/CPauseScreen.hpp"
-#include "include/prime/CSfxManager.hpp"
-#include "include/prime/CColor.hpp"
-#include "include/prime/CTextGui.hpp"
-#include "include/prime/CGraphics.hpp"
-#include "include/prime/CMemoryCardSys.hpp"
-#include "include/TextRenderer.hpp"
-#include "include/NewPauseScreen.hpp"
-#include "include/prime/CMFGame.hpp"
-#include "include/prime/CIOWinManager.hpp"
-#include "include/prime/CMainFlow.hpp"
+#include "types.h"
+#include "prime/CSimplePool.hpp"
+#include "prime/CFinalInput.hpp"
+#include "prime/CPauseScreen.hpp"
+#include "prime/CSfxManager.hpp"
+#include "prime/CColor.hpp"
+#include "prime/CTextGui.hpp"
+#include "prime/CGraphics.hpp"
+#include "prime/CMemoryCardSys.hpp"
+#include "TextRenderer.hpp"
+#include "NewPauseScreen.hpp"
+#include "prime/CMFGame.hpp"
+#include "prime/CIOWinManager.hpp"
+#include "prime/CMainFlow.hpp"
 
 // Forward decls
 class CPlayer;

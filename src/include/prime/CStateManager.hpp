@@ -6,7 +6,7 @@
 #include "rstl/rc_ptr.h"
 #include "rstl/vector.h"
 #include "GetField.hpp"
-#include "prime/CStateManager.h"
+#include "prime/CStateManager.hpp"
 #include "CObjectList.hpp"
 #include "CGraphics.hpp"
 
@@ -74,44 +74,6 @@ enum EInitPhase
     CFrustum SetupViewForDraw(const SViewport& vp) const;
     void ResetViewAfterDraw(const SViewport& backupViewport,
                                            const CTransform4f& backupViewMatrix) const;
-};
-
-class CGameState {
-public:
-    CWorldState &StateForWorld(unsigned int world);
-    void SetCurrentWorldId(CAssetId id);
-    CWorldState &CurrentWorldState();
-
-
-    inline CAssetId MLVL() { return *GetField<u32>(this, 0x84); };
-
-    inline double PlayTime() { return *GetField<double>(this, 0xa0); };
-};
-
-class CWorldState {
-public:
-    PADDING(0x14);
-    CWorldLayerState **layerState;
-
-    CWorldLayerState &GetLayerState();
-    void SetDesiredAreaAssetId(CAssetId id);
-};
-
-class CWorldLayers {
-public:
-    struct Area {
-        uint32 m_startNameIdx;
-        uint32 m_layerCount;
-        uint64 m_layerBits;
-    };
-};
-
-class CWorldLayerState {
-public:
-    PADDING(0x8);
-    rstl::vector<CWorldLayers::Area> areaLayers;
-
-    void InitializeWorldLayers(const rstl::vector<CWorldLayers::Area> &layers);
 };
 
 #endif

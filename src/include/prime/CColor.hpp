@@ -2,7 +2,7 @@
 #define PRIMEWATCH_PRIME_CCOLOR_HPP
 
 #include <PrimeAPI.h>
-#include "include/types.h"
+#include "types.h"
 
 typedef enum EColorType {
     EColorType_Main,

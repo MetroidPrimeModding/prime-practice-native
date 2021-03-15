@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_CMAIN_HPP
 #define PRIME_PRACTICE_CMAIN_HPP
 
-#include "include/GetField.hpp"
+#include "GetField.hpp"
 
 typedef enum EFlowState {
     EFlowState_None,

@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_GX_HPP
 #define PRIME_PRACTICE_GX_HPP
 
-#include "include/types.h"
+#include "types.h"
 
 #define GX_TF_I4      0x0
 #define GX_TF_I8      0x1

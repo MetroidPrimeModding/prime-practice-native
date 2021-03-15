@@ -1,7 +1,7 @@
 #ifndef PRIMEWATCH_PRIME_CFINALINPUT_HPP
 #define PRIMEWATCH_PRIME_CFINALINPUT_HPP
 
-#include "include/GetField.hpp"
+#include "GetField.hpp"
 
 class CFinalInput {
 public:

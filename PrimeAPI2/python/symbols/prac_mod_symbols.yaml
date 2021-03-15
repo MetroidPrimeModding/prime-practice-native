@@ -9,6 +9,18 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x8037F9AC
+  - Name:            'DVDOpen'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80371684
+  - Name:            'DVDClose'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8037174C
+  - Name:            'DVDReadAsyncPrio'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80371994
   - Name:            '_ZnwjPKcS0_'
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
@@ -393,5 +405,33 @@ Symbols:
     Index:           SHN_ABS
     Binding:         STB_GLOBAL
     Value:           0x80023854
+  - Name:            '_ZN13CStateManager15InitializeStateEj7TAreaIdj'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8004B598
+  - Name:            '_ZN12CPlayerState10IncrPickUpENS_9EItemTypeEi'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80091BF0
+  - Name:            '_ZN9CGameArea13StartStreamInER13CStateManager'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80060DE4
+  - Name:            'g_GameState'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x805A8C40
+  - Name:            '_ZN7CPlayer8TeleportERK12CTransform4fR13CStateManagerb'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x8028509C
+  - Name:            '_ZN12CPlayerState19ReInitializePowerUpENS_9EItemTypeEi'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x80091e8c
+  - Name:            '_ZNK6CWorld10IGetAreaIdE7TAreaId'
+    Index:           SHN_ABS
+    Binding:         STB_GLOBAL
+    Value:           0x800560cc
 
 ...

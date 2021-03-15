@@ -1,4 +1,4 @@
-#include <include/TextRenderer.hpp>
+#include <TextRenderer.hpp>
 #include <stdio.h>
 #include "PlayerMenu.h"
 #include "Menus.h"

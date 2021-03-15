@@ -1,8 +1,8 @@
 #ifndef PRIMEWATCH_PRIME_CGRAPHICS_HPP
 #define PRIMEWATCH_PRIME_CGRAPHICS_HPP
 
-#include "include/MathyTypes.hpp"
-#include "include/GX.hpp"
+#include "MathyTypes.hpp"
+#include "GX.hpp"
 
 enum ERglCullMode {
     ERglCullMode_None = 0,
@@ -54,8 +54,8 @@ class CGraphics {
 public:
     static void SetCullMode(ERglCullMode mode);
     static void SetOrtho(float left, float right, float top, float bottom, float near, float far);
-    static void SetViewPointMatrix(const CTransform &mat);
-    static void SetModelMatrix(const CTransform &mat);
+    static void SetViewPointMatrix(const CTransform4f &mat);
+    static void SetModelMatrix(const CTransform4f &mat);
     static void SetIdentityModelMatrix();
     static void SetIdentityViewPointMatrix();
     static void VideoPreCallback(ulong arg);
