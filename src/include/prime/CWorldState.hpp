@@ -15,7 +15,6 @@ public:
 
 class CWorldLayerState {
 public:
-    PADDING(0x8);
     rstl::vector<CWorldLayers::Area> areaLayers;
 
     void InitializeWorldLayers(const rstl::vector<CWorldLayers::Area> &layers);

@@ -6,7 +6,13 @@
 
 class CWorld {
 public:
-    TAreaId IGetAreaId(TAreaId areaAssetId) const;
+    inline TAreaId GetAreaId(CAssetId areaAssetId) {
+        TAreaId result(-1);
+        AuxGetAreaId(&result, this, areaAssetId);
+        return result;
+    }
+
+    static void AuxGetAreaId(TAreaId* out, CWorld* obj, CAssetId areaAssetId);
     
     TAreaId GetCurrentAreaId() const { return *(GetField<TAreaId>(this, 0x68)); };
     void SetPauseState(bool paused);
