@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_TOOLCHAIN_FILE PrimeAPI2/PrimeToolchain.cmake)
-project(prime-practice-native)
+include("PrimeAPI2/PrimeAPI.cmake")
+project(prime-practice-native C CXX)
 
 include_directories(PrimeAPI/include)
 include_directories(src/include)
