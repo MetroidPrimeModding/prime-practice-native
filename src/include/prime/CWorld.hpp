@@ -6,7 +6,7 @@
 
 class CWorld {
 public:
-	TAreaId IGetAreaId(TAreaId areaAssetId) const;
+    TAreaId IGetAreaId(TAreaId areaAssetId) const;
     
     TAreaId GetCurrentAreaId() const { return *(GetField<TAreaId>(this, 0x68)); };
     void SetPauseState(bool paused);

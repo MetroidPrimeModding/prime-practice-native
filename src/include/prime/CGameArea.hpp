@@ -3,12 +3,11 @@
 
 class CStateManager;
 
-class CGameArea
-{
+class CGameArea {
 public:
-	void StartStreamIn(CStateManager&);
-	void Validate(CStateManager&);
-	void LoadScriptObjects(CStateManager&);
+    void StartStreamIn(CStateManager&);
+    void Validate(CStateManager&);
+    void LoadScriptObjects(CStateManager&);
 };
 
 #endif // CGAMEAREA_HPP

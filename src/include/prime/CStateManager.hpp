@@ -6,7 +6,6 @@
 #include "rstl/rc_ptr.h"
 #include "rstl/vector.h"
 #include "GetField.hpp"
-#include "prime/CStateManager.hpp"
 #include "CObjectList.hpp"
 #include "CGraphics.hpp"
 
@@ -44,16 +43,16 @@ class CStateManager {
 
 public:
 enum EInitPhase
-	{
-		kInit_LoadWorld = 0,
-		kInit_LoadFirstArea = 1,
-		kInit_Done = 2
-	};
-	
-	void InitializeState(uint WorldAssetId, TAreaId AreaId, uint AreaAssetId);
-	
-	inline CPlayer* GetPlayer() const 				{ return *GetField<CPlayer*>(this, 0x84C); }
-	inline EInitPhase GetInitPhase() const			{ return *GetField<EInitPhase>(this, 0xB3C); }
+    {
+        kInit_LoadWorld = 0,
+        kInit_LoadFirstArea = 1,
+        kInit_Done = 2
+    };
+    
+    void InitializeState(uint WorldAssetId, TAreaId AreaId, uint AreaAssetId);
+    
+    inline CPlayer* GetPlayer() const { return *GetField<CPlayer*>(this, 0x84C); }
+    inline EInitPhase GetInitPhase() const { return *GetField<EInitPhase>(this, 0xB3C); }
 
     inline CPlayerState *GetPlayerState() const { return mpPlayerState.RawPointer(); }
 
@@ -72,8 +71,7 @@ enum EInitPhase
     void DrawWorld() const;
     void DrawDebugStuff() const;
     CFrustum SetupViewForDraw(const SViewport& vp) const;
-    void ResetViewAfterDraw(const SViewport& backupViewport,
-                                           const CTransform4f& backupViewMatrix) const;
+    void ResetViewAfterDraw(const SViewport& backupViewport, const CTransform4f& backupViewMatrix) const;
 };
 
 #endif

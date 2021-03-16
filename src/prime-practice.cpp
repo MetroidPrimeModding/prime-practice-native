@@ -1,13 +1,15 @@
 #include <PrimeAPI.h>
 #include <prime/CFontEndUI.hpp>
 #include <os.h>
-#include "prime/CMain.hpp"
-#include "prime/CStateManager.h"
-#include "prime/CPlayerState.h"
-#include "prime/CHealthInfo.hpp"
-#include "prime/CMemory.h"
 
 #include "types.h"
+#include "prime/CMain.hpp"
+#include "prime/CStateManager.hpp"
+#include "prime/CPlayerState.hpp"
+#include "prime/CGameState.hpp"
+#include "prime/CWorldState.hpp"
+#include "prime/CHealthInfo.hpp"
+#include "prime/CMemory.hpp"
 #include "prime/CSimplePool.hpp"
 #include "prime/CFinalInput.hpp"
 #include "prime/CPauseScreen.hpp"
@@ -16,11 +18,11 @@
 #include "prime/CTextGui.hpp"
 #include "prime/CGraphics.hpp"
 #include "prime/CMemoryCardSys.hpp"
-#include "TextRenderer.hpp"
-#include "NewPauseScreen.hpp"
 #include "prime/CMFGame.hpp"
 #include "prime/CIOWinManager.hpp"
 #include "prime/CMainFlow.hpp"
+#include "TextRenderer.hpp"
+#include "NewPauseScreen.hpp"
 
 // Forward decls
 class CPlayer;

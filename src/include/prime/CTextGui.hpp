@@ -4,7 +4,7 @@
 #include "types.h"
 #include <rstl/vector.h>
 #include <rstl/string.h>
-#include "prime/CStateManager.h"
+#include "prime/CStateManager.hpp"
 #include <PrimeAPI.h>
 #include "prime/CTextGui.hpp"
 #include "prime/CMemoryCardSys.hpp"

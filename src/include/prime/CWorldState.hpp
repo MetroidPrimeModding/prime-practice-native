@@ -4,33 +4,32 @@
 #include <PrimeAPI.h>
 #include <rstl/vector.h>
 
-class CWorldLayers
-{
+class CWorldLayers {
 public:
-	struct Area
-	{
-		uint32 mStartNameIdx;
-		uint32 mLayerCount;
-		uint64 mLayerBits;
-	};
+    struct Area {
+        uint32 m_startNameIdx;
+        uint32 m_layerCount;
+        uint64 m_layerBits;
+    };
 };
 
-class CWorldLayerState
-{
+class CWorldLayerState {
 public:
+    PADDING(0x8);
     rstl::vector<CWorldLayers::Area> areaLayers;
-	
+
     void InitializeWorldLayers(const rstl::vector<CWorldLayers::Area> &layers);
 };
 
-class CWorldState
-{
+class CWorldState {
 public:
 	uint32 x0_worldAssetId;
 	TAreaId x4_areaId;
-	
-	inline CWorldLayerState* GetWorldLayerState() const	{ return **GetField<CWorldLayerState**>(this, 0x14); }
-	void SetDesiredAreaAssetId(uint assetId);
+    PADDING(0x0c);
+    CWorldLayerState **layerState;
+
+    CWorldLayerState &GetLayerState();
+    void SetDesiredAreaAssetId(CAssetId id);
 };
 
 #endif // CWORLDSTATE_HPP
