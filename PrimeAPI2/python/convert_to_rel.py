@@ -41,6 +41,8 @@ def main():
     if not convert_preplf_to_rel(args.inElf, args.outRel):
         return False
 
+    return True
+
 
 def convert_preplf_to_rel(preplfPath, outRelPath):
     preplf = PreplfFile(preplfPath)
@@ -319,4 +321,5 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
     return True
 
 if __name__ == "__main__":
-    main()
+    if not main():
+        raise SystemExit(1)
