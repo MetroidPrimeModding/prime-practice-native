@@ -62,14 +62,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_PRIME_CXX_FLAGS}")
 include_directories("${DEVKITPRO}/libogc/include/")
 
 # Macro to get the required link arguments in place
-macro(add_prime_library name base_dol)
+macro(add_prime_library name symbol_list base_dol)
     add_executable(${name} ${ARGN}
             "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
-            "${PRIMEAPI2_PATH}/python/symbols/prac_mod_symbols.o"
-            )
+            "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
+    )
     set_target_properties(${name} PROPERTIES LINK_FLAGS
             "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
-            )
+    )
+
+    # Create the ApplyCodePatches.cpp
     add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
             COMMAND python3 "parse_and_generate_patch.py"
@@ -78,6 +80,20 @@ macro(add_prime_library name base_dol)
             ${PRIME_PATCH_FUNCTIONS}
             WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
     )
+
+    # Create the dol_symbols.o
+    get_filename_component(absolute_symbol_list "${symbol_list}" REALPATH)
+
+    add_custom_command(
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
+            COMMAND python3 "symbols_to_yaml2obj_file.py"
+            --llvm-dir "${LLVM_DIR}"
+            "${absolute_symbol_list}"
+            "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
+            WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
+    )
+
+    # Create the patched dol
     add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
             COMMAND python3 "patch_dol_file.py"
@@ -92,6 +108,8 @@ macro(add_prime_library name base_dol)
     )
     add_dependencies(${name} patch_dol)
 
+
+    # Create the Mod.rel
     add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
             COMMAND python3 "convert_to_rel.py"
