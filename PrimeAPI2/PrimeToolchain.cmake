@@ -133,7 +133,7 @@ macro(add_prime_library name base_dol)
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${name}"
     )
     add_custom_target(
-            build_mod
+            build_mod ALL
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
     )
 
