@@ -90,6 +90,7 @@ macro(add_prime_library name symbol_list base_dol)
             --llvm-dir "${LLVM_DIR}"
             "${absolute_symbol_list}"
             "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
+            MAIN_DEPENDENCY "${absolute_symbol_list}"
             WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
     )
 
@@ -99,6 +100,7 @@ macro(add_prime_library name symbol_list base_dol)
             COMMAND python3 "patch_dol_file.py"
             -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
             -o "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
             WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
     )
     add_custom_target(
