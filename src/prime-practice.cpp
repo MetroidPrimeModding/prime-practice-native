@@ -55,6 +55,11 @@ void operator delete(void *ptr) {
 // Impls
 extern "C" {
 extern int _INIT_START;
+__attribute__((visibility("default"))) extern void __rel_prolog();
+}
+
+__attribute__((visibility("default"))) void __rel_prolog() {
+  _prolog();
 }
 
 void _prolog() {

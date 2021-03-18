@@ -45,6 +45,7 @@ def main():
 
 
 def convert_preplf_to_rel(preplfPath, outRelPath):
+    print("Exporting %s to %s" % (preplfPath, outRelPath))
     preplf = PreplfFile(preplfPath)
     rel = OutputStream()
 
