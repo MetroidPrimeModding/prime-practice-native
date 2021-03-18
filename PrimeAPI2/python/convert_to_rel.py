@@ -64,9 +64,9 @@ def convert_preplf_to_rel(preplfPath, outRelPath):
     bssSec = preplf.section_by_name(".bss")
     assert (bssSec != None)
 
-    prologSymbol = preplf.symbol_by_name("_prolog")
+    prologSymbol = preplf.symbol_by_name("__rel_prolog")
     if prologSymbol is None:
-        prologSymbol = preplf.symbol_by_name("_prolog__Fv")
+        prologSymbol = preplf.symbol_by_name("__rel_prolog__Fv")
 
     epilogSymbol = preplf.symbol_by_name("_epilog")
     if epilogSymbol is None:

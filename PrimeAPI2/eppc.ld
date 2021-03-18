@@ -1,4 +1,4 @@
-ENTRY(_prolog)
+ENTRY(__rel_prolog)
 SECTIONS
 {
 	.init :

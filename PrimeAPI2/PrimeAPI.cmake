@@ -46,7 +46,7 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
 #        -call_shared
 #        --strip-discarded
         --gc-sections
-        "-e _prolog"
+        "-e __rel_prolog"
         "--unresolved-symbols=report-all"
         --error-unresolved-symbols
         --no-allow-shlib-undefined
