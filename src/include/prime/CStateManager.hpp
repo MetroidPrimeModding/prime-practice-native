@@ -2,11 +2,10 @@
 #define CSTATEMANAGER_H
 
 #include "PrimeAPI.h"
-#include "include/types.h"
+#include "types.h"
 #include "rstl/rc_ptr.h"
 #include "rstl/vector.h"
-#include "include/GetField.hpp"
-#include "include/prime/CStateManager.h"
+#include "GetField.hpp"
 #include "CObjectList.hpp"
 #include "CGraphics.hpp"
 
@@ -43,6 +42,18 @@ class CStateManager {
     rstl::rc_ptr<CWorldLayerState> worldLayerState;
 
 public:
+enum EInitPhase
+    {
+        kInit_LoadWorld = 0,
+        kInit_LoadFirstArea = 1,
+        kInit_Done = 2
+    };
+    
+    void InitializeState(uint WorldAssetId, TAreaId AreaId, uint AreaAssetId);
+    
+    inline CPlayer* GetPlayer() const { return *GetField<CPlayer*>(this, 0x84C); }
+    inline EInitPhase GetInitPhase() const { return *GetField<EInitPhase>(this, 0xB3C); }
+
     inline CPlayerState *GetPlayerState() const { return mpPlayerState.RawPointer(); }
 
     inline CWorldLayerState *GetWorldLayerState() const { return worldLayerState.RawPointer(); }
@@ -60,46 +71,7 @@ public:
     void DrawWorld() const;
     void DrawDebugStuff() const;
     CFrustum SetupViewForDraw(const SViewport& vp) const;
-    void ResetViewAfterDraw(const SViewport& backupViewport,
-                                           const CTransform& backupViewMatrix) const;
-};
-
-class CGameState {
-public:
-    CWorldState &StateForWorld(unsigned int world);
-    void SetCurrentWorldId(CAssetId id);
-    CWorldState &CurrentWorldState();
-
-
-    inline CAssetId MLVL() { return *GetField<u32>(this, 0x84); };
-
-    inline double PlayTime() { return *GetField<double>(this, 0xa0); };
-};
-
-class CWorldState {
-public:
-    PADDING(0x14);
-    CWorldLayerState **layerState;
-
-    CWorldLayerState &GetLayerState();
-    void SetDesiredAreaAssetId(CAssetId id);
-};
-
-class CWorldLayers {
-public:
-    struct Area {
-        uint32 m_startNameIdx;
-        uint32 m_layerCount;
-        uint64 m_layerBits;
-    };
-};
-
-class CWorldLayerState {
-public:
-    PADDING(0x8);
-    rstl::vector<CWorldLayers::Area> areaLayers;
-
-    void InitializeWorldLayers(const rstl::vector<CWorldLayers::Area> &layers);
+    void ResetViewAfterDraw(const SViewport& backupViewport, const CTransform4f& backupViewMatrix) const;
 };
 
 #endif

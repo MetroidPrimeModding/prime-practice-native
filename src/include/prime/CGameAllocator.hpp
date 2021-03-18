@@ -1,8 +1,8 @@
 #ifndef PRIME_PRACTICE_CGAMEALLOCATOR_HPP
 #define PRIME_PRACTICE_CGAMEALLOCATOR_HPP
 
-#include "include/types.h"
-#include "include/GetField.hpp"
+#include "types.h"
+#include "GetField.hpp"
 
 class CMemoryBlock {
 public:

@@ -2,8 +2,8 @@
 #define PRIME_PRACTICE_TEXTRENDERER_HPP
 
 #include "PrimeAPI.h"
-#include "include/types.h"
-#include "include/GX.hpp"
+#include "types.h"
+#include "GX.hpp"
 
 #define TEX_CHARS_WIDE 16
 #define CHAR_TEX_DIM (1.0f/16.0f)

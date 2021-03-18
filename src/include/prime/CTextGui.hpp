@@ -1,13 +1,13 @@
 #ifndef PRIMEWATCH_PRIME_CTEXTGUI_HPP
 #define PRIMEWATCH_PRIME_CTEXTGUI_HPP
 
-#include "include/types.h"
+#include "types.h"
 #include <rstl/vector.h>
 #include <rstl/string.h>
-#include "include/prime/CStateManager.h"
+#include "prime/CStateManager.hpp"
 #include <PrimeAPI.h>
-#include "include/prime/CTextGui.hpp"
-#include "include/prime/CMemoryCardSys.hpp"
+#include "prime/CTextGui.hpp"
+#include "prime/CMemoryCardSys.hpp"
 
 class CRasterFont;
 class CTextRenderBuffer;

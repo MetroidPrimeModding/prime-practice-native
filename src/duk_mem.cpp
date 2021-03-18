@@ -1,8 +1,8 @@
 #include "duk_mem.h"
 #include "PrimeAPI.h"
 #include "CMemory.h"
-#include "include/types.h"
-#include "include/prime/CGameAllocator.hpp"
+#include "types.h"
+#include "prime/CGameAllocator.hpp"
 #include <string.h>
 
 void *prime_calloc(void *user, size_t nmemb, size_t size) {

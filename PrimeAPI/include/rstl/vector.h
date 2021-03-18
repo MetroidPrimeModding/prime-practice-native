@@ -14,6 +14,10 @@ public:
     T *ptr; // ptr
 public:
 
+	inline uint32 size() const	{ return len; }
+	inline uint32 capacity() const { return max; }
+	inline T& operator[](int i) const { return ptr[i]; }
+	inline T* data() const { return ptr; }
 };
 
 template<typename T>

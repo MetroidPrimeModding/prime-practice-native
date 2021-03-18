@@ -2,8 +2,8 @@
 #define PRIME_PRACTICE_CARCHITECTUREMESSAGE_HPP
 
 #include "rstl/rc_ptr.h"
-#include "include/types.h"
-#include "include/prime/CFinalInput.hpp"
+#include "types.h"
+#include "prime/CFinalInput.hpp"
 
 class CIOWin;
 

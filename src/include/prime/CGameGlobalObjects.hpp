@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_CGAMEGLOBALOBJECTS_HPP
 #define PRIME_PRACTICE_CGAMEGLOBALOBJECTS_HPP
 
-#include "include/prime/CStateManager.h"
+#include "prime/CStateManager.hpp"
 
 class CGameGlobalObjects {
 public:

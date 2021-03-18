@@ -1,9 +1,9 @@
 #ifndef PRIME_PRACTICE_CPHYSICSACTOR_HPP
 #define PRIME_PRACTICE_CPHYSICSACTOR_HPP
 
-#include "include/GetField.hpp"
-#include "include/MathyTypes.hpp"
-#include "include/prime/CPhysicsState.hpp"
+#include "GetField.hpp"
+#include "MathyTypes.hpp"
+#include "prime/CPhysicsState.hpp"
 #include "CActor.hpp"
 
 class CPhysicsActor : public CActor {

@@ -23,7 +23,7 @@ typedef void (*DVDCallback)(s32 result, DVDFileInfo *fileInfo);
 
 // Funcs (compiled into Prime)
 
-bool DVDOpen(char *fileName, DVDFileInfo *fileInfo);
+bool DVDOpen(const char *fileName, DVDFileInfo *fileInfo);
 bool DVDClose(DVDFileInfo *fileInfo);
 bool DVDReadAsyncPrio(DVDFileInfo *file,
                       void *addr,

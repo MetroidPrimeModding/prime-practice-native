@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_GETFIELD_HPP
 #define PRIME_PRACTICE_GETFIELD_HPP
 
-#include "include/types.h"
+#include "types.h"
 
 template<typename Res>
 Res *GetField(const void *thiz, u32 offset) {

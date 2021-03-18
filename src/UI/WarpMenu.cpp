@@ -1,7 +1,7 @@
-#include <include/TextRenderer.hpp>
+#include <TextRenderer.hpp>
 #include "WarpMenu.h"
 #include "Menus.h"
-#include "include/NewPauseScreen.hpp"
+#include "NewPauseScreen.hpp"
 
 const WarpArea AREAS_FRIGATE[] = {
     {.name= "Air Lock", .area= 0x07640602},

@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_CPHYSICSSTATE_HPP
 #define PRIME_PRACTICE_CPHYSICSSTATE_HPP
 
-#include "include/MathyTypes.hpp"
+#include "MathyTypes.hpp"
 
 class CPhysicsState {
 public:

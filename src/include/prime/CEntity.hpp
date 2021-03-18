@@ -2,7 +2,7 @@
 #define PRIME_PRACTICE_NATIVE_CENTITY_HPP
 
 #include "PrimeAPI.h"
-#include "include/GetField.hpp"
+#include "GetField.hpp"
 #include "rstl/vector.h"
 
 enum class EScriptObjectType {

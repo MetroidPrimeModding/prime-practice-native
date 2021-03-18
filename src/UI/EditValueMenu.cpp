@@ -1,7 +1,7 @@
 #include "EditValueMenu.h"
 
 #include "Menus.h"
-#include "include/NewPauseScreen.hpp"
+#include "NewPauseScreen.hpp"
 
 constexpr EditValueMenu::EditValueMenu() = default;
 

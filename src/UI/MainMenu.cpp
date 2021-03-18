@@ -1,5 +1,5 @@
-#include <include/TextRenderer.hpp>
-#include <include/NewPauseScreen.hpp>
+#include <TextRenderer.hpp>
+#include <NewPauseScreen.hpp>
 #include "MainMenu.h"
 #include "Menus.h"
 

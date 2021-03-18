@@ -1,7 +1,7 @@
 #ifndef PRIME_PRACTICE_NATIVE_MENU_H
 #define PRIME_PRACTICE_NATIVE_MENU_H
 
-#include <include/prime/CFinalInput.hpp>
+#include <prime/CFinalInput.hpp>
 
 constexpr int ITEM_HEIGHT = 10;
 
