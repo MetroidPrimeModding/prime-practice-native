@@ -1,0 +1,3 @@
+[submodule "PrimeAPI2/randomprime"]
+	path = PrimeAPI2/randomprime
+	url = https://github.com/Pwootage/randomprime.git
