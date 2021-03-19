@@ -118,11 +118,12 @@ macro(add_prime_library name symbol_list base_dol)
     # Create the Mod.rel
     add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
-            COMMAND python3 "convert_to_rel.py"
-            -d "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
-            -i "${CMAKE_CURRENT_BINARY_DIR}/${name}"
+            COMMAND cargo run -p dol_linker --
+            rel
             -o "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
-            WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
+            -s "${PRIMEAPI2_PATH}/empty.lst"
+            "${CMAKE_CURRENT_BINARY_DIR}/${name}"
+            WORKING_DIRECTORY "${PRIMEAPI2_PATH}/randomprime/"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${name}"
     )
     add_custom_target(
