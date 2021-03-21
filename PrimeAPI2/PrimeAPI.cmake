@@ -23,6 +23,7 @@ set(CMAKE_PRIME_C_FLAGS_LIST
 #        -fPIC
         -fvisibility=hidden
         -flto=thin
+        -DPRIME=2
 #        -mno-sdata
         )
 
@@ -66,7 +67,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_PRIME_CXX_FLAGS}")
 include_directories("${DEVKITPRO}/libogc/include/")
 
 # Macro to get the required link arguments in place
-macro(add_prime_library name symbol_list base_dol)
+macro(add_prime_library_common name symbol_list base_dol)
     add_executable(${name} ${ARGN}
             "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
             "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
@@ -139,6 +140,16 @@ macro(add_prime_library name symbol_list base_dol)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
             DESTINATION "sys/"
             RENAME "main.dol")
+endmacro()
+
+macro(add_prime_library name symbol_list base_dol)
+    add_prime_library_common("${name}" "${symbol_list}" "${base_dol}" ${ARGN})
+    # target_compile_definitions("${name}" PUBLIC PRIME1=1)
+endmacro()
+
+macro(add_echoes_library name symbol_list base_dol)
+    add_prime_library_common("${name}" "${symbol_list}" "${base_dol}" ${ARGN})
+    # target_compile_definitions("${name}" PUBLIC PRIME2=1)
 endmacro()
 
 macro(patch_function orig dest)

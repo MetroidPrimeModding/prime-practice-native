@@ -7,23 +7,50 @@ RSTL_BEGIN
 
 /** Reference counting pointer. Needs to be fixed so it actually counts references */
 template<typename T>
-class rc_ptr
+class rc_ptr_prime1
 {
-	T** mpRawPtr;
+    struct rc_data
+    {
+        T* ptr;
+        int refCount;
+    };
+    rc_data* data;
 
 public:
-	inline T* RawPointer() const		{
-		if (mpRawPtr == nullptr) {
-			return nullptr;
-		}
-		return *mpRawPtr;
-	}
-	inline T& operator*()				{ return **mpRawPtr; }
-	inline const T& operator*() const	{ return **mpRawPtr; }
-	inline T& operator->()				{ return **mpRawPtr; }
-	inline const T& operator->() const	{ return **mpRawPtr; }
-	inline operator bool() const		{ return mpRawPtr != NULL && *mpRawPtr != NULL; }
+    inline T* RawPointer() const		{
+        if (data) {
+            return data->ptr;
+        }
+        return nullptr;
+    }
+    inline T& operator*()				{ return *data->ptr; }
+    inline const T& operator*() const	{ return *data->ptr; }
+    inline T& operator->()				{ return *data->ptr; }
+    inline const T& operator->() const	{ return *data->ptr; }
+    inline operator bool() const		{ return data != nullptr && data->ptr != nullptr; }
 };
+
+template<typename T>
+class rc_ptr_prime2
+{
+    T* rawPtr;
+    int* refCount;
+
+public:
+    inline T* RawPointer() const        { return rawPtr; }
+    inline T& operator*()				{ return *rawPtr; }
+    inline const T& operator*() const	{ return *rawPtr; }
+    inline T& operator->()				{ return *rawPtr; }
+    inline const T& operator->() const	{ return *rawPtr; }
+    inline operator bool() const		{ return rawPtr != nullptr; }
+};
+
+
+#if PRIME == 1
+#define rc_ptr rc_ptr_prime1
+#elif PRIME == 2
+#define rc_ptr rc_ptr_prime2
+#endif
 
 RSTL_END
 

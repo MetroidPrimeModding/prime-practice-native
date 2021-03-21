@@ -1,6 +1,8 @@
 #ifndef CGAMESTATE_HPP
 #define CGAMESTATE_HPP
 
+#include "types.h"
+
 class CWorldState;
 
 class CGameState {
