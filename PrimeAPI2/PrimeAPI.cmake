@@ -1,30 +1,26 @@
 
 set(PRIMEAPI2_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
+if (NOT DEFINED LLVM_DIR)
+    message(FATAL_ERROR "Must specify LLVM_DIR")
+endif()
 set(CMAKE_TOOLCHAIN_FILE "${PRIMEAPI2_PATH}/PrimeToolchain.cmake")
 
 set(DEVKITPRO "/opt/devkitpro")
 set(DEVKITPPC "/opt/devkitpro/devkitPPC")
 
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nostdlib")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdlib")
 set(CMAKE_PRIME_C_FLAGS_LIST
         -target powerpc-unknown-eabi
         -mllvm --relocation-model=static
         -nostdlib
         -nostdinc
         -ffreestanding
-        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0/include"
-        -isystem "${DEVKITPPC}/powerpc-eabi/include"
         -fno-function-sections
         -fno-data-sections
         -fno-exceptions
         -fno-asynchronous-unwind-tables
-#        -fPIC
         -fvisibility=hidden
         -flto=thin
-        -DPRIME=2
-#        -mno-sdata
         )
 
 set(CMAKE_PRIME_CXX_FLAGS_LIST
@@ -35,17 +31,6 @@ set(CMAKE_PRIME_CXX_FLAGS_LIST
 
 set(CMAKE_PRIME_LINK_FLAGS_LIST
         -nostdlib
-#        -nodefaultlibs
-#        -flto
-#        -Os
-#        -lgcc
-#        -lsysbase
-#        -d
-#        -x
-#        "-z nocopyreloc"
-#        "-z combreloc"
-#        -call_shared
-#        --strip-discarded
         --gc-sections
         "-e __rel_prolog"
         "--unresolved-symbols=report-all"
@@ -53,7 +38,6 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
         --no-allow-shlib-undefined
         --no-undefined
         -r
-#        -shared
         "-T ${PRIMEAPI2_PATH}/eppc.ld"
         )
 
@@ -64,8 +48,6 @@ list(JOIN CMAKE_PRIME_LINK_FLAGS_LIST " " CMAKE_PRIME_LINK_FLAGS)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_PRIME_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_PRIME_CXX_FLAGS}")
 
-include_directories("${DEVKITPRO}/libogc/include/")
-
 # Macro to get the required link arguments in place
 macro(add_prime_library_common name symbol_list base_dol)
     add_executable(${name} ${ARGN}
@@ -74,6 +56,11 @@ macro(add_prime_library_common name symbol_list base_dol)
     )
     set_target_properties(${name} PROPERTIES LINK_FLAGS
             "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
+    )
+    target_include_directories(${name} SYSTEM PUBLIC
+        "${DEVKITPRO}/libogc/include"
+        "${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0/include"
+        "${DEVKITPPC}/powerpc-eabi/include"
     )
 
     # Create the ApplyCodePatches.cpp
@@ -144,12 +131,12 @@ endmacro()
 
 macro(add_prime_library name symbol_list base_dol)
     add_prime_library_common("${name}" "${symbol_list}" "${base_dol}" ${ARGN})
-    # target_compile_definitions("${name}" PUBLIC PRIME1=1)
+    target_compile_definitions(${name} PUBLIC -DPRIME=1)
 endmacro()
 
 macro(add_echoes_library name symbol_list base_dol)
     add_prime_library_common("${name}" "${symbol_list}" "${base_dol}" ${ARGN})
-    # target_compile_definitions("${name}" PUBLIC PRIME2=1)
+    target_compile_definitions(${name} PUBLIC -DPRIME=2)
 endmacro()
 
 macro(patch_function orig dest)

@@ -3,19 +3,19 @@
 
 #include "prime/CIOWin.hpp"
 
-enum EClientFlowStates {
-  kCFS_Unspecified = -1,
-  kCFS_PreFrontEnd = 7,
-  kCFS_FrontEnd = 8,
-  kCFS_Game = 14,
-  kCFS_GameExit = 15
+enum class EClientFlowStates {
+  Unspecified = -1,
+  PreFrontEnd = 7,
+  FrontEnd = 8,
+  Game = 14,
+  GameExit = 15
 };
 
 class CMainFlow {
 public:
   CIOWin::EMessageReturn OnMessage(const CArchitectureMessage &msg, CArchitectureQueue &queue);
 
-  int GetGameState() { return *GetField<int>(this, 0x14); }
+  EClientFlowStates GetGameState() { return *GetField<EClientFlowStates>(this, 0x14); }
 
   void SetGameState(EClientFlowStates state, CArchitectureQueue &queue);
   void AdvanceGameState(CArchitectureQueue &queue);

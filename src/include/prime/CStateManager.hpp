@@ -43,11 +43,14 @@ class CStateManager {
     rstl::rc_ptr<CWorldLayerState> worldLayerState;
 
 public:
-enum EInitPhase
+    enum class EInitPhase
     {
-        kInit_LoadWorld = 0,
-        kInit_LoadFirstArea = 1,
-        kInit_Done = 2
+        LoadWorld = 0,
+        LoadFirstArea = 1,
+        #if PRIME == 2
+        Unknown,
+        #endif
+        Done
     };
     
     void InitializeState(uint WorldAssetId, TAreaId AreaId, uint AreaAssetId);

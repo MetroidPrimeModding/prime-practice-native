@@ -25,8 +25,8 @@ public:
     }
     inline T& operator*()				{ return *data->ptr; }
     inline const T& operator*() const	{ return *data->ptr; }
-    inline T& operator->()				{ return *data->ptr; }
-    inline const T& operator->() const	{ return *data->ptr; }
+    inline T* operator->()				{ return data->ptr; }
+    inline const T* operator->() const	{ return data->ptr; }
     inline operator bool() const		{ return data != nullptr && data->ptr != nullptr; }
 };
 
@@ -40,8 +40,8 @@ public:
     inline T* RawPointer() const        { return rawPtr; }
     inline T& operator*()				{ return *rawPtr; }
     inline const T& operator*() const	{ return *rawPtr; }
-    inline T& operator->()				{ return *rawPtr; }
-    inline const T& operator->() const	{ return *rawPtr; }
+    inline T* operator->()				{ return rawPtr; }
+    inline const T* operator->() const	{ return rawPtr; }
     inline operator bool() const		{ return rawPtr != nullptr; }
 };
 
