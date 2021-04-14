@@ -45,7 +45,7 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
 #        "-z combreloc"
 #        -call_shared
 #        --strip-discarded
-        --gc-sections
+#        --gc-sections
         "-e __rel_prolog"
         "--unresolved-symbols=report-all"
         --error-unresolved-symbols
