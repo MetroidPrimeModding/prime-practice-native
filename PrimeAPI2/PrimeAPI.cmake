@@ -120,7 +120,8 @@ macro(add_prime_library_common name symbol_list base_dol)
     )
 
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${name}-Mod.rel"
-            DESTINATION "files/")
+            DESTINATION "files/"
+            RENAME "Mod.rel")
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${name}-default-mod.dol"
             DESTINATION "files/"
             RENAME "default.dol")
