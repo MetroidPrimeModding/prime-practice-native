@@ -4,14 +4,13 @@
 #include "types.h"
 
 constexpr inline u32 ByVersion(u32 prime1, u32 prime2) {
-#if PRIME == 1
-    return prime1;
-#elif PRIME == 2
-    return prime2;
-#else
-    #error "Unknown game"
-    return 0x0;
-#endif
+    static_assert(1 <= PRIME && PRIME <= 2, "Unknown game");
+
+    if constexpr (PRIME == 1) {
+        return prime1;
+    } else {
+        return prime2;
+    }
 }
 
 #endif

@@ -59,13 +59,12 @@ public:
     inline EInitPhase GetInitPhase() const { return *GetField<EInitPhase>(this, ByVersion(0xB3C, 0x16f0)); }
 
     inline CPlayerState *GetPlayerState() const {
-        #if PRIME == 1
+        static_assert(1 <= PRIME && PRIME <= 2, "Unknown game");
+        if constexpr (PRIME == 1) {
             return GetField<rstl::rc_ptr<CPlayerState>>(this, 0x8b8)->RawPointer();
-        #elif PRIME == 2
+        } else {
             return *GetField<CPlayerState*>(this, 0x150c);
-        #else
-            #error "Unknown game"
-        #endif
+        }
     }
 
     inline CWorldLayerState *GetWorldLayerState() const { return worldLayerState.RawPointer(); }
