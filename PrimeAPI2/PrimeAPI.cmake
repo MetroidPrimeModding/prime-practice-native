@@ -51,8 +51,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_PRIME_CXX_FLAGS}")
 # Macro to get the required link arguments in place
 macro(add_prime_library_common name symbol_list base_dol)
     add_executable(${name} ${ARGN}
-            "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
-            "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
+            "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches-${name}.cpp"
+            "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols-${name}.o"
     )
     set_target_properties(${name} PROPERTIES LINK_FLAGS
             "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
@@ -65,10 +65,10 @@ macro(add_prime_library_common name symbol_list base_dol)
 
     # Create the ApplyCodePatches.cpp
     add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches-${name}.cpp"
             COMMAND python3 "parse_and_generate_patch.py"
             -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
-            -o "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches-${name}.cpp"
             ${PRIME_PATCH_FUNCTIONS}
             WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
     )
@@ -77,54 +77,54 @@ macro(add_prime_library_common name symbol_list base_dol)
     get_filename_component(absolute_symbol_list "${symbol_list}" REALPATH)
 
     add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols-${name}.o"
             COMMAND python3 "symbols_to_yaml2obj_file.py"
             --llvm-dir "${LLVM_DIR}"
             "${absolute_symbol_list}"
-            "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
+            "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols-${name}.o"
             MAIN_DEPENDENCY "${absolute_symbol_list}"
             WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
     )
 
     # Create the patched dol
     add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}-default-mod.dol"
             COMMAND python3 "patch_dol_file.py"
             -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
-            -o "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/${name}-default-mod.dol"
             DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
             WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
     )
     add_custom_target(
-            patch_dol
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            ${name}-patch-dol
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${name}-default-mod.dol"
             SOURCES "${base_dol}"
     )
-    add_dependencies(${name} patch_dol)
+    add_dependencies(${name} ${name}-patch-dol)
 
 
     # Create the Mod.rel
     add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}-Mod.rel"
             COMMAND cargo run -p dol_linker --
             rel
-            -o "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/${name}-Mod.rel"
             -s "${PRIMEAPI2_PATH}/empty.lst"
             "${CMAKE_CURRENT_BINARY_DIR}/${name}"
             WORKING_DIRECTORY "${PRIMEAPI2_PATH}/randomprime/"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${name}"
     )
     add_custom_target(
-            build_mod ALL
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
+            ${name}-build-mod ALL
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${name}-Mod.rel"
     )
 
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${name}-Mod.rel"
             DESTINATION "files/")
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${name}-default-mod.dol"
             DESTINATION "files/"
             RENAME "default.dol")
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${name}-default-mod.dol"
             DESTINATION "sys/"
             RENAME "main.dol")
 endmacro()
@@ -142,5 +142,5 @@ endmacro()
 macro(patch_function orig dest)
     list(APPEND PRIME_PATCH_FUNCTIONS
             -p "'${orig}'" "'${dest}'"
-            )
+        )
 endmacro()
