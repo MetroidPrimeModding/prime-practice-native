@@ -115,10 +115,10 @@ void resetLayerStates(const CStateManager &manager) {
   }
 
   CWorldState &worldState = gameState->StateForWorld(currentMlvl);
-  CWorldLayerState *layerState = *worldState.layerState;
+  CWorldLayerState& layerState = *worldState.layerState;
 
   rstl::vector<CWorldLayers::Area> &srcLayers = intermediate->defaultLayerStates;
-  rstl::vector<CWorldLayers::Area> &destLayers = layerState->areaLayers;
+  rstl::vector<CWorldLayers::Area> &destLayers = layerState.areaLayers;
 
   if (srcLayers.len == destLayers.len) {
     for (int i = 0; i < srcLayers.len; i++) {
@@ -188,12 +188,12 @@ void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Q
   static bool sHasDoneInitialBoot = false;
 
   // Make sure the patch does not run twice if the player quits out to main menu
-  if (!sHasDoneInitialBoot && pMainFlow->GetGameState() == 7) {
+  if (!sHasDoneInitialBoot && pMainFlow->GetGameState() == EClientFlowStates::PreFrontEnd) {
     sHasDoneInitialBoot = true;
     CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
     gameState->SetCurrentWorldId(0x39F2DE28);
     gameState->CurrentWorldState().SetDesiredAreaAssetId(0xC44E7A07);
-    pMainFlow->SetGameState(kCFS_Game, Queue);
+    pMainFlow->SetGameState(EClientFlowStates::Game, Queue);
     return;
   } else {
     pMainFlow->AdvanceGameState(Queue);

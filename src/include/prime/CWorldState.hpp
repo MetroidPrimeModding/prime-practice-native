@@ -3,6 +3,10 @@
 
 #include <PrimeAPI.h>
 #include <rstl/vector.h>
+#include <rstl/rc_ptr.h>
+
+class CRelayTracker;
+class CMapWorldInfo;
 
 class CWorldLayers {
 public:
@@ -24,10 +28,12 @@ class CWorldState {
 public:
 	uint32 x0_worldAssetId;
 	TAreaId x4_areaId;
-    PADDING(0x0c);
-    CWorldLayerState **layerState;
+    rstl::rc_ptr<CRelayTracker> relayTracker;
+    rstl::rc_ptr<CMapWorldInfo> mapWorldInfo;
+    CAssetId desiredAreaAssetId;
+    rstl::rc_ptr<CWorldLayerState> layerState;
 
-    CWorldLayerState &GetLayerState();
+    rstl::rc_ptr<CWorldLayerState>& GetLayerState();
     void SetDesiredAreaAssetId(CAssetId id);
 };
 

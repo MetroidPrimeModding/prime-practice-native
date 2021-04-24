@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "GetField.hpp"
+#include "VersionSelector.hpp"
 
 class CWorld {
 public:
@@ -14,7 +15,7 @@ public:
 
     static void AuxGetAreaId(TAreaId* out, CWorld* obj, CAssetId areaAssetId);
     
-    TAreaId GetCurrentAreaId() const { return *(GetField<TAreaId>(this, 0x68)); };
+    TAreaId GetCurrentAreaId() const { return *GetField<TAreaId>(this, ByVersion(0x68, 0x5c)); };
     void SetPauseState(bool paused);
 };
 

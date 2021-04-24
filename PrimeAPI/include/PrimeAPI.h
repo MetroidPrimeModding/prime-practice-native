@@ -1,7 +1,7 @@
 #ifndef PRIMEAPI_H
 #define PRIMEAPI_H
 
-#include <gccore.h>
+#include "gccore.h"
 
 // Add this macro at the beginning of _prolog
 #define MODULE_INIT \
