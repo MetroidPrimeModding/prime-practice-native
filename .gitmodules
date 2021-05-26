@@ -1,3 +1,6 @@
 [submodule "PrimeAPI2/randomprime"]
 	path = PrimeAPI2/randomprime
 	url = https://github.com/Pwootage/randomprime.git
+[submodule "imgui"]
+	path = imgui
+	url = https://github.com/ocornut/imgui.git
