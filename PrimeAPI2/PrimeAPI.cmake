@@ -6,8 +6,6 @@ set(CMAKE_TOOLCHAIN_FILE "${PRIMEAPI2_PATH}/PrimeToolchain.cmake")
 set(DEVKITPRO "/opt/devkitpro")
 set(DEVKITPPC "/opt/devkitpro/devkitPPC")
 
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nostdlib")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdlib")
 set(CMAKE_PRIME_C_FLAGS_LIST
         -target powerpc-unknown-eabi
         -mllvm --relocation-model=static
@@ -15,6 +13,7 @@ set(CMAKE_PRIME_C_FLAGS_LIST
         -nostdinc
         -ffreestanding
         -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0/include"
+        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0/include-fixed"
         -isystem "${DEVKITPPC}/powerpc-eabi/include"
         -fno-function-sections
         -fno-data-sections
@@ -69,6 +68,7 @@ include_directories("${DEVKITPRO}/libogc/include/")
 macro(add_prime_library name symbol_list base_dol)
     add_executable(${name} ${ARGN}
             "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
+            "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
             "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
     )
     set_target_properties(${name} PROPERTIES LINK_FLAGS

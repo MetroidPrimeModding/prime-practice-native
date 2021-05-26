@@ -41,6 +41,7 @@ private:
     int topMenu = 0;
 
     void RenderMenu();
+  void InitIMGui();
 };
 
 #endif

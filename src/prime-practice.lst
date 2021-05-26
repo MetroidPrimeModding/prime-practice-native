@@ -105,3 +105,7 @@
 0x8028509C _ZN7CPlayer8TeleportERK12CTransform4fR13CStateManagerb
 0x80091e8c _ZN12CPlayerState19ReInitializePowerUpENS_9EItemTypeEi
 0x800560cc _ZNK6CWorld10IGetAreaIdE7TAreaId
+0x80394D0C cosf
+0x80314D44 _ZN5CMath8FastCosREf
+0x80314DF0 _ZN5CMath8FastSinREf
+0x80314CD4 _ZN5CMath8FastArcCosREf

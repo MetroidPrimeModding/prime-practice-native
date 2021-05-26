@@ -33,27 +33,27 @@ _getenv_r (struct _reent *reent_ptr,
 }
 
 void	*malloc(size_t size) {
-  return prime_malloc(NULL, size);
+  return prime_malloc(size, NULL);
 }
 
 void free(void *ptr) {
-  return prime_free(NULL, ptr);
+  return prime_free(ptr, NULL);
 }
 
 void *_malloc_r (struct _reent *reent_ptr, size_t size) {
-  return prime_malloc(reent_ptr, size);
+  return prime_malloc(size, reent_ptr);
 }
 
 void _free_r (struct _reent *reent_ptr, void *size) {
-  return prime_free(reent_ptr, size);
+  return prime_free(size, reent_ptr);
 }
 
 void *_realloc_r (struct _reent *reent_ptr, void *ptr, size_t size) {
-  return prime_realloc(reent_ptr, ptr, size);
+  return prime_realloc(ptr, size, reent_ptr);
 }
 
 void *_calloc_r (struct _reent *reent_ptr, size_t nmemb, size_t size) {
-  return prime_calloc(reent_ptr, nmemb, size);
+  return prime_calloc(nmemb, size, reent_ptr);
 }
 
 // basic impl of pure virtual error so we can use virtual methods

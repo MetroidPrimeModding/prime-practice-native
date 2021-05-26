@@ -1,14 +1,20 @@
 cmake_minimum_required(VERSION 3.6)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 11)
 include("PrimeAPI2/PrimeAPI.cmake")
 project(prime-practice-native C CXX)
 
 include_directories(PrimeAPI/include)
 include_directories(src/include)
 include_directories(src)
-include_directories(extern/fmt-7.1.3/include)
+include_directories(ext/imgui)
 
+set(IMGUI_H_DEFINE [=[-DIMGUI_USER_CONFIG="\"pracc_imconfig.h\""]=])
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMGUI_H_DEFINE}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${IMGUI_H_DEFINE}")
+
+message(${CMAKE_CXX_FLAGS})
 
 set(SOURCE_FILES
         PrimeAPI/include/PrimeAPI.h
@@ -64,6 +70,26 @@ set(SOURCE_FILES
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp
         src/include/GX.hpp
+
+        ext/imgui/imgui.cpp
+#        ext/imgui/imgui_demo.cpp
+        ext/imgui/imgui_draw.cpp
+        ext/imgui/imgui_tables.cpp
+        ext/imgui/imgui_widgets.cpp
+        ext/imgui/imgui.h
+#        imgui/imgui_draw.cpp
+
+        src/include/pracc_imconfig.h
+        src/CrashAssert.h
+        src/CrashAssert.cpp
+        src/ImGuiEngine.h
+        src/ImGuiEngine.cpp
+        src/printf.h
+        src/printf.c
+        src/sscanf.c
+        src/printf_helper.c
+        src/include/prime/CMath.hpp
+
         src/new.cpp
         src/NewPauseScreen.cpp
         src/TextRenderer.cpp

@@ -11,6 +11,7 @@
 #define LINE_SPACING (2.0f)
 
 extern GXTexObj fontTexture;
+extern GXTexObj imguiFontTexture;
 
 
 class TextRenderer {

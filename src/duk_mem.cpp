@@ -4,21 +4,25 @@
 #include "types.h"
 #include "prime/CGameAllocator.hpp"
 #include <string.h>
+#include "os.h"
 
-void *prime_calloc(void *user, size_t nmemb, size_t size) {
-  void *res = prime_malloc(user, nmemb * size);
+int alloc_bytes = 0;
+
+void *prime_calloc(size_t nmemb, size_t size, void *user) {
+  void *res = prime_malloc(nmemb * size, user);
   memset(res, 0, nmemb * size);
   return res;
 }
 
 extern "C" {
 
-void prime_free(void *user, void *ptr) {
+void prime_free(void *ptr, void *user) {
   delete ptr;
 //  CGameAllocator_LOCATION->Free(ptr);
 }
 
-void *prime_malloc(void *user, size_t size) {
+void *prime_malloc(size_t size, void *user) {
+  OSReport("Alloc %d bytes\n", size);
   char *res = new char[size];
   return res;
 //  return CGameAllocator_LOCATION->Alloc(size, 1);
@@ -26,14 +30,14 @@ void *prime_malloc(void *user, size_t size) {
 
 }
 
-void *prime_realloc(void *user, void *ptr, size_t size) {
-  void *res = prime_malloc(user, size);
+void *prime_realloc(void *ptr, size_t size, void *user) {
+  void *res = prime_malloc(size, user);
   if (res == nullptr) {
     return nullptr;
   }
   if (ptr != nullptr) {
     memcpy(res, ptr, size);
-    prime_free(user, ptr);
+    prime_free(ptr, user);
   }
   return res;
 }

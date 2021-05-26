@@ -3,13 +3,14 @@ SECTIONS
 {
 	.init :
 	{
-		*(.init)
 		_INIT_START = .;
 		. = ALIGN(4);
+		*(.init)
 	}
 
 	.text :
 	{
+	  *(.text._prolog)
 		*(.text*)
 		*(.text.*)
 		*(.gnu.warning)

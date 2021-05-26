@@ -16,6 +16,8 @@
 #include "prime/CWorld.hpp"
 #include "prime/CMain.hpp"
 #include "prime/CSfxManager.hpp"
+#include "imgui.h"
+#include "duk_mem.h"
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -25,6 +27,7 @@ NewPauseScreen::NewPauseScreen() {
   OSReport("Hello, Dolphin\n");
 
   TextRenderer::Init();
+  InitIMGui();
   this->hide();
   inputs = new CFinalInput[4];
   menuStack[0] = &MENU_MAIN;
@@ -496,6 +499,50 @@ void NewPauseScreen::popMenu() {
   }
   this->menuStack[this->topMenu] = nullptr;
   this->topMenu--;
+}
+
+const ImWchar IMGUI_FONT_RANGE[] = {
+    1, 255, // extended ascii
+    0 // end
+};
+
+void NewPauseScreen::InitIMGui() {
+  // init
+  ImGui::SetAllocatorFunctions(
+      &prime_malloc, &prime_free
+  );
+  ImGui::CreateContext();
+//
+//  // Setup basic flags
+//  ImGuiIO &io = ImGui::GetIO();
+//  io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
+  // TODO: gamepad mapping
+
+//  // setup font
+//  ImFontConfig fontConfig{};
+//  fontConfig.SizePixels = 8;
+//  fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
+//  // gen font and font data
+//  io.Fonts->AddFontDefault(&fontConfig);
+//  unsigned char *texData = nullptr;
+//  int width, height, bpp;
+//  io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
+//  OSReport("FONT TEX: %d %d %d", width, height, bpp);
+//  // send it off to GX
+//  GXInitTexObj(&fontTexture, texData,
+//               width, height,
+//               GX_TF_I4,
+//               GX_CLAMP, GX_CLAMP,
+//               GX_FALSE
+//  );
+//  GXInitTexObjLOD(&fontTexture,
+//                  GX_NEAR, GX_NEAR,
+//                  0, 0,
+//                  0,
+//                  GX_DISABLE,
+//                  GX_DISABLE,
+//                  GX_ANISO_1
+//  );
 }
 
 // entities
