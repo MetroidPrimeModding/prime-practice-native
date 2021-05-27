@@ -351,8 +351,7 @@ const WarpWorld WARP_WORLDS[] = {
 namespace GUI {
   void drawWarpMenu() {
     if (ImGui::TreeNode("Warps")) {
-      for (int i = 0; i < sizeof(WARP_WORLDS) / sizeof(WARP_WORLDS[0]); i++) {
-        const WarpWorld &world = WARP_WORLDS[i];
+      for (auto world : WARP_WORLDS) {
         if (ImGui::TreeNode(world.name)) {
           for (int i = 0; i < world.areaCount; i++) {
             ImGuiTreeNodeFlags node_flags =  ImGuiTreeNodeFlags_OpenOnArrow

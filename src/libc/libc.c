@@ -12,10 +12,9 @@
 //}
 
 char *
-_findenv_r (struct _reent *reent_ptr,
-            register const char *name,
-            int *offset)
-{
+_findenv_r(struct _reent *reent_ptr,
+           register const char *name,
+           int *offset) {
 
   return NULL;
 }
@@ -26,13 +25,12 @@ _findenv_r (struct _reent *reent_ptr,
  */
 
 char *
-_getenv_r (struct _reent *reent_ptr,
-           const char *name)
-{
+_getenv_r(struct _reent *reent_ptr,
+          const char *name) {
   return NULL;
 }
 
-void	*malloc(size_t size) {
+void *malloc(size_t size) {
   return prime_malloc(size, NULL);
 }
 
@@ -40,19 +38,19 @@ void free(void *ptr) {
   return prime_free(ptr, NULL);
 }
 
-void *_malloc_r (struct _reent *reent_ptr, size_t size) {
+void *_malloc_r(struct _reent *reent_ptr, size_t size) {
   return prime_malloc(size, reent_ptr);
 }
 
-void _free_r (struct _reent *reent_ptr, void *size) {
+void _free_r(struct _reent *reent_ptr, void *size) {
   return prime_free(size, reent_ptr);
 }
 
-void *_realloc_r (struct _reent *reent_ptr, void *ptr, size_t size) {
+void *_realloc_r(struct _reent *reent_ptr, void *ptr, size_t size) {
   return prime_realloc(ptr, size, reent_ptr);
 }
 
-void *_calloc_r (struct _reent *reent_ptr, size_t nmemb, size_t size) {
+void *_calloc_r(struct _reent *reent_ptr, size_t nmemb, size_t size) {
   return prime_calloc(nmemb, size, reent_ptr);
 }
 
@@ -63,33 +61,63 @@ unsigned long __umoddi3(unsigned long a, unsigned long b) {
   return a % b;
 }
 
-unsigned long __udivdi3 (unsigned long a, unsigned long b) {
+unsigned long __udivdi3(unsigned long a, unsigned long b) {
   return a / b;
 }
 
-int	_putchar(int c) {
+float __floatdisf(long i) {
+  return (float) i;
+}
+
+long __fixsfdi(float a) {
+  return (long) a;
+}
+
+float __floatundisf(unsigned long i) {
+  return (float) i;
+}
+
+double __floatdidf(long i) {
+  return (double) i;
+}
+
+long __fixdfdi(double a) {
+  return (long) a;
+}
+
+double __floatundidf(unsigned long i) {
+  return (double) i;
+}
+
+unsigned long __fixunsdfdi(double a) {
+  return (unsigned long) a;
+}
+
+unsigned long __fixunssfdi(float a) {
+  return (unsigned long) a;
+}
+
+int _putchar(int c) {
   // don't put it
   return c;
 }
 
 char *
-strstr (const char *hs, const char *ne)
-{
+strstr(const char *hs, const char *ne) {
   size_t i;
   int c = ne[0];
 
   if (c == 0)
-    return (char*)hs;
+    return (char *) hs;
 
-  for ( ; hs[0] != '\0'; hs++)
-  {
+  for (; hs[0] != '\0'; hs++) {
     if (hs[0] != c)
       continue;
     for (i = 1; ne[i] != 0; i++)
       if (hs[i] != ne[i])
         break;
     if (ne[i] == '\0')
-      return (char*)hs;
+      return (char *) hs;
   }
 
   return NULL;

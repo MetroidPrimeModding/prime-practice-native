@@ -130,16 +130,18 @@ namespace ImGui
 static inline float ImFabs(float x) { return x > 0 ? x : -x; }
 static inline double ImFabsD(double x) { return x > 0 ? x : -x; }
 #define ImSqrt(X)           CMath::SqrtF(X)
-#define ImFmod(X, Y)        fmodf((X), (Y))
+// TODO: optimize to float
+#define ImFmod(X, Y)        fmod((X), (Y))
 #define ImCos(X)            CMath::FastCosR(X)
 #define ImSin(X)            CMath::FastSinR(X)
 #define ImAcos(X)           CMath::FastArcCosR(X)
 #define ImAtan2(Y, X)       atan2f((Y), (X))
 #define ImAtof(STR)         atof(STR)
 #define ImCeil(X)           CMath::CeilingF(X)
-static inline float  ImPow(float x, float y)    { return powf(x, y); }          // DragBehaviorT/SliderBehaviorT uses ImPow with either float/double and need the precision
+static inline float  ImPow(float x, float y)    { return CMath::PowF(x, y); }          // DragBehaviorT/SliderBehaviorT uses ImPow with either float/double and need the precision
 static inline double ImPow(double x, double y)  { return pow(x, y); }
-static inline float  ImLog(float x)             { return logf(x); }             // DragBehaviorT/SliderBehaviorT uses ImLog with either float/double and need the precision
+// todo: optimize to float
+static inline float  ImLog(float x)             { return (float)log(x); }             // DragBehaviorT/SliderBehaviorT uses ImLog with either float/double and need the precision
 static inline double ImLog(double x)            { return log(x); }
 static inline int    ImAbs(int x)               { return x < 0 ? -x : x; }
 static inline float  ImAbs(float x)             { return ImFabs(x); }

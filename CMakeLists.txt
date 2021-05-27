@@ -98,6 +98,8 @@ set(SOURCE_FILES
         src/libc/libc.c
         src/UI/WarpMenu.h
         src/UI/WarpMenu.cpp
+        src/UI/PlayerMenu.hpp
+        src/UI/PlayerMenu.cpp
         )
 
 patch_function("CGraphics::EndScene()"

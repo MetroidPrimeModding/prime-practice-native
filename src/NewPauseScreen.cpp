@@ -1,6 +1,7 @@
 #include <prime/CScriptDoor.hpp>
 #include <prime/CScriptCameraHint.hpp>
 #include <STriggerRenderConfig.hpp>
+#include <UI/PlayerMenu.hpp>
 #include "os.h"
 #include "NewPauseScreen.hpp"
 #include "prime/CGameState.hpp"
@@ -479,6 +480,7 @@ void NewPauseScreen::RenderMenu() {
 //      // lol todo
 //    }
     GUI::drawWarpMenu();
+    GUI::drawPlayerMenu();
     ImGui::End();
   }
 
@@ -654,7 +656,7 @@ void NewPauseScreen::InitIMGui() {
 
 void NewPauseScreen::ImGuiNewFrame() {
   ImGuiIO &io = ImGui::GetIO();
-  io.DisplaySize = ImVec2(640, 460);
+  io.DisplaySize = ImVec2(640, 480);
   io.DeltaTime = 1.f / 60.f;
 }
 

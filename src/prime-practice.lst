@@ -116,3 +116,10 @@
 0x8038FD04 qsort
 0x8038FF9C strcmp
 0x8038D87C memcmp
+0x803900C4 strncpy
+0x80394CAC fmod
+0x8031532C _ZN5CMath4PowFEff
+0x803901dc atof
+0x80394ccc log
+0x80394cec pow
+0x8011BFEC _ZNK13CPhysicsActor15GetPhysicsStateEv
