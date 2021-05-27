@@ -69,7 +69,6 @@ macro(add_prime_library name symbol_list base_dol)
     add_executable(${name} ${ARGN}
             "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
             "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
-            "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
     )
     set_target_properties(${name} PROPERTIES LINK_FLAGS
             "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"

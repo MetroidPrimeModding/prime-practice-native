@@ -511,38 +511,39 @@ void NewPauseScreen::InitIMGui() {
   ImGui::SetAllocatorFunctions(
       &prime_malloc, &prime_free
   );
+  OSReport("Create context \n");
   ImGui::CreateContext();
-//
-//  // Setup basic flags
-//  ImGuiIO &io = ImGui::GetIO();
-//  io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
+
+  // Setup basic flags
+  ImGuiIO &io = ImGui::GetIO();
+  io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
   // TODO: gamepad mapping
 
 //  // setup font
-//  ImFontConfig fontConfig{};
-//  fontConfig.SizePixels = 8;
-//  fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
-//  // gen font and font data
-//  io.Fonts->AddFontDefault(&fontConfig);
-//  unsigned char *texData = nullptr;
-//  int width, height, bpp;
-//  io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
-//  OSReport("FONT TEX: %d %d %d", width, height, bpp);
+  ImFontConfig fontConfig{};
+  fontConfig.SizePixels = 8;
+  fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
+  // gen font and font data
+  io.Fonts->AddFontDefault(&fontConfig);
+  unsigned char *texData = nullptr;
+  int width, height, bpp;
+  io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
+  OSReport("FONT TEX: %d %d %d", width, height, bpp);
 //  // send it off to GX
-//  GXInitTexObj(&fontTexture, texData,
-//               width, height,
-//               GX_TF_I4,
-//               GX_CLAMP, GX_CLAMP,
-//               GX_FALSE
-//  );
-//  GXInitTexObjLOD(&fontTexture,
-//                  GX_NEAR, GX_NEAR,
-//                  0, 0,
-//                  0,
-//                  GX_DISABLE,
-//                  GX_DISABLE,
-//                  GX_ANISO_1
-//  );
+  GXInitTexObj(&fontTexture, texData,
+               width, height,
+               GX_TF_I4,
+               GX_CLAMP, GX_CLAMP,
+               GX_FALSE
+  );
+  GXInitTexObjLOD(&fontTexture,
+                  GX_NEAR, GX_NEAR,
+                  0, 0,
+                  0,
+                  GX_DISABLE,
+                  GX_DISABLE,
+                  GX_ANISO_1
+  );
 }
 
 // entities

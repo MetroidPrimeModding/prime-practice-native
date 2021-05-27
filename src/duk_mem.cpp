@@ -6,7 +6,6 @@
 #include <string.h>
 #include "os.h"
 
-int alloc_bytes = 0;
 
 void *prime_calloc(size_t nmemb, size_t size, void *user) {
   void *res = prime_malloc(nmemb * size, user);
@@ -16,16 +15,43 @@ void *prime_calloc(size_t nmemb, size_t size, void *user) {
 
 extern "C" {
 
+u32 alloc_bytes = 0;
+u32 peak = 0;
+
+//#define DEBUG_ALLOCS
+
 void prime_free(void *ptr, void *user) {
+#ifdef DEBUG_ALLOCS
+  if (ptr != nullptr) {
+    u32 *root_offset = (u32*)(((char*)ptr) - 4);
+    u32 size = *(root_offset);
+    alloc_bytes -= size;
+    OSReport("Free: %x %d total %d\n", root_offset, size, alloc_bytes);
+    delete root_offset;
+  }
+#else
   delete ptr;
-//  CGameAllocator_LOCATION->Free(ptr);
+#endif
 }
 
 void *prime_malloc(size_t size, void *user) {
-  OSReport("Alloc %d bytes\n", size);
+#ifdef DEBUG_ALLOCS
+  size += 4;
+  char *res = new char[size];
+  alloc_bytes += size;
+  if (alloc_bytes > peak) {
+    peak = alloc_bytes;
+  }
+
+  u32 *memory_header = (u32*)(((char*)res));
+  *(memory_header) = size;
+
+  OSReport("Alloc: %x %d total %d peak %d\n", res, size, alloc_bytes, peak);
+  return res + 4;
+#else
   char *res = new char[size];
   return res;
-//  return CGameAllocator_LOCATION->Alloc(size, 1);
+#endif
 }
 
 }

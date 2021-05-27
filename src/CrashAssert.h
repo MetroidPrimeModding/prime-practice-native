@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void CrashAssert(bool v);
+void CrashAssert(bool v, const char* file, int line);
 
 #ifdef __cplusplus
 };

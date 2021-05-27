@@ -19,7 +19,7 @@ public:
 	static float SlowTangentR(float);
 	static float SlowCosineR(float);
 	static float SlowSineR(float);
-	static float PowF(float float);
+	static float PowF(float, float);
 	static float ArcTangentR(float);
 	static float ArcCosineR(float);
 	static float ArcSineR(float);

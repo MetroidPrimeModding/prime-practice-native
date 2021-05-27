@@ -77,6 +77,7 @@ set(SOURCE_FILES
         ext/imgui/imgui_tables.cpp
         ext/imgui/imgui_widgets.cpp
         ext/imgui/imgui.h
+        ext/imgui/imgui_internal.h
 #        imgui/imgui_draw.cpp
 
         src/include/pracc_imconfig.h
@@ -84,11 +85,10 @@ set(SOURCE_FILES
         src/CrashAssert.cpp
         src/ImGuiEngine.h
         src/ImGuiEngine.cpp
-        src/printf.h
-        src/printf.c
-        src/sscanf.c
-        src/printf_helper.c
-        src/include/prime/CMath.hpp
+        src/libc/printf.h
+        src/libc/printf.c
+        src/libc/printf_helper.c
+        src/libc/sscanf.c
 
         src/new.cpp
         src/NewPauseScreen.cpp
@@ -96,7 +96,7 @@ set(SOURCE_FILES
         src/duk_mem.h
         src/duk_mem.cpp
         src/prime-practice.cpp
-        src/libc.c
+        src/libc/libc.c
         src/UI/Menu.h
         src/UI/Menu.cpp
         src/UI/Menus.h
