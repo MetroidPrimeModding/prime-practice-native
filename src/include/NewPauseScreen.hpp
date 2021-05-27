@@ -11,37 +11,35 @@ void warp(uint32_t world, uint32_t area);
 
 class NewPauseScreen {
 public:
-    static NewPauseScreen *instance;
-    bool active;
-    int frames;
-    CFinalInput *inputs;
+  static NewPauseScreen *instance;
+  bool active;
+  int frames;
+  CFinalInput *inputs;
 
-    NewPauseScreen();
+  NewPauseScreen();
 
-    void Render();
+  void Render();
 
-    void HandleInputs();
+  void HandleInputs();
 
-    bool shouldRenderGloballyInsteadOfInWorld();
+  bool shouldRenderGloballyInsteadOfInWorld();
 
-    void hide();
+  void hide();
 
-    void RenderWorld();
-    void show();
-
-    void pushMenu(Menu *menu);
-    void popMenu();
+  void RenderWorld();
+  void show();
 private:
-    void drawTrigger(const STriggerRenderConfig &trigger, CObjectList *pTrigger, CScriptTrigger *pScriptTrigger) const;
-    ETriggerType determineTriggerType(CObjectList *pTrigger, CScriptTrigger *pScriptTrigger) const;
+  void drawTrigger(const STriggerRenderConfig &trigger, CObjectList *pTrigger, CScriptTrigger *pScriptTrigger) const;
+  ETriggerType determineTriggerType(CObjectList *pTrigger, CScriptTrigger *pScriptTrigger) const;
 
-    // TODO: vector?
-    static constexpr int MENU_MAX = 32;
-    Menu *menuStack[MENU_MAX];
-    int topMenu = 0;
+  // TODO: vector?
+//    static constexpr int MENU_MAX = 32;
+//    Menu *menuStack[MENU_MAX];
+//    int topMenu = 0;
 
-    void RenderMenu();
+  void RenderMenu();
   void InitIMGui();
+  void ImGuiNewFrame();
 };
 
 #endif

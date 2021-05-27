@@ -43,10 +43,8 @@ void MainMenu::clickItem(int index) {
       // TODO
       break;
     case MainMenuItem::PLAYER:
-      NewPauseScreen::instance->pushMenu(&MENU_PLAYER);
       break;
     case MainMenuItem::WARP:
-      NewPauseScreen::instance->pushMenu(&MENU_WARP_MAIN);
       break;
     case MainMenuItem::CONFIG:
       // todo

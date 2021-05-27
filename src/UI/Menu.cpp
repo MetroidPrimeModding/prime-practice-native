@@ -55,7 +55,6 @@ void Menu::tick(CFinalInput *inputs) {
     }
   }
   if (inputs->PB()) {
-    NewPauseScreen::instance->popMenu();
   }
   if (inputs->PA()) {
     this->clickItem(this->cursor);

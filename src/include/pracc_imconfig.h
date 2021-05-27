@@ -128,6 +128,7 @@ namespace ImGui
 //#define ImFabs(X)           fabsf(X)
 // Todo: optimize, maybe, lol
 static inline float ImFabs(float x) { return x > 0 ? x : -x; }
+static inline double ImFabsD(double x) { return x > 0 ? x : -x; }
 #define ImSqrt(X)           CMath::SqrtF(X)
 #define ImFmod(X, Y)        fmodf((X), (Y))
 #define ImCos(X)            CMath::FastCosR(X)
@@ -141,9 +142,9 @@ static inline double ImPow(double x, double y)  { return pow(x, y); }
 static inline float  ImLog(float x)             { return logf(x); }             // DragBehaviorT/SliderBehaviorT uses ImLog with either float/double and need the precision
 static inline double ImLog(double x)            { return log(x); }
 static inline int    ImAbs(int x)               { return x < 0 ? -x : x; }
-static inline float  ImAbs(float x)             { return fabsf(x); }
-static inline double ImAbs(double x)            { return fabs(x); }
+static inline float  ImAbs(float x)             { return ImFabs(x); }
+static inline double ImAbs(double x)            { return ImFabsD(x); }
 static inline float  ImSign(float x)            { return (x < 0.0f) ? -1.0f : ((x > 0.0f) ? 1.0f : 0.0f); } // Sign operator - returns -1, 0 or 1 based on sign of argument
 static inline double ImSign(double x)           { return (x < 0.0) ? -1.0 : ((x > 0.0) ? 1.0 : 0.0); }
-static inline float  ImRsqrt(float x)           { return 1.0f / sqrtf(x); }
+static inline float  ImRsqrt(float x)           { return 1.0f / ImSqrt(x); }
 static inline double ImRsqrt(double x)          { return 1.0 / sqrt(x); }

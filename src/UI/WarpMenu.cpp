@@ -385,25 +385,18 @@ void WarpMainMenu::clickItem(int index) {
   auto item = WarpMainMenuItem{index};
   switch (item) {
     case WarpMainMenuItem::FRIGATE:
-      NewPauseScreen::instance->pushMenu( &MENU_WARP_FRIGATE);
       break;
     case WarpMainMenuItem::TALLON:
-      NewPauseScreen::instance->pushMenu( &MENU_WARP_TALLON);
       break;
     case WarpMainMenuItem::CHOZO:
-      NewPauseScreen::instance->pushMenu( &MENU_WARP_CHOZO);
       break;
     case WarpMainMenuItem::MAGMOOR:
-      NewPauseScreen::instance->pushMenu( &MENU_WARP_MAGMOOR);
       break;
     case WarpMainMenuItem::PHEN:
-      NewPauseScreen::instance->pushMenu( &MENU_WARP_PHEN);
       break;
     case WarpMainMenuItem::MINES:
-      NewPauseScreen::instance->pushMenu( &MENU_WARP_MINES);
       break;
     case WarpMainMenuItem::CRATER:
-      NewPauseScreen::instance->pushMenu( &MENU_WARP_CRATER);
       break;
     case WarpMainMenuItem::END:
       break;

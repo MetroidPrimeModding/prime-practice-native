@@ -30,8 +30,6 @@ NewPauseScreen::NewPauseScreen() {
   InitIMGui();
   this->hide();
   inputs = new CFinalInput[4];
-  menuStack[0] = &MENU_MAIN;
-  topMenu = 0;
 
   // Patch CScriptTrigger so we can attach a value to it
   // CScriptTrigger::CScriptTrigger
@@ -80,41 +78,41 @@ void NewPauseScreen::Render() {
   }
 
 
-  // Setup for GX
-  // Prime's formats, which are what I want so that's convenient:
-  // 0 9 1 4 0 GX_VTXFMT0 GX_VA_POS   GX_POS_XYZ  GX_F32    0
-  // 0 a 0 4 0 GX_VTXFMT0 GX_VA_NRM   GX_NRM_XYZ  GX_F32    0
-  // 0 b 1 5 0 GX_VTXFMT0 GX_VA_CLR0  GX_CLR_RGBA GX_RGBA8  0
-  // 0 d 1 4 0 GX_VTXFMT0 GX_VA_TEX0  GX_TEX_ST   GX_F32    0
-  // Repeat for all GX_VA_TEXs
-
-  CGraphics::DisableAllLights();
-  CGX::SetZMode(false, GxCompare_NEVER, false);
-//  GXSetBlendMode(
-//      GX_BM_BLEND,
-//      GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-//      GX_LO_NOOP
+//  // Setup for GX
+//  // Prime's formats, which are what I want so that's convenient:
+//  // 0 9 1 4 0 GX_VTXFMT0 GX_VA_POS   GX_POS_XYZ  GX_F32    0
+//  // 0 a 0 4 0 GX_VTXFMT0 GX_VA_NRM   GX_NRM_XYZ  GX_F32    0
+//  // 0 b 1 5 0 GX_VTXFMT0 GX_VA_CLR0  GX_CLR_RGBA GX_RGBA8  0
+//  // 0 d 1 4 0 GX_VTXFMT0 GX_VA_TEX0  GX_TEX_ST   GX_F32    0
+//  // Repeat for all GX_VA_TEXs
+//
+//  CGraphics::DisableAllLights();
+//  CGX::SetZMode(false, GxCompare_NEVER, false);
+////  GXSetBlendMode(
+////      GX_BM_BLEND,
+////      GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+////      GX_LO_NOOP
+////  );
+//  CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
+////  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
+//  CGraphics::SetCullMode(ERglCullMode_None);
+//  GXLoadTexObj(&fontTexture, GX_TEXMAP0);
+//
+//  CGX::SetNumTevStages(1);
+//  CGX::SetTevOrder(
+//      GXTevStage0,
+//      GXTexCoord0,
+//      GXTexMap0,
+//      GXChannelColor0A0
 //  );
-  CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
-//  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
-  CGraphics::SetCullMode(ERglCullMode_None);
-  GXLoadTexObj(&fontTexture, GX_TEXMAP0);
-
-  CGX::SetNumTevStages(1);
-  CGX::SetTevOrder(
-      GXTevStage0,
-      GXTexCoord0,
-      GXTexMap0,
-      GXChannelColor0A0
-  );
-  CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_TEXC, GxTevColorArg_RASC, GxTevColorArg_ZERO);
-  CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_TEXA, GxTevAlphaArg_RASA, GxTevAlphaArg_ZERO);
-  CGX::SetTevColorOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
-  CGX::SetTevAlphaOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
-
-  CGraphics::SetOrtho(0, 640, 0, 480, -1, 1);
-  CGraphics::SetIdentityModelMatrix();
-  CGraphics::SetIdentityViewPointMatrix();
+//  CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_TEXC, GxTevColorArg_RASC, GxTevColorArg_ZERO);
+//  CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_TEXA, GxTevAlphaArg_RASA, GxTevAlphaArg_ZERO);
+//  CGX::SetTevColorOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+//  CGX::SetTevAlphaOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+//
+//  CGraphics::SetOrtho(0, 640, 0, 480, -1, 1);
+//  CGraphics::SetIdentityModelMatrix();
+//  CGraphics::SetIdentityViewPointMatrix();
 
   //on_frame();
   NewPauseScreen::RenderMenu();
@@ -375,7 +373,7 @@ void NewPauseScreen::show() {
 
 void NewPauseScreen::HandleInputs() {
   if (this->active) {
-    this->menuStack[this->topMenu]->tick(&this->inputs[0]);
+    // TODO
   }
 }
 
@@ -470,35 +468,100 @@ bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
 }
 
 void NewPauseScreen::RenderMenu() {
-  if (this->active) {
-    // render each menu, left to right
-    int x = 20;
-    int y = 20;
-    for (int i = 0; i <= topMenu; i++) {
-      Menu *menu = menuStack[i];
-      if (menu == nullptr) {
-        continue;
+//  if (this->active) {
+  this->ImGuiNewFrame();
+  ImGui::NewFrame();
+
+  {
+    ImGui::Begin(
+        "Another Window");   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+    ImGui::Text("Hello from another window!");
+    if (ImGui::Button("Close Me")) {
+      // lol todo
+    }
+    ImGui::End();
+  }
+
+  ImGui::Render();
+  ImDrawData *drawData = ImGui::GetDrawData();
+
+  // Setup for GX
+  // Prime's formats, which are what I want so that's convenient:
+  // 0 9 1 4 0 GX_VTXFMT0 GX_VA_POS   GX_POS_XYZ  GX_F32    0
+  // 0 a 0 4 0 GX_VTXFMT0 GX_VA_NRM   GX_NRM_XYZ  GX_F32    0
+  // 0 b 1 5 0 GX_VTXFMT0 GX_VA_CLR0  GX_CLR_RGBA GX_RGBA8  0
+  // 0 d 1 4 0 GX_VTXFMT0 GX_VA_TEX0  GX_TEX_ST   GX_F32    0
+  // Repeat for all GX_VA_TEXs
+
+  CGraphics::DisableAllLights();
+  CGX::SetZMode(false, GxCompare_NEVER, false);
+//  GXSetBlendMode(
+//      GX_BM_BLEND,
+//      GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+//      GX_LO_NOOP
+//  );
+  CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
+//  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
+  CGraphics::SetCullMode(ERglCullMode_None);
+  GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
+
+  CGX::SetNumTevStages(1);
+  CGX::SetTevOrder(
+      GXTevStage0,
+      GXTexCoord0,
+      GXTexMap0,
+      GXChannelColor0A0
+  );
+  CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_TEXC, GxTevColorArg_RASC, GxTevColorArg_ZERO);
+  CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_TEXA, GxTevAlphaArg_RASA, GxTevAlphaArg_ZERO);
+  CGX::SetTevColorOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+  CGX::SetTevAlphaOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+
+  float left = drawData->DisplayPos.x;
+  float right = left + drawData->DisplaySize.x;
+  float top = drawData->DisplayPos.y;
+  float bottom = top + drawData->DisplaySize.y;
+  CGraphics::SetOrtho(left, right, top, bottom, -1, 1);
+  CGraphics::SetIdentityModelMatrix();
+  CGraphics::SetIdentityViewPointMatrix();
+
+  // do this the dumb way first
+
+  //*****the dumb way******//
+  // This is the max characters that actually works per render, for some reason
+  // 30 quads, or 154 verts, or 1386 floats, or 5544 bytes
+  // Not sure why that's the limit...
+  int maxIdxPerBatch = 3 * 30;
+  int idxPerBatch = 0;
+
+  CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
+  for (int cmdListIdx = 0; cmdListIdx < drawData->CmdListsCount; cmdListIdx++) {
+    const ImDrawList *cmdList = drawData->CmdLists[cmdListIdx];
+    // For each cmdlist
+    for (int cmdBufferIdx = 0; cmdBufferIdx < cmdList->CmdBuffer.Size; cmdBufferIdx++) {
+      const ImDrawCmd* cmdBuffer = &cmdList->CmdBuffer[cmdBufferIdx];
+      for (int elemIdx = 0; elemIdx < cmdBuffer->ElemCount; elemIdx++) {
+        const ImDrawIdx *idx = &cmdList->IdxBuffer[cmdBuffer->IdxOffset + elemIdx];
+        const ImDrawVert *dataStart = &cmdList->VtxBuffer[cmdBuffer->VtxOffset + *idx];
+
+        CGraphics::StreamVertex(dataStart->pos.x, 0, dataStart->pos.y);
+        CGraphics::StreamTexcoord(dataStart->uv.x, dataStart->uv.y);
+        float r = (float)((dataStart->col >> 16) & 0xFF) / 255.0f;
+        float g = (float)((dataStart->col >> 8) & 0xFF) / 255.0f;
+        float b = (float)((dataStart->col >> 0) & 0xFF) / 255.0f;
+        float a = (float)((dataStart->col >> 24) & 0xFF) / 255.0f;
+        CGraphics::StreamColor(r, g, b, a);
+        idxPerBatch++;
+        if (idxPerBatch > maxIdxPerBatch && idxPerBatch % 3 == 0) {
+          idxPerBatch = 0;
+          CGraphics::FlushStream();
+        }
       }
-      menu->render(x, y);
-      x += menu->getWidthInCharacters() * 8;
     }
   }
-}
 
-void NewPauseScreen::pushMenu(Menu *menu) {
-  if (this->topMenu >= MENU_MAX) {
-    return; // Don't overflow
-  }
-  this->topMenu++;
-  this->menuStack[this->topMenu] = menu;
-}
-
-void NewPauseScreen::popMenu() {
-  if (this->topMenu <= 0) {
-    return; // no underflow
-  }
-  this->menuStack[this->topMenu] = nullptr;
-  this->topMenu--;
+  CGraphics::StreamEnd();
+//  }
 }
 
 const ImWchar IMGUI_FONT_RANGE[] = {
@@ -528,11 +591,13 @@ void NewPauseScreen::InitIMGui() {
   unsigned char *texData = nullptr;
   int width, height, bpp;
   io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
+  io.BackendRendererName = "gx";
   OSReport("FONT TEX: %d %d %d", width, height, bpp);
 //  // send it off to GX
   GXInitTexObj(&fontTexture, texData,
                width, height,
-               GX_TF_I4,
+               GX_TF_I8,
+//               GX_TF_RGBA8,
                GX_CLAMP, GX_CLAMP,
                GX_FALSE
   );
@@ -544,6 +609,12 @@ void NewPauseScreen::InitIMGui() {
                   GX_DISABLE,
                   GX_ANISO_1
   );
+}
+
+void NewPauseScreen::ImGuiNewFrame() {
+  ImGuiIO &io = ImGui::GetIO();
+  io.DisplaySize = ImVec2(400, 200);
+  io.DeltaTime = 1.f / 60.f;
 }
 
 // entities
