@@ -527,6 +527,23 @@ void NewPauseScreen::RenderMenu() {
   CGraphics::SetIdentityModelMatrix();
   CGraphics::SetIdentityViewPointMatrix();
 
+  CGraphics::StreamBegin(ERglPrimitive_QUADS);
+  CGraphics::StreamColor(1, 1, 1, 1);
+
+  CGraphics::StreamTexcoord(0, 0);
+  CGraphics::StreamVertex(0, 0, 0);
+
+  CGraphics::StreamTexcoord(0, 1);
+  CGraphics::StreamVertex(0, 0, 256);
+
+  CGraphics::StreamTexcoord(1, 1);
+  CGraphics::StreamVertex(256, 0, 256);
+
+  CGraphics::StreamTexcoord(1, 0);
+  CGraphics::StreamVertex(256, 0, 0);
+
+  CGraphics::StreamEnd();
+
   // do this the dumb way first
 
   //*****the dumb way******//
@@ -547,14 +564,15 @@ void NewPauseScreen::RenderMenu() {
         const ImDrawIdx *idx = &cmdList->IdxBuffer[cmdBuffer->IdxOffset + elemIdx];
         const ImDrawVert *dataStart = &cmdList->VtxBuffer[cmdBuffer->VtxOffset + *idx];
 
-        CGraphics::StreamVertex(dataStart->pos.x, 0, dataStart->pos.y);
-        CGraphics::StreamTexcoord(dataStart->uv.x, dataStart->uv.y);
-        float r = (float) ((dataStart->col >> 16) & 0xFF) / 255.0f;
+        float r = (float) ((dataStart->col >> 0) & 0xFF) / 255.0f;
         float g = (float) ((dataStart->col >> 8) & 0xFF) / 255.0f;
-        float b = (float) ((dataStart->col >> 0) & 0xFF) / 255.0f;
+        float b = (float) ((dataStart->col >> 16) & 0xFF) / 255.0f;
         float a = (float) ((dataStart->col >> 24) & 0xFF) / 255.0f;
 //        r = g = b = a = 1;
+//        a = 1;
         CGraphics::StreamColor(r, g, b, a);
+        CGraphics::StreamTexcoord(dataStart->uv.x, dataStart->uv.y);
+        CGraphics::StreamVertex(dataStart->pos.x, 0, dataStart->pos.y);
         idxPerBatch++;
         if (idxPerBatch > maxIdxPerBatch && idxPerBatch % 3 == 0) {
           idxPerBatch = 0;
@@ -581,7 +599,9 @@ void NewPauseScreen::InitIMGui() {
       &prime_malloc, &prime_free
   );
   OSReport("Create context \n");
-  ImGui::CreateContext();
+  ImFontAtlas *atlas = new ImFontAtlas();
+  atlas->TexDesiredWidth = 256;
+  ImGui::CreateContext(atlas);
 
   // Setup basic flags
   ImGuiIO &io = ImGui::GetIO();
@@ -591,32 +611,31 @@ void NewPauseScreen::InitIMGui() {
 
 //  // setup font
   ImFontConfig fontConfig{};
-  fontConfig.SizePixels = 8;
+  fontConfig.SizePixels = 16;
+  fontConfig.OversampleH = 2;
+  fontConfig.OversampleV = 1;
   fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
   // gen font and font data
   io.Fonts->AddFontDefault(&fontConfig);
   unsigned char *texData = nullptr;
   int width, height, bpp;
-  //  io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
-  io.Fonts->GetTexDataAsRGBA32(&texData, &width, &height, &bpp);
-  OSReport("FONT TEX: %d %d %d %x", width, height, bpp);
+  io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
+  OSReport("FONT TEX: %d %d %d\n", width, height, bpp);
   // swizzle font
-//  for (int i = 0; i < width * height * 4; i+=4) {
-//    char r = texData[i + 2];
-//    char g = texData[i + 1];
-//    char b = texData[i + 0];
-//    char a = texData[i + 3];
+//  for (int x = 0; x < width; x++) {
+//    for (int y = 0; x < width; x++) {
 //
-//    texData[i + 0] = 255; // alpha
-//    texData[i + 1] = 255;
-//    texData[i + 2] = 255;
-//    texData[i + 3] = 255;// green
+//    }
 //  }
+  for (int i = 0; i < width * height; i++) {
+
+  }
+//  io.Fonts->ClearTexData()
 //  // send it off to GX
   GXInitTexObj(&imguiFontTexture, texData,
                width, height,
-//               GX_TF_I8,
-               GX_TF_RGBA8,
+               GX_TF_I8,
+//               GX_TF_RGB565,
                GX_CLAMP, GX_CLAMP,
                GX_FALSE
   );
