@@ -1,7 +1,5 @@
-#include <TextRenderer.hpp>
+#include <imgui.h>
 #include "WarpMenu.h"
-#include "Menus.h"
-#include "NewPauseScreen.hpp"
 
 const WarpArea AREAS_FRIGATE[] = {
     {.name= "Air Lock", .area= 0x07640602},
@@ -37,7 +35,7 @@ const WarpWorld WARP_WORLD_FRIGATE{
     .name="Frigate Orpheon",
     .world=0x158EFE17,
     .areas=AREAS_FRIGATE,
-    .areaCount=sizeof(AREAS_FRIGATE)/sizeof(AREAS_FRIGATE[0])
+    .areaCount=sizeof(AREAS_FRIGATE) / sizeof(AREAS_FRIGATE[0])
 };
 
 const WarpArea AREAS_TALLON[] = {
@@ -90,7 +88,7 @@ const WarpWorld WARP_WORLD_TALLON{
     .name="Tallon Overworld",
     .world=0x39F2DE28,
     .areas=AREAS_TALLON,
-    .areaCount=sizeof(AREAS_TALLON)/sizeof(AREAS_TALLON[0])
+    .areaCount=sizeof(AREAS_TALLON) / sizeof(AREAS_TALLON[0])
 };
 
 const WarpArea AREAS_CHOZO[] = {
@@ -163,7 +161,7 @@ const WarpWorld WARP_WORLD_CHOZO{
     .name="Chozo Ruins",
     .world=0x83F6FF6F,
     .areas=AREAS_CHOZO,
-    .areaCount=sizeof(AREAS_CHOZO)/sizeof(AREAS_CHOZO[0])
+    .areaCount=sizeof(AREAS_CHOZO) / sizeof(AREAS_CHOZO[0])
 };
 
 const WarpArea AREAS_MAGMOOR[] = {
@@ -201,7 +199,7 @@ const WarpWorld WARP_WORLD_MAGMOOR{
     .name="Magmoor Caverns",
     .world=0x3EF8237C,
     .areas=AREAS_MAGMOOR,
-    .areaCount=sizeof(AREAS_MAGMOOR)/sizeof(AREAS_MAGMOOR[0])
+    .areaCount=sizeof(AREAS_MAGMOOR) / sizeof(AREAS_MAGMOOR[0])
 };
 
 const WarpArea AREAS_PHEN[] = {
@@ -266,7 +264,7 @@ const WarpWorld WARP_WORLD_PHEN{
     .name="Phendrana Drifts",
     .world=0xA8BE6291,
     .areas=AREAS_PHEN,
-    .areaCount=sizeof(AREAS_PHEN)/sizeof(AREAS_PHEN[0])
+    .areaCount=sizeof(AREAS_PHEN) / sizeof(AREAS_PHEN[0])
 };
 
 const WarpArea AREAS_MINES[] = {
@@ -317,7 +315,7 @@ const WarpWorld WARP_WORLD_MINES{
     .name="Phazon Mines",
     .world=0xB1AC4D65,
     .areas=AREAS_MINES,
-    .areaCount=sizeof(AREAS_MINES)/sizeof(AREAS_MINES[0])
+    .areaCount=sizeof(AREAS_MINES) / sizeof(AREAS_MINES[0])
 };
 
 const WarpArea AREAS_CRATER[] = {
@@ -338,102 +336,40 @@ const WarpWorld WARP_WORLD_CRATER{
     .name="Impact Crater",
     .world=0xC13B09D1,
     .areas=AREAS_CRATER,
-    .areaCount=sizeof(AREAS_CRATER)/sizeof(AREAS_CRATER[0])
+    .areaCount=sizeof(AREAS_CRATER) / sizeof(AREAS_CRATER[0])
 };
 
-void WarpMainMenu::render(int x, int y) const {
-  TextRenderer::SetColor(1, 1, 1, 1);
-  TextRenderer::RenderText("Warps Menu", (float) x, (float) y);
+const WarpWorld WARP_WORLDS[] = {
+    WARP_WORLD_FRIGATE,
+    WARP_WORLD_TALLON,
+    WARP_WORLD_CHOZO,
+    WARP_WORLD_PHEN,
+    WARP_WORLD_MINES,
+    WARP_WORLD_CRATER
+};
 
-  Menu::render(x, y);
-}
-
-int WarpMainMenu::itemCount() const {
-  return static_cast<int>(WarpMainMenuItem::END);
-}
-
-void WarpMainMenu::renderItem(int index, int x, int y) const {
-  auto item = WarpMainMenuItem{index};
-  switch (item) {
-    case WarpMainMenuItem::FRIGATE:
-      TextRenderer::RenderText(WARP_WORLD_FRIGATE.name, x, y);
-      break;
-    case WarpMainMenuItem::TALLON:
-      TextRenderer::RenderText(WARP_WORLD_TALLON.name, x, y);
-      break;
-    case WarpMainMenuItem::CHOZO:
-      TextRenderer::RenderText(WARP_WORLD_CHOZO.name, x, y);
-      break;
-    case WarpMainMenuItem::MAGMOOR:
-      TextRenderer::RenderText(WARP_WORLD_MAGMOOR.name, x, y);
-      break;
-    case WarpMainMenuItem::PHEN:
-      TextRenderer::RenderText(WARP_WORLD_PHEN.name, x, y);
-      break;
-    case WarpMainMenuItem::MINES:
-      TextRenderer::RenderText(WARP_WORLD_MINES.name, x, y);
-      break;
-    case WarpMainMenuItem::CRATER:
-      TextRenderer::RenderText(WARP_WORLD_CRATER.name, x, y);
-      break;
-    case WarpMainMenuItem::END:
-      break;
+namespace GUI {
+  void drawWarpMenu() {
+    if (ImGui::TreeNode("Warps")) {
+      for (int i = 0; i < sizeof(WARP_WORLDS) / sizeof(WARP_WORLDS[0]); i++) {
+        const WarpWorld &world = WARP_WORLDS[i];
+        if (ImGui::TreeNode(world.name)) {
+          for (int i = 0; i < world.areaCount; i++) {
+            ImGuiTreeNodeFlags node_flags =  ImGuiTreeNodeFlags_OpenOnArrow
+                | ImGuiTreeNodeFlags_OpenOnDoubleClick
+                | ImGuiTreeNodeFlags_SpanAvailWidth
+                | ImGuiTreeNodeFlags_Leaf
+                | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+            const WarpArea &area = world.areas[i];
+            ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "%s", area.name);
+            if (ImGui::IsItemActivated()) {
+              warp(world.world, area.area);
+            }
+          }
+          ImGui::TreePop();
+        }
+      }
+      ImGui::TreePop();
+    }
   }
 }
-
-void WarpMainMenu::clickItem(int index) {
-  auto item = WarpMainMenuItem{index};
-  switch (item) {
-    case WarpMainMenuItem::FRIGATE:
-      break;
-    case WarpMainMenuItem::TALLON:
-      break;
-    case WarpMainMenuItem::CHOZO:
-      break;
-    case WarpMainMenuItem::MAGMOOR:
-      break;
-    case WarpMainMenuItem::PHEN:
-      break;
-    case WarpMainMenuItem::MINES:
-      break;
-    case WarpMainMenuItem::CRATER:
-      break;
-    case WarpMainMenuItem::END:
-      break;
-  }
-}
-
-constexpr WarpMenu::WarpMenu(const WarpWorld *world) : world(world) {
-}
-
-void WarpMenu::render(int x, int y) const {
-  TextRenderer::SetColor(1, 1, 1, 1);
-  TextRenderer::RenderText(this->world->name, (float) x, (float) y);
-
-  Menu::render(x, y);
-}
-
-int WarpMenu::itemCount() const {
-  return this->world->areaCount;
-}
-
-void WarpMenu::renderItem(int index, int x, int y) const {
-  TextRenderer::RenderText(this->world->areas[index].name, x, y);
-}
-
-void WarpMenu::clickItem(int index) {
-  warp(this->world->world, this->world->areas[this->currentCursor()].area);
-}
-
-int WarpMenu::getWidthInCharacters() {
-  return 20;
-}
-
-WarpMainMenu MENU_WARP_MAIN;
-WarpMenu MENU_WARP_FRIGATE{&WARP_WORLD_FRIGATE};
-WarpMenu MENU_WARP_TALLON{&WARP_WORLD_TALLON};
-WarpMenu MENU_WARP_CHOZO{&WARP_WORLD_CHOZO};
-WarpMenu MENU_WARP_MAGMOOR{&WARP_WORLD_MAGMOOR};
-WarpMenu MENU_WARP_PHEN{&WARP_WORLD_PHEN};
-WarpMenu MENU_WARP_MINES{&WARP_WORLD_MINES};
-WarpMenu MENU_WARP_CRATER{&WARP_WORLD_CRATER};

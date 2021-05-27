@@ -1,11 +1,8 @@
 #include <prime/CScriptDoor.hpp>
 #include <prime/CScriptCameraHint.hpp>
 #include <STriggerRenderConfig.hpp>
-#include <UI/MainMenu.h>
-#include "UI/Menus.h"
 #include "os.h"
 #include "NewPauseScreen.hpp"
-#include "TextRenderer.hpp"
 #include "prime/CGameState.hpp"
 #include "prime/CWorldState.hpp"
 #include "prime/CScriptRelay.hpp"
@@ -18,18 +15,18 @@
 #include "prime/CSfxManager.hpp"
 #include "imgui.h"
 #include "duk_mem.h"
+#include "UI/WarpMenu.h"
 
 #define PAD_MAX_CONTROLLERS 4
 
 GXTexObj imguiFontTexture;
-unsigned char* imguiFontTexData;
+unsigned char *imguiFontTexData;
 
 NewPauseScreen *NewPauseScreen::instance = NULL;
 
 NewPauseScreen::NewPauseScreen() {
   OSReport("Hello, Dolphin\n");
 
-  TextRenderer::Init();
   InitIMGui();
   this->hide();
   inputs = new CFinalInput[4];
@@ -79,45 +76,6 @@ void NewPauseScreen::Render() {
   if (active) {
     frames++;
   }
-
-
-//  // Setup for GX
-//  // Prime's formats, which are what I want so that's convenient:
-//  // 0 9 1 4 0 GX_VTXFMT0 GX_VA_POS   GX_POS_XYZ  GX_F32    0
-//  // 0 a 0 4 0 GX_VTXFMT0 GX_VA_NRM   GX_NRM_XYZ  GX_F32    0
-//  // 0 b 1 5 0 GX_VTXFMT0 GX_VA_CLR0  GX_CLR_RGBA GX_RGBA8  0
-//  // 0 d 1 4 0 GX_VTXFMT0 GX_VA_TEX0  GX_TEX_ST   GX_F32    0
-//  // Repeat for all GX_VA_TEXs
-//
-//  CGraphics::DisableAllLights();
-//  CGX::SetZMode(false, GxCompare_NEVER, false);
-////  GXSetBlendMode(
-////      GX_BM_BLEND,
-////      GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
-////      GX_LO_NOOP
-////  );
-//  CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
-////  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
-//  CGraphics::SetCullMode(ERglCullMode_None);
-//  GXLoadTexObj(&fontTexture, GX_TEXMAP0);
-//
-//  CGX::SetNumTevStages(1);
-//  CGX::SetTevOrder(
-//      GXTevStage0,
-//      GXTexCoord0,
-//      GXTexMap0,
-//      GXChannelColor0A0
-//  );
-//  CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_TEXC, GxTevColorArg_RASC, GxTevColorArg_ZERO);
-//  CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_TEXA, GxTevAlphaArg_RASA, GxTevAlphaArg_ZERO);
-//  CGX::SetTevColorOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
-//  CGX::SetTevAlphaOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
-//
-//  CGraphics::SetOrtho(0, 640, 0, 480, -1, 1);
-//  CGraphics::SetIdentityModelMatrix();
-//  CGraphics::SetIdentityViewPointMatrix();
-
-  //on_frame();
   NewPauseScreen::RenderMenu();
 }
 
@@ -376,7 +334,42 @@ void NewPauseScreen::show() {
 
 void NewPauseScreen::HandleInputs() {
   if (this->active) {
-    // TODO
+    ImGuiIO *io = &ImGui::GetIO();
+    io->NavInputs[ImGuiNavInput_Activate] = inputs[0].DA();
+    io->NavInputs[ImGuiNavInput_Cancel] = inputs[0].DB();
+//    io->NavInputs[ImGuiNavInput_Menu] = inputs[0].DX();
+//    io->NavInputs[ImGuiNavInput_Input] = inputs[0].DY();
+
+    // dpad
+    io->NavInputs[ImGuiNavInput_DpadLeft] = inputs[0].DDPLeft();
+    io->NavInputs[ImGuiNavInput_DpadRight] = inputs[0].DDPRight();
+    io->NavInputs[ImGuiNavInput_DpadUp] = inputs[0].DDPUp();
+    io->NavInputs[ImGuiNavInput_DpadDown] = inputs[0].DDPDown();
+    // analog
+    io->NavInputs[ImGuiNavInput_LStickLeft] = inputs[0].ALALeft();
+    io->NavInputs[ImGuiNavInput_LStickRight] = inputs[0].ALARight();
+    io->NavInputs[ImGuiNavInput_LStickUp] = inputs[0].ALAUp();
+    io->NavInputs[ImGuiNavInput_LStickDown] = inputs[0].ALADown();
+
+
+    /*
+     *     MAP_BUTTON(ImGuiNavInput_Activate,      SDL_CONTROLLER_BUTTON_A);               // Cross / A
+    MAP_BUTTON(ImGuiNavInput_Cancel,        SDL_CONTROLLER_BUTTON_B);               // Circle / B
+    MAP_BUTTON(ImGuiNavInput_Menu,          SDL_CONTROLLER_BUTTON_X);               // Square / X
+    MAP_BUTTON(ImGuiNavInput_Input,         SDL_CONTROLLER_BUTTON_Y);               // Triangle / Y
+    MAP_BUTTON(ImGuiNavInput_DpadLeft,      SDL_CONTROLLER_BUTTON_DPAD_LEFT);       // D-Pad Left
+    MAP_BUTTON(ImGuiNavInput_DpadRight,     SDL_CONTROLLER_BUTTON_DPAD_RIGHT);      // D-Pad Right
+    MAP_BUTTON(ImGuiNavInput_DpadUp,        SDL_CONTROLLER_BUTTON_DPAD_UP);         // D-Pad Up
+    MAP_BUTTON(ImGuiNavInput_DpadDown,      SDL_CONTROLLER_BUTTON_DPAD_DOWN);       // D-Pad Down
+    MAP_BUTTON(ImGuiNavInput_FocusPrev,     SDL_CONTROLLER_BUTTON_LEFTSHOULDER);    // L1 / LB
+    MAP_BUTTON(ImGuiNavInput_FocusNext,     SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);   // R1 / RB
+    MAP_BUTTON(ImGuiNavInput_TweakSlow,     SDL_CONTROLLER_BUTTON_LEFTSHOULDER);    // L1 / LB
+    MAP_BUTTON(ImGuiNavInput_TweakFast,     SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);   // R1 / RB
+    MAP_ANALOG(ImGuiNavInput_LStickLeft,    SDL_CONTROLLER_AXIS_LEFTX, -thumb_dead_zone, -32768);
+    MAP_ANALOG(ImGuiNavInput_LStickRight,   SDL_CONTROLLER_AXIS_LEFTX, +thumb_dead_zone, +32767);
+    MAP_ANALOG(ImGuiNavInput_LStickUp,      SDL_CONTROLLER_AXIS_LEFTY, -thumb_dead_zone, -32767);
+    MAP_ANALOG(ImGuiNavInput_LStickDown,    SDL_CONTROLLER_AXIS_LEFTY, +thumb_dead_zone, +32767);
+     */
   }
 }
 
@@ -477,11 +470,15 @@ void NewPauseScreen::RenderMenu() {
 
   {
     ImGui::Begin(
-        "Another Window");   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::Text("Hello from another window!");
-    if (ImGui::Button("Close Me")) {
-      // lol todo
-    }
+        "Practice Mod", nullptr,
+        ImGuiWindowFlags_AlwaysAutoResize
+        | ImGuiWindowFlags_NoResize
+    );
+//    ImGui::Text("OwO what's this");
+//    if (ImGui::Button("Tell me more")) {
+//      // lol todo
+//    }
+    GUI::drawWarpMenu();
     ImGui::End();
   }
 
@@ -534,7 +531,7 @@ void NewPauseScreen::RenderMenu() {
   // This is the max characters that actually works per render, for some reason
   // 30 quads, or 154 verts, or 1386 floats, or 5544 bytes
   // Not sure why that's the limit...
-  int maxIdxPerBatch = 3 * 60;
+  int maxIdxPerBatch = 3 * 40;
   int idxPerBatch = 0;
 
   GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
@@ -584,7 +581,7 @@ void NewPauseScreen::InitIMGui() {
   );
   OSReport("Create context \n");
   ImFontAtlas *atlas = new ImFontAtlas();
-  atlas->TexDesiredWidth = 256;
+  atlas->TexDesiredWidth = 512;
   atlas->Flags |= ImFontAtlasFlags_NoMouseCursors;
   ImGui::CreateContext(atlas);
 
@@ -596,9 +593,9 @@ void NewPauseScreen::InitIMGui() {
 
 //  // setup font
   ImFontConfig fontConfig{};
-  fontConfig.SizePixels = 8;
+  fontConfig.SizePixels = 13;
   fontConfig.OversampleH = 2;
-  fontConfig.OversampleV = 1;
+  fontConfig.OversampleV = 2;
   fontConfig.PixelSnapH = true;
   fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
   // gen font and font data
@@ -635,7 +632,8 @@ void NewPauseScreen::InitIMGui() {
       // DOne with the block
     }
   }
-//  io.Fonts->ClearTexData()
+  // Don't need the tex data anymore
+  io.Fonts->ClearTexData();
 //  // send it off to GX
   GXInitTexObj(&imguiFontTexture, imguiFontTexData,
                width, height,
@@ -656,7 +654,7 @@ void NewPauseScreen::InitIMGui() {
 
 void NewPauseScreen::ImGuiNewFrame() {
   ImGuiIO &io = ImGui::GetIO();
-  io.DisplaySize = ImVec2(640, 480);
+  io.DisplaySize = ImVec2(640, 460);
   io.DeltaTime = 1.f / 60.f;
 }
 

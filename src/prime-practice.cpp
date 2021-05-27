@@ -21,7 +21,6 @@
 #include "prime/CMFGame.hpp"
 #include "prime/CIOWinManager.hpp"
 #include "prime/CMainFlow.hpp"
-#include "TextRenderer.hpp"
 #include "NewPauseScreen.hpp"
 
 // Forward decls

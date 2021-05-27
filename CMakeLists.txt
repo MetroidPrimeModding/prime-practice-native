@@ -66,7 +66,6 @@ set(SOURCE_FILES
         src/include/prime/CScriptDoor.hpp
         src/include/prime/CScriptCameraHint.hpp
         src/include/STriggerRenderConfig.hpp
-        src/include/TextRenderer.hpp
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp
         src/include/GX.hpp
@@ -76,6 +75,7 @@ set(SOURCE_FILES
         ext/imgui/imgui_draw.cpp
         ext/imgui/imgui_tables.cpp
         ext/imgui/imgui_widgets.cpp
+        ext/imgui/imgui_demo.cpp
         ext/imgui/imgui.h
         ext/imgui/imgui_internal.h
 #        imgui/imgui_draw.cpp
@@ -92,22 +92,12 @@ set(SOURCE_FILES
 
         src/new.cpp
         src/NewPauseScreen.cpp
-        src/TextRenderer.cpp
         src/duk_mem.h
         src/duk_mem.cpp
         src/prime-practice.cpp
         src/libc/libc.c
-        src/UI/Menu.h
-        src/UI/Menu.cpp
-        src/UI/Menus.h
-        src/UI/MainMenu.h
-        src/UI/MainMenu.cpp
         src/UI/WarpMenu.h
         src/UI/WarpMenu.cpp
-        src/UI/PlayerMenu.h
-        src/UI/PlayerMenu.cpp
-        src/UI/EditValueMenu.h
-        src/UI/EditValueMenu.cpp
         )
 
 patch_function("CGraphics::EndScene()"

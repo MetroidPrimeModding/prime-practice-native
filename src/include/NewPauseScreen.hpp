@@ -3,7 +3,6 @@
 
 #include <prime/CScriptTrigger.hpp>
 #include <prime/CFinalInput.hpp>
-#include <UI/Menu.h>
 #include "prime/CStateManager.hpp"
 #include "STriggerRenderConfig.hpp"
 
