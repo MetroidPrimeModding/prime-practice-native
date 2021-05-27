@@ -21,6 +21,8 @@
 
 #define PAD_MAX_CONTROLLERS 4
 
+GXTexObj imguiFontTexture;
+
 NewPauseScreen *NewPauseScreen::instance = NULL;
 
 NewPauseScreen::NewPauseScreen() {
@@ -534,22 +536,24 @@ void NewPauseScreen::RenderMenu() {
   int maxIdxPerBatch = 3 * 30;
   int idxPerBatch = 0;
 
+  GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
   CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
   for (int cmdListIdx = 0; cmdListIdx < drawData->CmdListsCount; cmdListIdx++) {
     const ImDrawList *cmdList = drawData->CmdLists[cmdListIdx];
     // For each cmdlist
     for (int cmdBufferIdx = 0; cmdBufferIdx < cmdList->CmdBuffer.Size; cmdBufferIdx++) {
-      const ImDrawCmd* cmdBuffer = &cmdList->CmdBuffer[cmdBufferIdx];
+      const ImDrawCmd *cmdBuffer = &cmdList->CmdBuffer[cmdBufferIdx];
       for (int elemIdx = 0; elemIdx < cmdBuffer->ElemCount; elemIdx++) {
         const ImDrawIdx *idx = &cmdList->IdxBuffer[cmdBuffer->IdxOffset + elemIdx];
         const ImDrawVert *dataStart = &cmdList->VtxBuffer[cmdBuffer->VtxOffset + *idx];
 
         CGraphics::StreamVertex(dataStart->pos.x, 0, dataStart->pos.y);
         CGraphics::StreamTexcoord(dataStart->uv.x, dataStart->uv.y);
-        float r = (float)((dataStart->col >> 16) & 0xFF) / 255.0f;
-        float g = (float)((dataStart->col >> 8) & 0xFF) / 255.0f;
-        float b = (float)((dataStart->col >> 0) & 0xFF) / 255.0f;
-        float a = (float)((dataStart->col >> 24) & 0xFF) / 255.0f;
+        float r = (float) ((dataStart->col >> 16) & 0xFF) / 255.0f;
+        float g = (float) ((dataStart->col >> 8) & 0xFF) / 255.0f;
+        float b = (float) ((dataStart->col >> 0) & 0xFF) / 255.0f;
+        float a = (float) ((dataStart->col >> 24) & 0xFF) / 255.0f;
+//        r = g = b = a = 1;
         CGraphics::StreamColor(r, g, b, a);
         idxPerBatch++;
         if (idxPerBatch > maxIdxPerBatch && idxPerBatch % 3 == 0) {
@@ -557,9 +561,11 @@ void NewPauseScreen::RenderMenu() {
           CGraphics::FlushStream();
         }
       }
+      // flsuh between buffers
+      idxPerBatch = 0;
+      CGraphics::FlushStream();
     }
   }
-
   CGraphics::StreamEnd();
 //  }
 }
@@ -579,6 +585,7 @@ void NewPauseScreen::InitIMGui() {
 
   // Setup basic flags
   ImGuiIO &io = ImGui::GetIO();
+  io.BackendRendererName = "gx";
   io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
   // TODO: gamepad mapping
 
@@ -590,18 +597,30 @@ void NewPauseScreen::InitIMGui() {
   io.Fonts->AddFontDefault(&fontConfig);
   unsigned char *texData = nullptr;
   int width, height, bpp;
-  io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
-  io.BackendRendererName = "gx";
-  OSReport("FONT TEX: %d %d %d", width, height, bpp);
+  //  io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
+  io.Fonts->GetTexDataAsRGBA32(&texData, &width, &height, &bpp);
+  OSReport("FONT TEX: %d %d %d %x", width, height, bpp);
+  // swizzle font
+//  for (int i = 0; i < width * height * 4; i+=4) {
+//    char r = texData[i + 2];
+//    char g = texData[i + 1];
+//    char b = texData[i + 0];
+//    char a = texData[i + 3];
+//
+//    texData[i + 0] = 255; // alpha
+//    texData[i + 1] = 255;
+//    texData[i + 2] = 255;
+//    texData[i + 3] = 255;// green
+//  }
 //  // send it off to GX
-  GXInitTexObj(&fontTexture, texData,
+  GXInitTexObj(&imguiFontTexture, texData,
                width, height,
-               GX_TF_I8,
-//               GX_TF_RGBA8,
+//               GX_TF_I8,
+               GX_TF_RGBA8,
                GX_CLAMP, GX_CLAMP,
                GX_FALSE
   );
-  GXInitTexObjLOD(&fontTexture,
+  GXInitTexObjLOD(&imguiFontTexture,
                   GX_NEAR, GX_NEAR,
                   0, 0,
                   0,

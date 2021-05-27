@@ -17,7 +17,6 @@
 bool initialized = false;
 char *fontTexData;
 GXTexObj fontTexture;
-GXTexObj imguiFontTexture;
 float colorR = 1, colorG = 1, colorB = 1, colorA = 1;
 
 void TextRenderer::RenderText(const char *str, int xStart, int yStart) {
