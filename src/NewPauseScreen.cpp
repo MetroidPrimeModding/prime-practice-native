@@ -22,6 +22,7 @@
 #define PAD_MAX_CONTROLLERS 4
 
 GXTexObj imguiFontTexture;
+unsigned char* imguiFontTexData;
 
 NewPauseScreen *NewPauseScreen::instance = NULL;
 
@@ -527,30 +528,13 @@ void NewPauseScreen::RenderMenu() {
   CGraphics::SetIdentityModelMatrix();
   CGraphics::SetIdentityViewPointMatrix();
 
-  CGraphics::StreamBegin(ERglPrimitive_QUADS);
-  CGraphics::StreamColor(1, 1, 1, 1);
-
-  CGraphics::StreamTexcoord(0, 0);
-  CGraphics::StreamVertex(0, 0, 0);
-
-  CGraphics::StreamTexcoord(0, 1);
-  CGraphics::StreamVertex(0, 0, 256);
-
-  CGraphics::StreamTexcoord(1, 1);
-  CGraphics::StreamVertex(256, 0, 256);
-
-  CGraphics::StreamTexcoord(1, 0);
-  CGraphics::StreamVertex(256, 0, 0);
-
-  CGraphics::StreamEnd();
-
   // do this the dumb way first
 
   //*****the dumb way******//
   // This is the max characters that actually works per render, for some reason
   // 30 quads, or 154 verts, or 1386 floats, or 5544 bytes
   // Not sure why that's the limit...
-  int maxIdxPerBatch = 3 * 30;
+  int maxIdxPerBatch = 3 * 60;
   int idxPerBatch = 0;
 
   GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
@@ -601,6 +585,7 @@ void NewPauseScreen::InitIMGui() {
   OSReport("Create context \n");
   ImFontAtlas *atlas = new ImFontAtlas();
   atlas->TexDesiredWidth = 256;
+  atlas->Flags |= ImFontAtlasFlags_NoMouseCursors;
   ImGui::CreateContext(atlas);
 
   // Setup basic flags
@@ -611,9 +596,10 @@ void NewPauseScreen::InitIMGui() {
 
 //  // setup font
   ImFontConfig fontConfig{};
-  fontConfig.SizePixels = 16;
+  fontConfig.SizePixels = 8;
   fontConfig.OversampleH = 2;
   fontConfig.OversampleV = 1;
+  fontConfig.PixelSnapH = true;
   fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
   // gen font and font data
   io.Fonts->AddFontDefault(&fontConfig);
@@ -621,18 +607,37 @@ void NewPauseScreen::InitIMGui() {
   int width, height, bpp;
   io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
   OSReport("FONT TEX: %d %d %d\n", width, height, bpp);
+  imguiFontTexData = new unsigned char[width * height];
   // swizzle font
-//  for (int x = 0; x < width; x++) {
-//    for (int y = 0; x < width; x++) {
-//
-//    }
-//  }
-  for (int i = 0; i < width * height; i++) {
 
+  constexpr int blockWidth = 8;
+  constexpr int blockHeight = 4;
+  const int xBlocks = width / blockWidth;
+  const int yBlocks = height / blockHeight;
+
+  for (int xBlock = 0; xBlock < xBlocks; xBlock++) {
+    for (int yBlock = 0; yBlock < yBlocks; yBlock++) {
+      int blockStartX = xBlock * blockWidth;
+      int blockStartY = yBlock * blockHeight;
+      int outStart = ((yBlock * xBlocks) + xBlock) * (blockWidth * blockHeight);
+      // Ok now loop over the pixels
+      for (int blockRelativeX = 0; blockRelativeX < blockWidth; blockRelativeX++) {
+        for (int blockRelativeY = 0; blockRelativeY < blockHeight; blockRelativeY++) {
+
+          int blockRelativeOffset = blockRelativeY * blockWidth + blockRelativeX;
+          int globalOffset = (blockStartY + blockRelativeY) * width + (blockStartX + blockRelativeX);
+
+          unsigned char pixel = texData[globalOffset];
+//          unsigned char pixel = blockRelativeY * 64;
+          imguiFontTexData[outStart + blockRelativeOffset] = pixel;
+        }
+      }
+      // DOne with the block
+    }
   }
 //  io.Fonts->ClearTexData()
 //  // send it off to GX
-  GXInitTexObj(&imguiFontTexture, texData,
+  GXInitTexObj(&imguiFontTexture, imguiFontTexData,
                width, height,
                GX_TF_I8,
 //               GX_TF_RGB565,
@@ -651,7 +656,7 @@ void NewPauseScreen::InitIMGui() {
 
 void NewPauseScreen::ImGuiNewFrame() {
   ImGuiIO &io = ImGui::GetIO();
-  io.DisplaySize = ImVec2(400, 200);
+  io.DisplaySize = ImVec2(640, 480);
   io.DeltaTime = 1.f / 60.f;
 }
 
