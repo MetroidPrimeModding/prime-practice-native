@@ -1,6 +1,7 @@
 #ifndef PRIME_PRACTICE_CPLAYER_HPP
 #define PRIME_PRACTICE_CPLAYER_HPP
 
+#include "prime/CStateManager.hpp"
 #include "prime/CPhysicsActor.hpp"
 
 class CPlayer : public CPhysicsActor {

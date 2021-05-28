@@ -2,6 +2,7 @@
 #include <prime/CScriptCameraHint.hpp>
 #include <STriggerRenderConfig.hpp>
 #include <UI/PlayerMenu.hpp>
+#include <UI/InventoryMenu.hpp>
 #include "os.h"
 #include "NewPauseScreen.hpp"
 #include "prime/CGameState.hpp"
@@ -481,6 +482,7 @@ void NewPauseScreen::RenderMenu() {
 //    }
     GUI::drawWarpMenu();
     GUI::drawPlayerMenu();
+    GUI::drawInventoryMenu();
     ImGui::End();
   }
 
@@ -606,11 +608,15 @@ void NewPauseScreen::InitIMGui() {
   int width, height, bpp;
   io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
   OSReport("FONT TEX: %d %d %d\n", width, height, bpp);
-  imguiFontTexData = new unsigned char[width * height];
+  u32 ptr = reinterpret_cast<u32>(prime_malloc(width * height / 2 + 32, nullptr));
+  // align
+  ptr += 32 - ptr % 32;
+  imguiFontTexData = reinterpret_cast<unsigned char*>(ptr);
+  memset(imguiFontTexData, 0, width * height / 2);
   // swizzle font
 
   constexpr int blockWidth = 8;
-  constexpr int blockHeight = 4;
+  constexpr int blockHeight = 8;
   const int xBlocks = width / blockWidth;
   const int yBlocks = height / blockHeight;
 
@@ -626,12 +632,19 @@ void NewPauseScreen::InitIMGui() {
           int blockRelativeOffset = blockRelativeY * blockWidth + blockRelativeX;
           int globalOffset = (blockStartY + blockRelativeY) * width + (blockStartX + blockRelativeX);
 
-          unsigned char pixel = texData[globalOffset];
+          unsigned char pixel = (texData[globalOffset] >> 4) & 0xF;
 //          unsigned char pixel = blockRelativeY * 64;
-          imguiFontTexData[outStart + blockRelativeOffset] = pixel;
+          int pixelPos = outStart + blockRelativeOffset;
+
+          int bytePos = pixelPos / 2;
+          if (pixelPos % 2 == 0) {
+            imguiFontTexData[bytePos] |= pixel << 4;
+          } else {
+            imguiFontTexData[bytePos] |= pixel;
+          }
         }
       }
-      // DOne with the block
+      // Done with the block
     }
   }
   // Don't need the tex data anymore
@@ -639,8 +652,7 @@ void NewPauseScreen::InitIMGui() {
 //  // send it off to GX
   GXInitTexObj(&imguiFontTexture, imguiFontTexData,
                width, height,
-               GX_TF_I8,
-//               GX_TF_RGB565,
+               GX_TF_I4,
                GX_CLAMP, GX_CLAMP,
                GX_FALSE
   );

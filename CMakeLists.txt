@@ -100,6 +100,8 @@ set(SOURCE_FILES
         src/UI/WarpMenu.cpp
         src/UI/PlayerMenu.hpp
         src/UI/PlayerMenu.cpp
+        src/UI/InventoryMenu.hpp
+        src/UI/InventoryMenu.cpp
         )
 
 patch_function("CGraphics::EndScene()"

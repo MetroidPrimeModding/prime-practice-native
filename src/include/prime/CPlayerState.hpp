@@ -8,6 +8,11 @@ class CInputStream;
 class COutputStream;
 class CStateManager;
 
+constexpr int PowerUpMaxValues[] = {
+    1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 14, 1,   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+};
+
 class CPlayerState {
 public:
     enum EItemType {
@@ -134,6 +139,8 @@ public:
     void AddPowerUp(CPlayerState::EItemType, int);
     void ReInitializePowerUp(CPlayerState::EItemType, int);
     void PutTo(COutputStream&);
+    static inline u32 GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[size_t(type)]; }
+    void ResetAndIncrPickUp(EItemType type, u32 amount);
 };
 
 // Max inventory capacity values, indexed by EItemType
