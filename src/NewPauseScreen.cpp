@@ -17,6 +17,7 @@
 #include "imgui.h"
 #include "duk_mem.h"
 #include "UI/WarpMenu.h"
+#include "font_atlas.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -571,20 +572,69 @@ void NewPauseScreen::RenderMenu() {
 //  }
 }
 
-const ImWchar IMGUI_FONT_RANGE[] = {
-    1, 255, // extended ascii
-    0 // end
-};
-
 void NewPauseScreen::InitIMGui() {
   // init
   ImGui::SetAllocatorFunctions(
       &prime_malloc, &prime_free
   );
   OSReport("Create context \n");
+  ImFontConfig fontConfig{};
+  fontConfig.SizePixels = 13;
+  fontConfig.OversampleH = 2;
+  fontConfig.OversampleV = 2;
+  fontConfig.PixelSnapH = true;
+//  fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
+
+  ImFont *font = new ImFont();
+  for (float f : FontAtlas::INDEX_ADVANCE_X) {
+    font->IndexAdvanceX.push_back(f);
+  }
+  font->FallbackAdvanceX = FontAtlas::FALLBACK_ADVANCE_X;
+  font->FontSize = FontAtlas::FONT_SIZE;
+  for (auto v : FontAtlas::INDEX_LOOKUP) {
+    font->IndexLookup.push_back(v);
+  }
+  for (auto v : FontAtlas::FONT_GLYPHS) {
+    font->Glyphs.push_back(v);
+  }
+  font->Ascent = FontAtlas::ASCENT;
+  font->Descent = FontAtlas::DESCENT;
+  font->MetricsTotalSurface = FontAtlas::MetricsTotalSurface;
+  for (int i = 0; i < sizeof(FontAtlas::Used4kPagesMap); i++) {
+    font->Used4kPagesMap[i] = FontAtlas::Used4kPagesMap[i];
+  }
+
   ImFontAtlas *atlas = new ImFontAtlas();
   atlas->TexDesiredWidth = 512;
   atlas->Flags |= ImFontAtlasFlags_NoMouseCursors;
+  atlas->Fonts.push_back(font);
+  atlas->ConfigData.push_back(fontConfig);
+  atlas->TexWidth = FontAtlas::ATLAS_W;
+  atlas->TexHeight = FontAtlas::ATLAS_H;
+  atlas->TexUvScale = ImVec2(1.f / (float)FontAtlas::ATLAS_W, 1.f / (float)FontAtlas::ATLAS_H);
+  atlas->TexUvWhitePixel = FontAtlas::WhitePixel;
+  atlas->Flags = FontAtlas::AtlasFlags;
+  atlas->PackIdLines = FontAtlas::PackedIdLines;
+  atlas->PackIdMouseCursors = 0;
+  atlas->TexPixelsAlpha8 = const_cast<unsigned char *>(FontAtlas::ATLAS_DATA);
+  for (int i = 0; i < IM_DRAWLIST_TEX_LINES_WIDTH_MAX + 1; i++) {
+    atlas->TexUvLines[i] = FontAtlas::TexUvLines[i];
+  }
+  for (auto &v : FontAtlas::CustomRects) {
+    ImFontAtlasCustomRect rect{};
+    rect.X = v.y;
+    rect.Y = v.z;
+    rect.Height = v.w;
+    rect.Width = v.x;
+    atlas->CustomRects.push_back(rect);
+  }
+  // writebacks
+  font->ContainerAtlas = atlas;
+  font->ConfigData = &atlas->ConfigData[0];
+  font->DirtyLookupTables = false;
+  font->EllipsisChar = -1;
+  font->FallbackGlyph = &font->Glyphs[font->IndexLookup['?']];
+
   ImGui::CreateContext(atlas);
 
   // Setup basic flags
@@ -594,14 +644,17 @@ void NewPauseScreen::InitIMGui() {
   // TODO: gamepad mapping
 
 //  // setup font
-  ImFontConfig fontConfig{};
+
+  // gen font and font data, old version
+  /*
+   ImFontConfig fontConfig{};
   fontConfig.SizePixels = 13;
   fontConfig.OversampleH = 2;
   fontConfig.OversampleV = 2;
   fontConfig.PixelSnapH = true;
   fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
-  // gen font and font data
-  io.Fonts->AddFontDefault(&fontConfig);
+
+   io.Fonts->AddFontDefault(&fontConfig);
   unsigned char *texData = nullptr;
   int width, height, bpp;
   io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
@@ -635,11 +688,12 @@ void NewPauseScreen::InitIMGui() {
     }
   }
   // Don't need the tex data anymore
-  io.Fonts->ClearTexData();
+  io.Fonts->ClearTexData();*/
 //  // send it off to GX
-  GXInitTexObj(&imguiFontTexture, imguiFontTexData,
-               width, height,
-               GX_TF_I8,
+//  GXInitTexObj(&imguiFontTexture, imguiFontTexData,
+  GXInitTexObj(&imguiFontTexture, (void*)(&FontAtlas::ATLAS_DATA[0]),
+               FontAtlas::ATLAS_W, FontAtlas::ATLAS_H,
+               GX_TF_I4,
 //               GX_TF_RGB565,
                GX_CLAMP, GX_CLAMP,
                GX_FALSE
