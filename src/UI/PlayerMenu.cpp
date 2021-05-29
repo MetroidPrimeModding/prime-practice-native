@@ -1,9 +1,11 @@
 #include <prime/CStateManager.hpp>
 #include <prime/CPlayer.hpp>
+#include <prime/CPlayerState.hpp>
 #include "PlayerMenu.hpp"
 #include "imgui.h"
 
 namespace GUI {
+
   void drawPlayerMenu() {
     CStateManager *stateManager = CStateManager_INSTANCE;
     CPlayer *player = stateManager->Player();

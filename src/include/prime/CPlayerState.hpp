@@ -5,145 +5,150 @@
 #include <prime/CHealthInfo.hpp>
 
 class CInputStream;
+
 class COutputStream;
+
 class CStateManager;
 
 constexpr int PowerUpMaxValues[] = {
-    1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 14, 1,   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 14, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 };
 
 class CPlayerState {
 public:
-    enum EItemType {
-        kItem_PowerBeam = 0,
-        kItem_IceBeam = 1,
-        kItem_WaveBeam = 2,
-        kItem_PlasmaBeam = 3,
-        kItem_Missile = 4,
-        kItem_ScanVisor = 5,
-        kItem_MorphBallBomb = 6,
-        kItem_PowerBomb = 7,
-        kItem_Flamethrower = 8,
-        kItem_ThermalVisor = 9,
-        kItem_ChargeBeam = 10,
-        kItem_SuperMissile = 11,
-        kItem_GrappleBeam = 12,
-        kItem_XRayVisor = 13,
-        kItem_IceSpreader = 14,
-        kItem_SpaceJump = 15,
-        kItem_MorphBall = 16,
-        kItem_CombatVisor = 17,
-        kItem_BoostBall = 18,
-        kItem_SpiderBall = 19,
-        kItem_PowerSuit = 20,
-        kItem_GravitySuit = 21,
-        kItem_VariaSuit = 22,
-        kItem_PhazonSuit = 23,
-        kItem_EnergyTank = 24,
-        kItem_Unknown1 = 25,
-        kItem_HealthRefill = 26,
-        kItem_Unknown2 = 27,
-        kItem_Wavebuster = 28,
-        kItem_ArtifactOfTruth = 29,
-        kItem_ArtifactOfStrength = 30,
-        kItem_ArtifactOfElder = 31,
-        kItem_ArtifactOfWild = 32,
-        kItem_ArtifactOfLifegiver = 33,
-        kItem_ArtifactOfWarrior = 34,
-        kItem_ArtifactOfChozo = 35,
-        kItem_ArtifactOfNature = 36,
-        kItem_ArtifactOfSun = 37,
-        kItem_ArtifactOfWorld = 38,
-        kItem_ArtifactOfSpirit = 39,
-        kItem_ArtifactOfNewborn = 40,
-        kItem_Max
-    };
-    
-    enum EPlayerVisor {
-        kVisor_Combat = 0,
-        kVisor_XRay = 1,
-        kVisor_Scan = 2,
-        kVisor_Thermal = 3,
-        kVisor_Max
-    };
-    
-    enum EPlayerSuit {
-        kSuit_Power = 0,
-        kSuit_Gravity = 1,
-        kSuit_Varia = 2,
-        kSuit_Phazon = 3,
-        kSuit_FusionPower = 4,
-        kSuit_FusionGravity = 5,
-        kSuit_FusionVaria = 6,
-        kSuit_FusionPhazon = 7,
-        kSuit_Max
-    };
-    
-    enum EBeamId {
-        kBeam_Power = 0,
-        kBeam_Ice = 1,
-        kBeam_Plasma = 2,
-        kBeam_Wave = 3,
-        kBeam_Phazon = 4,
-        kBeam_Max
-    };
-    
-    class CPowerUp {
-    public:
-        int amount;
-        int capacity;
-        
-        CPowerUp() {}
-        CPowerUp(int, int);
-        CPowerUp(CInputStream&);
-    };
-    
-    /* 0x000 */ int flags;
-    /* 0x004 */ int unknown0;
-    /* 0x008 */ EBeamId currentBeam;
-    /* 0x00C */ CHealthInfo healthInfo;
-    /* 0x014 */ EPlayerVisor currentVisor;
-    /* 0x018 */ EPlayerVisor transitionVisor;
-    /* 0x01C */ float visorTransitionFactor;
-    /* 0x020 */ EPlayerSuit currentSuit;
-    /* 0x024 */ CPowerUp powerUps[kItem_Max];
-    
-    CPlayerState();
-    CPlayerState(CInputStream&);
-    
-    inline CHealthInfo *GetHealthInfo() { return &healthInfo; }
-    
-    bool CanVisorSeeFog(const CStateManager&) const;
-    CPlayerState::EPlayerVisor GetActiveVisor(const CStateManager&) const;
-    void UpdateStaticInterference(CStateManager&, const float&);
-    void NewScanTime(uint);
-    void IncreaseScanTime(uint, float);
-    float GetScanTime(uint) const;
-    static float GetEnergyTankCapacity();
-    static float GetBaseHealthCapacity();
-    bool GetIsVisorTransitioning() const;
-    float GetVisorTransitionFactor() const;
-    void UpdateVisorTransition(float);
-    void StartTransitionToVisor(CPlayerState::EPlayerVisor);
-    void ResetVisor();
-    bool ItemEnabled(CPlayerState::EItemType) const;
-    void DisableItem(CPlayerState::EItemType);
-    void EnableItem(CPlayerState::EItemType);
-    inline CPowerUp *GetPowerUp(EItemType Item) { return &GetField<CPowerUp>(this, 0x24)[Item]; }
-    bool HasPowerUp(CPlayerState::EItemType) const;
-    uint GetItemCapacity(CPlayerState::EItemType) const;
-    uint GetItemAmount(CPlayerState::EItemType) const;
-    void DecrPickUp(CPlayerState::EItemType, int);
-    void IncrPickUp(CPlayerState::EItemType, int);
-    void AddPowerUp(CPlayerState::EItemType, int);
-    void ReInitializePowerUp(CPlayerState::EItemType, int);
-    void PutTo(COutputStream&);
-    static inline u32 GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[size_t(type)]; }
-    void ResetAndIncrPickUp(EItemType type, u32 amount);
+  enum class EItemType : s32 {
+    Invalid = -1,
+    PowerBeam = 0,
+    IceBeam = 1,
+    WaveBeam = 2,
+    PlasmaBeam = 3,
+    Missiles = 4,
+    ScanVisor = 5,
+    MorphBallBombs = 6,
+    PowerBombs = 7,
+    Flamethrower = 8,
+    ThermalVisor = 9,
+    ChargeBeam = 10,
+    SuperMissile = 11,
+    GrappleBeam = 12,
+    XRayVisor = 13,
+    IceSpreader = 14,
+    SpaceJumpBoots = 15,
+    MorphBall = 16,
+    CombatVisor = 17,
+    BoostBall = 18,
+    SpiderBall = 19,
+    PowerSuit = 20,
+    GravitySuit = 21,
+    VariaSuit = 22,
+    PhazonSuit = 23,
+    EnergyTanks = 24,
+    UnknownItem1 = 25,
+    HealthRefill = 26,
+    UnknownItem2 = 27,
+    Wavebuster = 28,
+    Truth = 29,
+    Strength = 30,
+    Elder = 31,
+    Wild = 32,
+    Lifegiver = 33,
+    Warrior = 34,
+    Chozo = 35,
+    Nature = 36,
+    Sun = 37,
+    World = 38,
+    Spirit = 39,
+    Newborn = 40,
+
+    /* This must remain at the end of the list */
+    Max
+  };
+
+  enum class EPlayerVisor : u32 {
+    Combat,
+    XRay,
+    Scan,
+    Thermal,
+
+    /* This must remain at the end of the list */
+    Max
+  };
+
+  enum class EPlayerSuit : s32 {
+    Invalid = -1,
+    Power,
+    Gravity,
+    Varia,
+    Phazon,
+    FusionPower,
+    FusionGravity,
+    FusionVaria,
+    FusionPhazon
+  };
+
+  enum class EBeamId : s32 { Invalid = -1, Power, Ice, Wave, Plasma, Phazon, Phazon2 = 27 };
+
+  class CPowerUp {
+  public:
+    int amount;
+    int capacity;
+
+    CPowerUp() {}
+
+    CPowerUp(int, int);
+    CPowerUp(CInputStream &);
+  };
+
+  /* 0x000 */ int flags;
+  /* 0x004 */ int unknown0;
+  /* 0x008 */ EBeamId currentBeam;
+  /* 0x00C */ CHealthInfo healthInfo;
+  /* 0x014 */ EPlayerVisor currentVisor;
+  /* 0x018 */ EPlayerVisor transitionVisor;
+  /* 0x01C */ float visorTransitionFactor;
+  /* 0x020 */ EPlayerSuit currentSuit;
+  /* 0x024 */ CPowerUp powerUps[(int)CPlayerState::EItemType::Max];
+
+  CPlayerState();
+  CPlayerState(CInputStream &);
+
+  inline CHealthInfo *GetHealthInfo() { return &healthInfo; }
+
+  bool CanVisorSeeFog(const CStateManager &) const;
+  CPlayerState::EPlayerVisor GetActiveVisor(const CStateManager &) const;
+  void UpdateStaticInterference(CStateManager &, const float &);
+  void NewScanTime(uint);
+  void IncreaseScanTime(uint, float);
+  float GetScanTime(uint) const;
+  static float GetEnergyTankCapacity();
+  static float GetBaseHealthCapacity();
+  bool GetIsVisorTransitioning() const;
+  float GetVisorTransitionFactor() const;
+  void UpdateVisorTransition(float);
+  void StartTransitionToVisor(CPlayerState::EPlayerVisor);
+  void ResetVisor();
+  bool ItemEnabled(CPlayerState::EItemType) const;
+  void DisableItem(CPlayerState::EItemType);
+  void EnableItem(CPlayerState::EItemType);
+
+  inline CPowerUp *GetPowerUp(EItemType Item) { return &GetField<CPowerUp>(this, 0x24)[(int)Item]; }
+
+  bool HasPowerUp(CPlayerState::EItemType) const;
+  uint GetItemCapacity(CPlayerState::EItemType) const;
+  uint GetItemAmount(CPlayerState::EItemType) const;
+  void DecrPickUp(CPlayerState::EItemType, int);
+  void IncrPickUp(CPlayerState::EItemType, int);
+  void AddPowerUp(CPlayerState::EItemType, int);
+  void ReInitializePowerUp(CPlayerState::EItemType, int);
+  void PutTo(COutputStream &);
+
+  static inline u32 GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[size_t(type)]; }
+
+  void ResetAndIncrPickUp(EItemType type, u32 amount);
 };
 
 // Max inventory capacity values, indexed by EItemType
-extern const uint32 gkPowerUpMaxValues[CPlayerState::EItemType::kItem_Max];
+extern const uint32 gkPowerUpMaxValues[(int)CPlayerState::EItemType::Max];
 
 #endif

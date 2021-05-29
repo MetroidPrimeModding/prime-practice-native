@@ -124,3 +124,4 @@
 0x80394cec pow
 0x8011BFEC _ZNK13CPhysicsActor15GetPhysicsStateEv
 0x80091D00 _ZN12CPlayerState18ResetAndIncrPickUpENS_9EItemTypeEj
+0x80091AF4 _ZNK12CPlayerState15GetItemCapacityENS_9EItemTypeE

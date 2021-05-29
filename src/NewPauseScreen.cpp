@@ -476,10 +476,6 @@ void NewPauseScreen::RenderMenu() {
         ImGuiWindowFlags_AlwaysAutoResize
         | ImGuiWindowFlags_NoResize
     );
-//    ImGui::Text("OwO what's this");
-//    if (ImGui::Button("Tell me more")) {
-//      // lol todo
-//    }
     GUI::drawWarpMenu();
     GUI::drawPlayerMenu();
     GUI::drawInventoryMenu();
@@ -573,8 +569,7 @@ void NewPauseScreen::RenderMenu() {
 //  }
 }
 
-const ImWchar IMGUI_FONT_RANGE[] = {
-    1, 255, // extended ascii
+const ImWchar EMPTY_FONT_RANGE[] = {
     0 // end
 };
 
