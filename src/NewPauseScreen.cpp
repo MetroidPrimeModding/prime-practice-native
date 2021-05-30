@@ -345,15 +345,15 @@ void NewPauseScreen::HandleInputs() {
 //    io->NavInputs[ImGuiNavInput_Input] = inputs[0].DY();
 
     // dpad
-    io->NavInputs[ImGuiNavInput_DpadLeft] = inputs[0].DDPLeft();
-    io->NavInputs[ImGuiNavInput_DpadRight] = inputs[0].DDPRight();
-    io->NavInputs[ImGuiNavInput_DpadUp] = inputs[0].DDPUp();
-    io->NavInputs[ImGuiNavInput_DpadDown] = inputs[0].DDPDown();
+    io->NavInputs[ImGuiNavInput_DpadLeft] = inputs[0].DDPLeft() || inputs[0].DLALeft();
+    io->NavInputs[ImGuiNavInput_DpadRight] = inputs[0].DDPRight() || inputs[0].DLARight();
+    io->NavInputs[ImGuiNavInput_DpadUp] = inputs[0].DDPUp() || inputs[0].DLAUp();
+    io->NavInputs[ImGuiNavInput_DpadDown] = inputs[0].DDPDown() || inputs[0].DLADown();
     // analog
-    io->NavInputs[ImGuiNavInput_LStickLeft] = inputs[0].ALALeft();
-    io->NavInputs[ImGuiNavInput_LStickRight] = inputs[0].ALARight();
-    io->NavInputs[ImGuiNavInput_LStickUp] = inputs[0].ALAUp();
-    io->NavInputs[ImGuiNavInput_LStickDown] = inputs[0].ALADown();
+    io->NavInputs[ImGuiNavInput_LStickLeft] = inputs[0].ARALeft();
+    io->NavInputs[ImGuiNavInput_LStickRight] = inputs[0].ARARight();
+    io->NavInputs[ImGuiNavInput_LStickUp] = inputs[0].ARAUp();
+    io->NavInputs[ImGuiNavInput_LStickDown] = inputs[0].ARADown();
 
 
     /*
@@ -410,10 +410,16 @@ void NewPauseScreen::RenderMenu() {
   ImGui::NewFrame();
 
   if (this->pauseScreenActive && this->menuActive) {
+    ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_None, ImVec2(0, 0));
+    ImGui::SetNextWindowSizeConstraints(
+        ImVec2(0, 0),
+        ImVec2(400, 440)
+    );
     ImGui::Begin(
         "Practice Mod", nullptr,
         ImGuiWindowFlags_AlwaysAutoResize
         | ImGuiWindowFlags_NoResize
+        | ImGuiWindowFlags_NoTitleBar
     );
     GUI::drawWarpMenu();
     GUI::drawPlayerMenu();
