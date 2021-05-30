@@ -92,6 +92,7 @@
 0x8000d098 _ZNK11CFinalInput8PRARightEv
 0x8000d078 _ZNK11CFinalInput9PLTriggerEv
 0x8000d058 _ZNK11CFinalInput9PRTriggerEv
+0x8000CF80 _ZNK11CFinalInput2PZEv
 0x8038DCDC sprintf
 0x8038DDBC vsprintf
 0x8038DE34 vprintf
@@ -126,3 +127,5 @@
 0x80091D00 _ZN12CPlayerState18ResetAndIncrPickUpENS_9EItemTypeEj
 0x80091AF4 _ZNK12CPlayerState15GetItemCapacityENS_9EItemTypeE
 0x803853A8 OSGetTime
+0x80072BB4 _ZN12CPauseScreen22ProcessControllerInputERK13CStateManagerRK11CFinalInput
+0x800731B0 _ZN12CPauseScreen4DrawEv

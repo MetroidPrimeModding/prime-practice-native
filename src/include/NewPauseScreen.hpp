@@ -11,7 +11,8 @@ void warp(uint32_t world, uint32_t area);
 class NewPauseScreen {
 public:
   static NewPauseScreen *instance;
-  bool active;
+  bool pauseScreenActive;
+  bool menuActive;
   int frames;
   CFinalInput *inputs;
 

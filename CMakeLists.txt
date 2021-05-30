@@ -68,6 +68,8 @@ set(SOURCE_FILES
         src/include/STriggerRenderConfig.hpp
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp
+        src/include/settings.hpp
+        src/include/ImHelpers.hpp
         src/include/GX.hpp
 
         ext/imgui/imgui.cpp
@@ -94,7 +96,9 @@ set(SOURCE_FILES
         src/duk_mem.h
         src/duk_mem.cpp
         src/prime-practice.cpp
+        src/settings.cpp
         src/libc/libc.c
+
         src/UI/WarpMenu.h
         src/UI/WarpMenu.cpp
         src/UI/PlayerMenu.hpp
@@ -103,6 +107,8 @@ set(SOURCE_FILES
         src/UI/InventoryMenu.cpp
         src/UI/MonitorWindow.hpp
         src/UI/MonitorWindow.cpp
+        src/UI/SettingsMenu.cpp
+        src/UI/SettingsMenu.hpp
         )
 
 patch_function("CGraphics::EndScene()"

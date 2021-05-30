@@ -72,6 +72,7 @@ void _prolog() {
 
 void PauseScreenDrawReplacement(CPauseScreen *pause) {
   if (!pause->IsLoaded()) { return; }
+  pause->Draw();
 }
 
 void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const CFinalInput &input) {
@@ -80,7 +81,7 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
 
   if (pause->InputEnabled()) {
     // Only close if you aren't holding the reload hotkey
-    if (input.PStart() && !(input.DL() || input.DR())) {
+    if (input.PStart()) {
       NewPauseScreen::instance->hide();
 
       //Play some noises too
@@ -88,7 +89,12 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
       pause->StartTransition(0.5f, mgr, CPauseScreen::ESubScreen_ToGame, 2);
     } else if (NewPauseScreen::instance->frames < 0) {
       NewPauseScreen::instance->show();
+    } else if (input.PZ()) {
+      NewPauseScreen::instance->menuActive = !NewPauseScreen::instance->menuActive;
     }
+  }
+  if (!NewPauseScreen::instance->menuActive) {
+    pause->ProcessControllerInput(mgr, input);
   }
 }
 

@@ -4,6 +4,7 @@
 #include <UI/PlayerMenu.hpp>
 #include <UI/InventoryMenu.hpp>
 #include <UI/MonitorWindow.hpp>
+#include <UI/SettingsMenu.hpp>
 #include "os.h"
 #include "NewPauseScreen.hpp"
 #include "prime/CGameState.hpp"
@@ -76,7 +77,7 @@ NewPauseScreen::NewPauseScreen() {
 }
 
 void NewPauseScreen::Render() {
-  if (active) {
+  if (pauseScreenActive) {
     frames++;
   }
   NewPauseScreen::RenderMenu();
@@ -326,17 +327,17 @@ ETriggerType NewPauseScreen::determineTriggerType(CObjectList *list, CScriptTrig
 }
 
 void NewPauseScreen::hide() {
-  active = false;
+  pauseScreenActive = false;
   frames = -1;
 }
 
 void NewPauseScreen::show() {
-  this->active = true;
+  this->pauseScreenActive = true;
   this->frames = 0;
 }
 
 void NewPauseScreen::HandleInputs() {
-  if (this->active) {
+  if (this->pauseScreenActive) {
     ImGuiIO *io = &ImGui::GetIO();
     io->NavInputs[ImGuiNavInput_Activate] = inputs[0].DA();
     io->NavInputs[ImGuiNavInput_Cancel] = inputs[0].DB();
@@ -405,11 +406,10 @@ bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
 }
 
 void NewPauseScreen::RenderMenu() {
-//  if (this->active) {
   this->ImGuiNewFrame();
   ImGui::NewFrame();
 
-  {
+  if (this->pauseScreenActive && this->menuActive) {
     ImGui::Begin(
         "Practice Mod", nullptr,
         ImGuiWindowFlags_AlwaysAutoResize
@@ -418,6 +418,7 @@ void NewPauseScreen::RenderMenu() {
     GUI::drawWarpMenu();
     GUI::drawPlayerMenu();
     GUI::drawInventoryMenu();
+    GUI::drawSettingsMenu();
     ImGui::End();
   }
 
@@ -507,7 +508,6 @@ void NewPauseScreen::RenderMenu() {
     }
   }
   CGraphics::StreamEnd();
-//  }
 }
 
 const ImWchar EMPTY_FONT_RANGE[] = {
@@ -549,7 +549,7 @@ void NewPauseScreen::InitIMGui() {
   u32 ptr = reinterpret_cast<u32>(prime_malloc(width * height / 2 + 32, nullptr));
   // align
   ptr += 32 - ptr % 32;
-  imguiFontTexData = reinterpret_cast<unsigned char*>(ptr);
+  imguiFontTexData = reinterpret_cast<unsigned char *>(ptr);
   memset(imguiFontTexData, 0, width * height / 2);
   // swizzle font
 

@@ -1,12 +1,9 @@
-//
-// Created by pwootage on 5/29/21.
-//
-
 #include "os.h"
 #include <stdio.h>
 #include <imgui.h>
 #include <prime/CGameAllocator.hpp>
 #include "MonitorWindow.hpp"
+#include "settings.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
@@ -20,6 +17,9 @@ namespace GUI {
   void drawInput(CFinalInput *inputs);
 
   void drawMonitorWindow(CFinalInput *inputs) {
+    if (!SETTINGS.showInGame) {
+      return;
+    }
     ImGui::SetNextWindowPos(ImVec2(620, 20), ImGuiCond_None, ImVec2(1, 0));
     ImGui::Begin(
         "Montitor", nullptr,
@@ -30,12 +30,19 @@ namespace GUI {
         ImGuiWindowFlags_NoNavInputs |
         ImGuiWindowFlags_NoNavFocus |
         ImGuiWindowFlags_NoNav |
-        ImGuiWindowFlags_NoFocusOnAppearing
+        ImGuiWindowFlags_NoFocusOnAppearing |
+        ImGuiWindowFlags_NoMove
     );
 
-    drawFrameTime();
-    drawMemoryUsage();
-    drawInput(inputs);
+    if (SETTINGS.showFrameTime) {
+      drawFrameTime();
+    }
+    if (SETTINGS.showMemoryGraph || SETTINGS.showMemoryInfo) {
+      drawMemoryUsage();
+    }
+    if (SETTINGS.showInput) {
+      drawInput(inputs);
+    }
 
     ImGui::End();
   }
@@ -117,19 +124,23 @@ namespace GUI {
       peakPercent = usedPercent;
     }
 
-    ImGui::Text("Used: %d", usedSize);
-    ImGui::Text("Free: %d", freeSize);
-    ImGui::Text("Total: %d", totalHeapSize);
+    if (SETTINGS.showMemoryInfo) {
+      ImGui::Text("Used: %d", usedSize);
+      ImGui::Text("Free: %d", freeSize);
+      ImGui::Text("Total: %d", totalHeapSize);
+    }
 
-    char title[32];
-    snprintf(title, sizeof(title), "%d%% used, %d%% free", usedPercent, freePrecent);
-    ImGui::PlotLines(
-        "",
-        memoryUsage, GRAPH_LENGTH, 0,
-        title,
-        0.f, totalHeapSize,
-        ImVec2(0, 40.0f)
-    );
+    if (SETTINGS.showMemoryGraph) {
+      char title[32];
+      snprintf(title, sizeof(title), "%d%% used, %d%% free", usedPercent, freePrecent);
+      ImGui::PlotLines(
+          "",
+          memoryUsage, GRAPH_LENGTH, 0,
+          title,
+          0.f, totalHeapSize,
+          ImVec2(0, 40.0f)
+      );
+    }
   }
 
 
@@ -318,7 +329,7 @@ namespace GUI {
       );
     }
 
-    ImGui::Dummy(ImVec2(200, 80));
+    ImGui::Dummy(ImVec2(130, 80));
   }
 
 }
