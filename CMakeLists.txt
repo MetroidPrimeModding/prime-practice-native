@@ -87,7 +87,6 @@ set(SOURCE_FILES
         src/ImGuiEngine.cpp
         src/libc/printf.h
         src/libc/printf.c
-        src/libc/printf_helper.c
         src/libc/sscanf.c
 
         src/new.cpp
@@ -102,6 +101,8 @@ set(SOURCE_FILES
         src/UI/PlayerMenu.cpp
         src/UI/InventoryMenu.hpp
         src/UI/InventoryMenu.cpp
+        src/UI/MonitorWindow.hpp
+        src/UI/MonitorWindow.cpp
         )
 
 patch_function("CGraphics::EndScene()"

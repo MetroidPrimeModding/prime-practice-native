@@ -3,6 +3,7 @@
 #include <STriggerRenderConfig.hpp>
 #include <UI/PlayerMenu.hpp>
 #include <UI/InventoryMenu.hpp>
+#include <UI/MonitorWindow.hpp>
 #include "os.h"
 #include "NewPauseScreen.hpp"
 #include "prime/CGameState.hpp"
@@ -375,68 +376,6 @@ void NewPauseScreen::HandleInputs() {
   }
 }
 
-//drawing funcs
-/*
-duk_ret_t script_drawBegin(duk_context *ctx) {
-  duk_int_t primitive = duk_require_int(ctx, 0);
-
-  switch (primitive) {
-    case ERglPrimitive_POINTS :
-    case ERglPrimitive_LINES :
-    case ERglPrimitive_LINESTRIP :
-    case ERglPrimitive_TRIANGLES :
-    case ERglPrimitive_TRIANGLESTRIP :
-    case ERglPrimitive_TRIANGLEFAN :
-    case ERglPrimitive_QUADS:
-      CGraphics::StreamBegin((ERglPrimitive) primitive);
-      break;
-    default:
-      return duk_error(ctx, 1, "Invalid primtive type");
-  }
-
-  return 0;
-}
-
-duk_ret_t script_drawEnd(duk_context *ctx) {
-  CGraphics::StreamEnd();
-  return 0;
-}
-
-duk_ret_t script_drawFlush(duk_context *ctx) {
-  CGraphics::FlushStream();
-  return 0;
-}
-
-duk_ret_t script_drawVertex(duk_context *ctx) {
-  float x = (float) duk_require_number(ctx, 0);
-  float y = (float) duk_require_number(ctx, 1);
-  float z = (float) duk_require_number(ctx, 2);
-
-  CGraphics::StreamVertex(x, y, z);
-
-  return 0;
-}
-
-duk_ret_t script_drawTexcoord(duk_context *ctx) {
-  float s = (float) duk_require_number(ctx, 0);
-  float t = (float) duk_require_number(ctx, 1);
-
-  CGraphics::StreamTexcoord(s, t);
-
-  return 0;
-}
-
-duk_ret_t script_drawColor(duk_context *ctx) {
-  float r = (float) duk_require_number(ctx, 0);
-  float g = (float) duk_require_number(ctx, 1);
-  float b = (float) duk_require_number(ctx, 2);
-  float a = (float) duk_require_number(ctx, 3);
-
-  CGraphics::StreamColor(r, g, b, a);
-
-  return 0;
-}*/
-
 void warp(uint32_t world, uint32_t area) {
   CAssetId worldID = (CAssetId) (world);
   CAssetId areaID = (CAssetId) (area);
@@ -481,6 +420,8 @@ void NewPauseScreen::RenderMenu() {
     GUI::drawInventoryMenu();
     ImGui::End();
   }
+
+  GUI::drawMonitorWindow(inputs);
 
   ImGui::Render();
   ImDrawData *drawData = ImGui::GetDrawData();
@@ -531,7 +472,7 @@ void NewPauseScreen::RenderMenu() {
   // This is the max characters that actually works per render, for some reason
   // 30 quads, or 154 verts, or 1386 floats, or 5544 bytes
   // Not sure why that's the limit...
-  int maxIdxPerBatch = 3 * 40;
+  int maxIdxPerBatch = 3 * 30;
   int idxPerBatch = 0;
 
   GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
@@ -578,6 +519,8 @@ void NewPauseScreen::InitIMGui() {
   ImGui::SetAllocatorFunctions(
       &prime_malloc, &prime_free
   );
+
+
   OSReport("Create context \n");
   ImFontAtlas *atlas = new ImFontAtlas();
   atlas->TexDesiredWidth = 512;
@@ -592,7 +535,7 @@ void NewPauseScreen::InitIMGui() {
 
 //  // setup font
   ImFontConfig fontConfig{};
-  fontConfig.SizePixels = 13;
+  fontConfig.SizePixels = 10;
   fontConfig.OversampleH = 2;
   fontConfig.OversampleV = 2;
   fontConfig.PixelSnapH = true;

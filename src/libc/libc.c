@@ -57,46 +57,6 @@ void *_calloc_r(struct _reent *reent_ptr, size_t nmemb, size_t size) {
 // basic impl of pure virtual error so we can use virtual methods
 void __cxa_pure_virtual() { while (1); }
 
-unsigned long __umoddi3(unsigned long a, unsigned long b) {
-  return a % b;
-}
-
-unsigned long __udivdi3(unsigned long a, unsigned long b) {
-  return a / b;
-}
-
-float __floatdisf(long i) {
-  return (float) i;
-}
-
-long __fixsfdi(float a) {
-  return (long) a;
-}
-
-float __floatundisf(unsigned long i) {
-  return (float) i;
-}
-
-double __floatdidf(long i) {
-  return (double) i;
-}
-
-long __fixdfdi(double a) {
-  return (long) a;
-}
-
-double __floatundidf(unsigned long i) {
-  return (double) i;
-}
-
-unsigned long __fixunsdfdi(double a) {
-  return (unsigned long) a;
-}
-
-unsigned long __fixunssfdi(float a) {
-  return (unsigned long) a;
-}
-
 int _putchar(int c) {
   // don't put it
   return c;

@@ -171,9 +171,9 @@ public:
     float ALAUp() const;
 
     inline float ALeftX() const { return ALARight() - ALALeft(); };
-    inline float ALeftY() const { return ALAUp() - ALADown(); };
+    inline float ALeftY() const { return ALADown() - ALAUp(); };
     float ARightX() const { return ARARight() - ARALeft(); };
-    float ARightY() const { return ARAUp() - ARADown(); };
+    float ARightY() const { return ARADown() - ARAUp(); };
     float ALeftTrigger() const { return ALTrigger(); };
     float ARightTrigger() const { return ARTrigger(); };
 };
