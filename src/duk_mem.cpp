@@ -18,7 +18,7 @@ extern "C" {
 u32 alloc_bytes = 0;
 u32 peak = 0;
 
-//#define DEBUG_ALLOCS
+#define DEBUG_ALLOCS
 
 void prime_free(void *ptr, void *user) {
 #ifdef DEBUG_ALLOCS

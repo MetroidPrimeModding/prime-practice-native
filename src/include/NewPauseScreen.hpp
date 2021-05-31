@@ -28,7 +28,8 @@ public:
   void show();
 private:
   void RenderMenu();
-  void InitIMGui();
+  void InitIMGui_BundledFont();
+  void InitIMGui_GenerateFont();
   void ImGuiNewFrame();
 };
 

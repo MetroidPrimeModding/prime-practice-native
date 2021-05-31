@@ -14,6 +14,15 @@ set(IMGUI_H_DEFINE [=[-DIMGUI_USER_CONFIG="\"pracc_imconfig.h\""]=])
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMGUI_H_DEFINE}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${IMGUI_H_DEFINE}")
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEBUG")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Os")
+endif()
+
+
 message(${CMAKE_CXX_FLAGS})
 
 set(SOURCE_FILES
@@ -95,6 +104,7 @@ set(SOURCE_FILES
         src/duk_mem.cpp
         src/prime-practice.cpp
         src/settings.cpp
+        src/font_atlas.hpp
         src/libc/libc.c
 
         src/UI/WarpMenu.h
