@@ -17,6 +17,7 @@ jobs:
       - name: Run pyinstaller
         run: |
           pip install PyInstaller
+          cd patcher
           pyinstaller --onefile main.py
         
       - uses: actions/upload-artifact@v2.2.3
