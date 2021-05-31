@@ -38,8 +38,6 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 - Rare crashes (so far, inconsistent)
 - Warps to a couple rooms will put you out of bounds
 
-# Menu docs are a bit out of date, and still under development
-
 ## Menus
 - Inventory
   - Edit your item inventory
@@ -52,13 +50,11 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 - Warp
   - Warp to any room
 - Config
-  - Adjust which HUD elements appear
+  - Adjust which OSD elements appear & other settings
 
-# HUD docs are a bit out of date, and still under development
-
-## HUD
+## OSD
+- Current IGT
 - Input
-  - Current IGT
   - Digital Inputs
   - Analog Main Stick
 - Player Speed

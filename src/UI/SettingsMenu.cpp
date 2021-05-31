@@ -8,7 +8,14 @@ namespace GUI {
     if (ImGui::TreeNode("Settings")) {
       if (ImGui::TreeNode("On-screen display")) {
         BITFIELD_CHECKBOX("Show", SETTINGS.OSD_show);
+        BITFIELD_CHECKBOX("Pos", SETTINGS.OSD_showPos);
+        ImGui::SameLine();
+        BITFIELD_CHECKBOX("Velocity", SETTINGS.OSD_showVelocity);
         BITFIELD_CHECKBOX("Input", SETTINGS.OSD_showInput);
+        ImGui::SameLine();
+        BITFIELD_CHECKBOX("Time", SETTINGS.OSD_showIGT);
+        ImGui::SameLine();
+        BITFIELD_CHECKBOX("Room time", SETTINGS.OSD_showRoomTime);
         BITFIELD_CHECKBOX("Frame time", SETTINGS.OSD_showFrameTime);
         BITFIELD_CHECKBOX("Memory info", SETTINGS.OSD_showMemoryInfo);
         ImGui::SameLine();

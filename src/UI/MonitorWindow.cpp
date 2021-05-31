@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <imgui.h>
 #include <prime/CGameAllocator.hpp>
+#include <prime/CStateManager.hpp>
+#include <prime/CPlayer.hpp>
+#include <prime/CGameGlobalObjects.hpp>
+#include <prime/CGameState.hpp>
+#include <prime/CWorld.hpp>
 #include "MonitorWindow.hpp"
 #include "settings.hpp"
 
@@ -11,10 +16,14 @@
 
 namespace GUI {
   void drawFrameTime();
-
   void drawMemoryUsage();
-
   void drawInput(CFinalInput *inputs);
+  void drawPos();
+  void drawSpeed();
+
+  void drawIGT();
+
+  void drawRoomTime();
 
   void drawMonitorWindow(CFinalInput *inputs) {
     if (!SETTINGS.OSD_show) {
@@ -31,9 +40,26 @@ namespace GUI {
         ImGuiWindowFlags_NoNavFocus |
         ImGuiWindowFlags_NoNav |
         ImGuiWindowFlags_NoFocusOnAppearing |
-        ImGuiWindowFlags_NoMove
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoDecoration |
+//        ImGuiWindowFlags_NoBackground |
+        ImGuiFocusedFlags_None // just for conveneint commenting in/out
     );
-
+    if (SETTINGS.OSD_showIGT) {
+      drawIGT();
+    }
+    if (SETTINGS.OSD_showIGT) {
+      if (SETTINGS.OSD_showIGT) {
+        ImGui::SameLine();
+      }
+      drawRoomTime();
+    }
+    if (SETTINGS.OSD_showPos) {
+      drawPos();
+    }
+    if (SETTINGS.OSD_showVelocity) {
+      drawSpeed();
+    }
     if (SETTINGS.OSD_showFrameTime) {
       drawFrameTime();
     }
@@ -45,6 +71,82 @@ namespace GUI {
     }
 
     ImGui::End();
+  }
+
+  void drawIGT() {
+    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
+    CGameState *gameState = globals->x134_gameState;
+    if (gameState) {
+      double time = gameState->PlayTime();
+      int ms = (int)(time * 1000.0) % 1000;
+      int seconds = (int)time % 60;
+      int minutes = ((int)time / 60) % 60;
+      int hours = ((int)time / 60 / 60) % 60;
+      ImGui::Text("%02d:%02d:%02d.%03d", hours, minutes, seconds, ms);
+    }
+  }
+
+  u32 last_room = -1;
+  double last_time = 0;
+  double room_start_time = 0;
+  void drawRoomTime() {
+    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
+    CGameState *gameState = globals->x134_gameState;
+    CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
+    const CWorld *world = stateManager->GetWorld();
+
+    if (gameState && world) {
+      u32 current_room = world->GetCurrentAreaId();
+      double current_time = gameState->PlayTime();
+
+      if (current_room != last_room) {
+        last_time = current_time - room_start_time;
+        room_start_time = current_time;
+        last_room = current_room;
+      }
+      double current_room_time = current_time - room_start_time;
+      {
+        int ms = (int) (last_time * 1000.0) % 1000;
+        int seconds = (int) last_time % 60;
+        int minutes = ((int) last_time / 60) % 60;
+        int hours = ((int) last_time / 60 / 60) % 60;
+        ImGui::Text("Last: %02d:%02d:%02d.%03d", hours, minutes, seconds, ms);
+      }
+      {
+        int ms = (int) (current_room_time * 1000.0) % 1000;
+        int seconds = (int) current_room_time % 60;
+        int minutes = ((int) current_room_time / 60) % 60;
+        int hours = ((int) current_room_time / 60 / 60) % 60;
+        ImGui::SameLine();
+        ImGui::Text("Current: %02d:%02d:%02d.%03d", hours, minutes, seconds, ms);
+      }
+    }
+  }
+
+  void drawPos() {
+    CStateManager *stateManager = CStateManager_INSTANCE;
+    CPlayer *player = stateManager->Player();
+
+    if (player) {
+      float x = player->getTransform()->matrix[3];
+      float y = player->getTransform()->matrix[7];
+      float z = player->getTransform()->matrix[11];
+      ImGui::Text("Pos: %7.2fx %7.2fy %7.2fz", x, y, z);
+    }
+  }
+
+  void drawSpeed() {
+    CStateManager *stateManager = CStateManager_INSTANCE;
+    CPlayer *player = stateManager->Player();
+
+    if (player) {
+      float x = player->GetVelocity()->x;
+      float y = player->GetVelocity()->y;
+      float z = player->GetVelocity()->z;
+      float h = CMath::SqrtF(x * x + y * y);
+
+      ImGui::Text("Vel: %5.2fx %5.2fy %5.2fz %5.2fh", x, y, z, h);
+    }
   }
 
   s64 lastFrame;
@@ -302,7 +404,7 @@ namespace GUI {
     // triggers
     {
       float halfTriggerWidth = triggerWidth / 2;
-      ImVec2 lStart = lCenter - ImVec2(halfTriggerWidth,  0);
+      ImVec2 lStart = lCenter - ImVec2(halfTriggerWidth, 0);
       ImVec2 lEnd = lCenter + ImVec2(halfTriggerWidth, triggerHeight);
       float lValue = triggerWidth * p1->ALTrigger();
 
