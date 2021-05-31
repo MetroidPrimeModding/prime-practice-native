@@ -1,4 +1,4 @@
-from dol_patcher.stream import *
+from src.stream import *
 import os
 import struct
 

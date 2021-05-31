@@ -1,0 +1,6 @@
+/work
+/.idea
+__pycache__/
+*.dol
+/release
+*.Rel

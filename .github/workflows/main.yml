@@ -1,4 +1,4 @@
-name: CI
+name: Build pyinstaller for windows
 
 on:
   workflow_dispatch:

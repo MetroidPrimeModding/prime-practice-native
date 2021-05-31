@@ -2,7 +2,7 @@
 
 VERSION=$1
 
-pyinstaller --onefile main.py
+cp . .
 
 mkdir -p "release/${VERSION}"
 rm -rf "release/${VERSION}/prime-practice-${VERSION}"
@@ -17,10 +17,10 @@ cp -r \
   ../README.md \
   "release/${VERSION}/prime-practice-${VERSION}"
 
+find "release/${VERSION}/prime-practice-${VERSION}" -iname "__*" | xargs rm -r
+
+
 cd "release/${VERSION}/"
-
-find "prime-practice-${VERSION}" -iname "__*" | xargs rm -r
-
 zip "prime-practice-${VERSION}.zip" \
     -r "prime-practice-${VERSION}"/*
 
