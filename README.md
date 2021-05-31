@@ -69,7 +69,10 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ### 2.1.0 (beta)
 - Add pyinstaller pre-built windows .exe file
-- Add trigger viewing back
+- Add trigger viewing
+- Add save/load position
+- Add IGT and room time display
+- Add pos/velocity display
 
 ### 2.0.0 (beta)
 - Complete rewrite! Not feature complete
