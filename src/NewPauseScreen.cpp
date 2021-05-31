@@ -278,11 +278,13 @@ const ImWchar EMPTY_FONT_RANGE[] = {
 };
 
 void NewPauseScreen::InitIMGui_BundledFont() {
+  // see https://github.com/MetroidPrimeModding/imgui-font-atlas-generator
+  // for how this stuff was generated
+
   // init
   ImGui::SetAllocatorFunctions(
       &prime_malloc, &prime_free
   );
-
 
   OSReport("Create context \n");
   ImFontAtlas *atlas = new ImFontAtlas();
