@@ -6,17 +6,31 @@
 namespace GUI {
   void drawSettingsMenu() {
     if (ImGui::TreeNode("Settings")) {
-      if (ImGui::TreeNode("In-game display")) {
-        BITFIELD_CHECKBOX("Show", SETTINGS.showInGame);
-        BITFIELD_CHECKBOX("Input", SETTINGS.showInput);
-        BITFIELD_CHECKBOX("Frame time", SETTINGS.showFrameTime);
-        BITFIELD_CHECKBOX("Memory info", SETTINGS.showMemoryInfo);
+      if (ImGui::TreeNode("On-screen display")) {
+        BITFIELD_CHECKBOX("Show", SETTINGS.OSD_show);
+        BITFIELD_CHECKBOX("Input", SETTINGS.OSD_showInput);
+        BITFIELD_CHECKBOX("Frame time", SETTINGS.OSD_showFrameTime);
+        BITFIELD_CHECKBOX("Memory info", SETTINGS.OSD_showMemoryInfo);
         ImGui::SameLine();
-        BITFIELD_CHECKBOX("Memory graph", SETTINGS.showMemoryGraph);
+        BITFIELD_CHECKBOX("Memory graph", SETTINGS.OSD_showMemoryGraph);
 
         // end in-game display
         ImGui::TreePop();
       }
+
+      if (ImGui::TreeNode("Triggers")) {
+        BITFIELD_CHECKBOX("Load", SETTINGS.TRIGGER_renderLoad);
+        ImGui::SameLine();
+        BITFIELD_CHECKBOX("Door", SETTINGS.TRIGGER_renderDoor);
+        BITFIELD_CHECKBOX("Force", SETTINGS.TRIGGER_renderForce);
+        ImGui::SameLine();
+        BITFIELD_CHECKBOX("Camera Hint", SETTINGS.TRIGGER_renderCameraHint);
+        BITFIELD_CHECKBOX("Other", SETTINGS.TRIGGER_renderUnknown);
+
+        // end in-game display
+        ImGui::TreePop();
+      }
+
       // End settings menu
       ImGui::TreePop();
     }

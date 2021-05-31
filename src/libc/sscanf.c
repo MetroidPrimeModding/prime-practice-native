@@ -18,6 +18,7 @@ sscanf (const char *__restrict str,
 //  va_start (ap, fmt);
 //  ret = __ssvfscanf_r (_REENT, &f, fmt, ap);
 //  va_end (ap);
-// TODO: implement this
+// TODO: implement
+// For now, it's just stubbed out because, luckily, it's not used in what we're using in imgui
   return 0;
 }

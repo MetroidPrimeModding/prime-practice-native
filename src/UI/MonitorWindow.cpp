@@ -17,7 +17,7 @@ namespace GUI {
   void drawInput(CFinalInput *inputs);
 
   void drawMonitorWindow(CFinalInput *inputs) {
-    if (!SETTINGS.showInGame) {
+    if (!SETTINGS.OSD_show) {
       return;
     }
     ImGui::SetNextWindowPos(ImVec2(620, 20), ImGuiCond_None, ImVec2(1, 0));
@@ -34,13 +34,13 @@ namespace GUI {
         ImGuiWindowFlags_NoMove
     );
 
-    if (SETTINGS.showFrameTime) {
+    if (SETTINGS.OSD_showFrameTime) {
       drawFrameTime();
     }
-    if (SETTINGS.showMemoryGraph || SETTINGS.showMemoryInfo) {
+    if (SETTINGS.OSD_showMemoryGraph || SETTINGS.OSD_showMemoryInfo) {
       drawMemoryUsage();
     }
-    if (SETTINGS.showInput) {
+    if (SETTINGS.OSD_showInput) {
       drawInput(inputs);
     }
 
@@ -124,13 +124,13 @@ namespace GUI {
       peakPercent = usedPercent;
     }
 
-    if (SETTINGS.showMemoryInfo) {
+    if (SETTINGS.OSD_showMemoryInfo) {
       ImGui::Text("Used: %d", usedSize);
       ImGui::Text("Free: %d", freeSize);
       ImGui::Text("Total: %d", totalHeapSize);
     }
 
-    if (SETTINGS.showMemoryGraph) {
+    if (SETTINGS.OSD_showMemoryGraph) {
       char title[32];
       snprintf(title, sizeof(title), "%d%% used, %d%% free", usedPercent, freePrecent);
       ImGui::PlotLines(

@@ -85,8 +85,6 @@ set(SOURCE_FILES
         src/include/pracc_imconfig.h
         src/CrashAssert.h
         src/CrashAssert.cpp
-        src/ImGuiEngine.h
-        src/ImGuiEngine.cpp
         src/libc/printf.h
         src/libc/printf.c
         src/libc/sscanf.c
@@ -109,6 +107,9 @@ set(SOURCE_FILES
         src/UI/MonitorWindow.cpp
         src/UI/SettingsMenu.cpp
         src/UI/SettingsMenu.hpp
+
+        src/world/WorldRenderer.cpp
+        src/world/WorldRenderer.hpp
         )
 
 patch_function("CGraphics::EndScene()"

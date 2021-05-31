@@ -74,6 +74,10 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.1.0 (beta)
+- Add pyinstaller pre-built windows .exe file
+- Add trigger viewing back
+
 ### 2.0.0 (beta)
 - Complete rewrite! Not feature complete
 - Press Z with pause menu open to access the menu

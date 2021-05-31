@@ -1,6 +1,7 @@
 #include <PrimeAPI.h>
 #include <prime/CFontEndUI.hpp>
 #include <os.h>
+#include <world/WorldRenderer.hpp>
 
 #include "types.h"
 #include "prime/CMain.hpp"
@@ -98,41 +99,41 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
   }
 }
 
-void resetLayerStates(const CStateManager &manager) {
-  CMemoryCardSys *memorySystem = *(CMemoryCardSys **) 0x805A8C44;
-  CGameState *gameState = *(CGameState **) (0x80457798 + 0x134);
-  uint32 currentMlvl = gameState->MLVL();
-
-  CSaveWorldIntermediate *worldIntermediates = memorySystem->worldIntermediate;
-  CSaveWorldIntermediate *intermediate = 0;
-  for (int i = 0; i < 8; i++) {
-    if (worldIntermediates[i].mlvlID == currentMlvl) {
-      intermediate = &(worldIntermediates[i]);
-      break;
-    }
-  }
-  if (intermediate != 0) {
-//    intermediate = *((CSaveWorldIntermediate**)((int)memorySystem & 0x7FFFFFFF));
-//    crashVar = *((int*)((int)(intermediate->mlvlID) & 0x7FFFFFFF));
-//    crashVar = *((int*)((int)&(intermediate->defaultLayerStates) & 0x7FFFFFFF));
-  } else {
-    crashVar = *((int *) 0xDEAD0001);
-  }
-
-  CWorldState &worldState = gameState->StateForWorld(currentMlvl);
-  CWorldLayerState *layerState = *worldState.layerState;
-
-  rstl::vector<CWorldLayers::Area> &srcLayers = intermediate->defaultLayerStates;
-  rstl::vector<CWorldLayers::Area> &destLayers = layerState->areaLayers;
-
-  if (srcLayers.len == destLayers.len) {
-    for (int i = 0; i < srcLayers.len; i++) {
-      destLayers.ptr[i].m_layerBits = srcLayers.ptr[i].m_layerBits;
-    }
-  } else {
-    crashVar = *((int *) 0xDEAD0002);
-  }
-}
+//void resetLayerStates(const CStateManager &manager) {
+//  CMemoryCardSys *memorySystem = *(CMemoryCardSys **) 0x805A8C44;
+//  CGameState *gameState = *(CGameState **) (0x80457798 + 0x134);
+//  uint32 currentMlvl = gameState->MLVL();
+//
+//  CSaveWorldIntermediate *worldIntermediates = memorySystem->worldIntermediate;
+//  CSaveWorldIntermediate *intermediate = 0;
+//  for (int i = 0; i < 8; i++) {
+//    if (worldIntermediates[i].mlvlID == currentMlvl) {
+//      intermediate = &(worldIntermediates[i]);
+//      break;
+//    }
+//  }
+//  if (intermediate != 0) {
+////    intermediate = *((CSaveWorldIntermediate**)((int)memorySystem & 0x7FFFFFFF));
+////    crashVar = *((int*)((int)(intermediate->mlvlID) & 0x7FFFFFFF));
+////    crashVar = *((int*)((int)&(intermediate->defaultLayerStates) & 0x7FFFFFFF));
+//  } else {
+//    crashVar = *((int *) 0xDEAD0001);
+//  }
+//
+//  CWorldState &worldState = gameState->StateForWorld(currentMlvl);
+//  CWorldLayerState *layerState = *worldState.layerState;
+//
+//  rstl::vector<CWorldLayers::Area> &srcLayers = intermediate->defaultLayerStates;
+//  rstl::vector<CWorldLayers::Area> &destLayers = layerState->areaLayers;
+//
+//  if (srcLayers.len == destLayers.len) {
+//    for (int i = 0; i < srcLayers.len; i++) {
+//      destLayers.ptr[i].m_layerBits = srcLayers.ptr[i].m_layerBits;
+//    }
+//  } else {
+//    crashVar = *((int *) 0xDEAD0002);
+//  }
+//}
 
 void RenderHook() {
 //  CGraphics::BeginScene();
@@ -165,7 +166,7 @@ void drawDebugStuff(CStateManager *mgr) {
   if (!NewPauseScreen::instance) {
     NewPauseScreen::instance = new NewPauseScreen();
   }
-  NewPauseScreen::instance->RenderWorld();
+  WorldRenderer::RenderWorld();
   if (!NewPauseScreen::instance->shouldRenderGloballyInsteadOfInWorld()) {
     NewPauseScreen::instance->Render();
   }
@@ -186,6 +187,8 @@ void drawDebugStuff(CStateManager *mgr) {
 
 // Hooks
 void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue) {
+  // This hook is only compiled in if mode == Debug
+
   // Hook into CMainFlow::AdvanceGameState(). When this function is called with
   // the game state set to PreFrontEnd, that indicates that engine initialization
   // is complete and the game is proceeding to the main menu. We hook in here to

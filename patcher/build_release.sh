@@ -11,7 +11,7 @@ mkdir -p "release/${VERSION}/prime-practice-${VERSION}"
 cp -r \
   ../cmake-build-release-llvm/Mod.rel \
   symbols \
-  src main.py \
+  src main.py release/main.exe \
   DolPatch.bin opening_practice.bnr \
   patch.sh patch.bat \
   ../README.md \
