@@ -67,6 +67,11 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.2.0 (beta)
+- Reduce footprint by about ~200k
+- Fix font rendering to be far more legible
+- Fix room timer bug
+
 ### 2.1.0 (beta)
 - Add pyinstaller pre-built windows .exe file
 - Add trigger viewing
