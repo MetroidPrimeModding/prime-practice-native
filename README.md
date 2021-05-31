@@ -41,7 +41,6 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 ## Menus
 - Inventory
   - Edit your item inventory
-  - Artifacts do nothing in your inventory, and must be collected to have any effect, and so are not current editable
 - Player
   - Save/load position
   - Edit position
@@ -54,9 +53,7 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## OSD
 - Current IGT
-- Input
-  - Digital Inputs
-  - Analog Main Stick
+- Input Display
 - Player Speed
   - Current speed (x, y, z, horizontal total)
   - Currrent rotational speed (x, y, z, total)

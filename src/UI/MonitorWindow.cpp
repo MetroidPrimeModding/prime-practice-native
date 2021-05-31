@@ -106,19 +106,21 @@ namespace GUI {
       }
       double current_room_time = current_time - room_start_time;
       {
+        int frames = (int)(last_time / (1.0/60.0));
         int ms = (int) (last_time * 1000.0) % 1000;
         int seconds = (int) last_time % 60;
         int minutes = ((int) last_time / 60) % 60;
         int hours = ((int) last_time / 60 / 60) % 60;
-        ImGui::Text("Last: %02d:%02d:%02d.%03d", hours, minutes, seconds, ms);
+        ImGui::Text("Last: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
       {
+        int frames = (int)(current_room_time / (1.0/60.0));
         int ms = (int) (current_room_time * 1000.0) % 1000;
         int seconds = (int) current_room_time % 60;
         int minutes = ((int) current_room_time / 60) % 60;
         int hours = ((int) current_room_time / 60 / 60) % 60;
         ImGui::SameLine();
-        ImGui::Text("Current: %02d:%02d:%02d.%03d", hours, minutes, seconds, ms);
+        ImGui::Text("Current: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
     }
   }
