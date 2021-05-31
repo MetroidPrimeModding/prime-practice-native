@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from DataReader import DataReader
-from DataWriter import DataWriter
+from src.DataReader import DataReader
+from src.DataWriter import DataWriter
 
 
 @dataclass

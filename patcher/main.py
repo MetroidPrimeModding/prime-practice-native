@@ -2,8 +2,8 @@ import argparse
 import mmap
 import sys
 
-from DataReader import DataReader
-from DataWriter import DataWriter
+from src.DataReader import DataReader
+from src.DataWriter import DataWriter
 from src.GCDisc import GCDiscHeader, FST, FSTEntry
 from src.dol import DolFile
 
@@ -36,7 +36,7 @@ def patch_iso(inp_path, out_path, mod_path):
     # Write it to disk
     # TODO: just do this all in memory
     # Involves re-writing DolFile, but it shouldn't be *too* bad
-    with open("../default.dol", "wb") as f:
+    with open("default.dol", "wb") as f:
         f.write(unpatched_dol_bytes)
 
     # patch said dol
@@ -55,7 +55,7 @@ def patch_iso(inp_path, out_path, mod_path):
         sys.exit(1)
 
     # read it back from disk
-    with open("../default_mod.dol", 'rb') as f:
+    with open("default_mod.dol", 'rb') as f:
         patched_dol_bytes = f.read()
         # patched_dol_bytes = unpatched_dol_bytes
 
@@ -65,7 +65,7 @@ def patch_iso(inp_path, out_path, mod_path):
         mod_rel_bytes = f.read()
 
     print("Loading bnr")
-    with open("../opening_practice.bnr", 'rb') as f:
+    with open("opening_practice.bnr", 'rb') as f:
         bnr_bytes = f.read()
 
     # Figure out our new offsets
