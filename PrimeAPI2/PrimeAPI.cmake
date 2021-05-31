@@ -19,7 +19,6 @@ set(CMAKE_PRIME_C_FLAGS_LIST
         -fno-data-sections
         -fno-exceptions
         -fno-asynchronous-unwind-tables
-#        -fPIC
         -fvisibility=hidden
         -flto=thin
 #        -mno-sdata
@@ -33,17 +32,6 @@ set(CMAKE_PRIME_CXX_FLAGS_LIST
 
 set(CMAKE_PRIME_LINK_FLAGS_LIST
         -nostdlib
-#        -nodefaultlibs
-#        -flto
-#        -Os
-#        -lgcc
-#        -lsysbase
-#        -d
-#        -x
-#        "-z nocopyreloc"
-#        "-z combreloc"
-#        -call_shared
-#        --strip-discarded
         --gc-sections
         "-e __rel_prolog"
         "--unresolved-symbols=report-all"
@@ -51,7 +39,6 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
         --no-allow-shlib-undefined
         --no-undefined
         -r
-#        -shared
         "-T ${PRIMEAPI2_PATH}/eppc.ld"
         )
 

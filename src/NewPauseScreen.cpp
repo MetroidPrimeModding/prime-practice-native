@@ -163,7 +163,10 @@ bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
 }
 
 void NewPauseScreen::RenderMenu() {
-  this->ImGuiNewFrame();
+  ImGuiIO &io = ImGui::GetIO();
+  io.DisplaySize = ImVec2(SVIEWPORT_GLOBAL->x8_width, SVIEWPORT_GLOBAL->xc_height);
+  io.DeltaTime = 1.f / 60.f;
+
   ImGui::NewFrame();
 
   if (this->pauseScreenActive && this->menuActive) {
@@ -186,6 +189,15 @@ void NewPauseScreen::RenderMenu() {
   }
 
   GUI::drawMonitorWindow(inputs);
+  ImDrawList *dl = ImGui::GetBackgroundDrawList();
+//  for (float y = 0; y < ImGui::GetIO().DisplaySize.y/2.0f; y += 5.0f) {
+//    dl->AddLine(
+//        ImVec2(0, y),
+//        ImVec2(ImGui::GetIO().DisplaySize.x/2.0f, y),
+//        IM_COL32(255, 255, 255, 255),
+//        4.0f
+//    );
+//  }
 
   ImGui::Render();
   ImDrawData *drawData = ImGui::GetDrawData();
@@ -292,7 +304,7 @@ void NewPauseScreen::InitIMGui_BundledFont() {
   atlas->Flags |= ImFontAtlasFlags_NoMouseCursors;
   atlas->TexWidth = FontAtlas::ATLAS_W;
   atlas->TexHeight = FontAtlas::ATLAS_H;
-  atlas->TexUvScale = ImVec2(1.f / (float)FontAtlas::ATLAS_W, 1.f / (float)FontAtlas::ATLAS_H);
+  atlas->TexUvScale = ImVec2(1.f / (float) FontAtlas::ATLAS_W, 1.f / (float) FontAtlas::ATLAS_H);
   atlas->TexUvWhitePixel = FontAtlas::WhitePixel;
   atlas->PackIdLines = FontAtlas::PackIdMouseCursors;
   atlas->PackIdMouseCursors = 0;
@@ -395,7 +407,7 @@ void NewPauseScreen::InitIMGui_BundledFont() {
   // Don't need the tex data anymore
 //  io.Fonts->ClearTexData();
 //  // send it off to GX
-  GXInitTexObj(&imguiFontTexture, (void*)FontAtlas::ATLAS_DATA,
+  GXInitTexObj(&imguiFontTexture, (void *) FontAtlas::ATLAS_DATA,
                FontAtlas::ATLAS_W, FontAtlas::ATLAS_H,
                GX_TF_I4,
                GX_CLAMP, GX_CLAMP,
@@ -412,6 +424,7 @@ void NewPauseScreen::InitIMGui_BundledFont() {
 }
 
 unsigned char *imguiFontTexData;
+
 void NewPauseScreen::InitIMGui_GenerateFont() {
   // init
   ImGui::SetAllocatorFunctions(
@@ -500,12 +513,6 @@ void NewPauseScreen::InitIMGui_GenerateFont() {
                   GX_DISABLE,
                   GX_ANISO_1
   );
-}
-
-void NewPauseScreen::ImGuiNewFrame() {
-  ImGuiIO &io = ImGui::GetIO();
-  io.DisplaySize = ImVec2(640, 480);
-  io.DeltaTime = 1.f / 60.f;
 }
 
 // entities

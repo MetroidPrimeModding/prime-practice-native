@@ -3,6 +3,8 @@
 
 #include "MathyTypes.hpp"
 #include "GX.hpp"
+#include "GetField.hpp"
+
 
 enum ERglCullMode {
     ERglCullMode_None = 0,

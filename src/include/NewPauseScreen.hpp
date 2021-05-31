@@ -30,7 +30,6 @@ private:
   void RenderMenu();
   void InitIMGui_BundledFont();
   void InitIMGui_GenerateFont();
-  void ImGuiNewFrame();
 };
 
 #endif
