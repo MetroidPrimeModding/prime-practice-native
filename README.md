@@ -1,4 +1,4 @@
-# Metroid Prime Practice Mod Patcher
+# Metroid Prime Practice Mod
 This project can produce a release & patch a metroid prime iso to be the practice mod
 
 # NOTE: THESE INSTALL INSTRUCTIONS ARE OUT OF DATE
