@@ -173,7 +173,7 @@ void NewPauseScreen::RenderMenu() {
     ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_None, ImVec2(0, 0));
     ImGui::SetNextWindowSizeConstraints(
         ImVec2(0, 0),
-        ImVec2(400, 440)
+        ImVec2(400, SVIEWPORT_GLOBAL->xc_height - 20)
     );
     ImGui::Begin(
         "Practice Mod", nullptr,
