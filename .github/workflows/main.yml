@@ -23,5 +23,5 @@ jobs:
       - uses: actions/upload-artifact@v2.2.3
         with:
           name: main.exe
-          path: dist/main.exe
+          path: patcher/dist/main.exe
           if-no-files-found: error
