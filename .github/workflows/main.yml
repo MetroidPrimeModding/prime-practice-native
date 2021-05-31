@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_installer:
+    runs-on: windows-2019
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.8
+      - uses: actions/upload-artifact@v2.2.3
+        with:
+          name: main.exe
+          path: dist/main.exe
+          if-no-files-found: error
+      
+      - name: Run pyinstaller
+        run: |
+          pip install PyInstaller
+          pyinstaller --onefile main.py
+        
