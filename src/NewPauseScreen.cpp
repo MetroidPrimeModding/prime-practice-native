@@ -221,6 +221,7 @@ void NewPauseScreen::RenderMenu() {
 //  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
   CGraphics::SetCullMode(ERglCullMode_None);
   GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
+  CTexture::InvalidateTexmap(GX_TEXMAP0);
 
   CGX::SetNumTevStages(1);
   CGX::SetTevOrder(
@@ -251,7 +252,6 @@ void NewPauseScreen::RenderMenu() {
   int maxIdxPerBatch = 3 * 30;
   int idxPerBatch = 0;
 
-  GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
   CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
   for (int cmdListIdx = 0; cmdListIdx < drawData->CmdListsCount; cmdListIdx++) {
     const ImDrawList *cmdList = drawData->CmdLists[cmdListIdx];

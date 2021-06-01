@@ -90,4 +90,9 @@ public:
     static void SetBlendMode(_GXBlendMode, _GXBlendFactor, _GXBlendFactor, _GXLogicOp);
 };
 
+class CTexture {
+public:
+  static void InvalidateTexmap(int texMapId);
+};
+
 #endif //PRIMEWATCH_PRIME_CGRAPHICS_HPP
