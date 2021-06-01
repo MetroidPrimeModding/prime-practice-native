@@ -15,15 +15,15 @@ void *prime_calloc(size_t nmemb, size_t size, void *user) {
 
 extern "C" {
 
-u32 alloc_bytes = 0;
-u32 peak = 0;
+static u32 alloc_bytes{0};
+static u32 peak = {0};
 
 #define DEBUG_ALLOCS
 
 void prime_free(void *ptr, void *user) {
 #ifdef DEBUG_ALLOCS
   if (ptr != nullptr) {
-    u32 *root_offset = (u32*)(((char*)ptr) - 4);
+    u32 *root_offset = (u32*)(((char*)ptr) - 32);
     u32 size = *(root_offset);
     alloc_bytes -= size;
     OSReport("Free: %x %d total %d\n", root_offset, size, alloc_bytes);
@@ -36,7 +36,7 @@ void prime_free(void *ptr, void *user) {
 
 void *prime_malloc(size_t size, void *user) {
 #ifdef DEBUG_ALLOCS
-  size += 4;
+  size += 32;
   char *res = new char[size];
   alloc_bytes += size;
   if (alloc_bytes > peak) {
@@ -47,7 +47,7 @@ void *prime_malloc(size_t size, void *user) {
   *(memory_header) = size;
 
   OSReport("Alloc: %x %d total %d peak %d\n", res, size, alloc_bytes, peak);
-  return res + 4;
+  return res + 32;
 #else
   char *res = new char[size];
   return res;

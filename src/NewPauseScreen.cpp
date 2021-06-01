@@ -299,7 +299,7 @@ void NewPauseScreen::InitIMGui_BundledFont() {
   );
 
   OSReport("Create context \n");
-  ImFontAtlas *atlas = new ImFontAtlas();
+  ImFontAtlas *atlas = IM_NEW(ImFontAtlas);
   atlas->TexDesiredWidth = 512;
   atlas->Flags |= ImFontAtlasFlags_NoMouseCursors;
   atlas->TexWidth = FontAtlas::ATLAS_W;
@@ -308,7 +308,6 @@ void NewPauseScreen::InitIMGui_BundledFont() {
   atlas->TexUvWhitePixel = FontAtlas::WhitePixel;
   atlas->PackIdLines = FontAtlas::PackIdMouseCursors;
   atlas->PackIdMouseCursors = 0;
-  atlas->TexPixelsAlpha8 = const_cast<unsigned char *>(FontAtlas::ATLAS_DATA);
   for (int i = 0; i < IM_DRAWLIST_TEX_LINES_WIDTH_MAX + 1; i++) {
     atlas->TexUvLines[i] = FontAtlas::TexUvLines[i];
   }
@@ -323,17 +322,18 @@ void NewPauseScreen::InitIMGui_BundledFont() {
   ImGuiIO &io = ImGui::GetIO();
   io.BackendRendererName = "gx";
   io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
-  // TODO: gamepad mapping
 
 //  // setup font
-  ImFontConfig fontConfig{};
-  fontConfig.SizePixels = 10;
-  fontConfig.OversampleH = 2;
-  fontConfig.OversampleV = 2;
-  fontConfig.PixelSnapH = true;
-  fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesNone();
-  // gen font and font data
-  io.Fonts->AddFontBlank(&fontConfig);
+  {
+    ImFontConfig fontConfig{};
+    fontConfig.SizePixels = 10;
+    fontConfig.OversampleH = 2;
+    fontConfig.OversampleV = 2;
+    fontConfig.PixelSnapH = true;
+    fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesNone();
+    // gen font and font data
+    io.Fonts->AddFontBlank(&fontConfig);
+  }
   for (auto &v : FontAtlas::CustomRects) {
     ImFontAtlasCustomRect rect{};
     rect.X = v.y;
@@ -361,52 +361,7 @@ void NewPauseScreen::InitIMGui_BundledFont() {
     font->Used4kPagesMap[i] = FontAtlas::Used4kPagesMap[i];
   }
   font->ContainerAtlas = io.Fonts;
-//  unsigned char *texData = nullptr;
-//  int width, height, bpp;
-//  io.Fonts->GetTexDataAsAlpha8(&texData, &width, &height, &bpp);
-//  OSReport("FONT TEX: %d %d %d\n", width, height, bpp);
-//  u32 ptr = reinterpret_cast<u32>(prime_malloc(width * height / 2 + 32, nullptr));
-  // align
-//  ptr += 32 - ptr % 32;
-//  imguiFontTexData = reinterpret_cast<unsigned char *>(ptr);
-//  memset(imguiFontTexData, 0, width * height / 2);
-  // swizzle font
-
-//  constexpr int blockWidth = 8;
-//  constexpr int blockHeight = 8;
-//  const int xBlocks = width / blockWidth;
-//  const int yBlocks = height / blockHeight;
-//
-//  for (int xBlock = 0; xBlock < xBlocks; xBlock++) {
-//    for (int yBlock = 0; yBlock < yBlocks; yBlock++) {
-//      int blockStartX = xBlock * blockWidth;
-//      int blockStartY = yBlock * blockHeight;
-//      int outStart = ((yBlock * xBlocks) + xBlock) * (blockWidth * blockHeight);
-//      // Ok now loop over the pixels
-//      for (int blockRelativeX = 0; blockRelativeX < blockWidth; blockRelativeX++) {
-//        for (int blockRelativeY = 0; blockRelativeY < blockHeight; blockRelativeY++) {
-//
-//          int blockRelativeOffset = blockRelativeY * blockWidth + blockRelativeX;
-//          int globalOffset = (blockStartY + blockRelativeY) * width + (blockStartX + blockRelativeX);
-//
-//          unsigned char pixel = (texData[globalOffset] >> 4) & 0xF;
-////          unsigned char pixel = blockRelativeY * 64;
-//          int pixelPos = outStart + blockRelativeOffset;
-//
-//          int bytePos = pixelPos / 2;
-//          if (pixelPos % 2 == 0) {
-//            imguiFontTexData[bytePos] |= pixel << 4;
-//          } else {
-//            imguiFontTexData[bytePos] |= pixel;
-//          }
-//        }
-//      }
-//      // Done with the block
-//    }
-//  }
-  // Don't need the tex data anymore
-//  io.Fonts->ClearTexData();
-//  // send it off to GX
+  // send it off to GX
   GXInitTexObj(&imguiFontTexture, (void *) FontAtlas::ATLAS_DATA,
                FontAtlas::ATLAS_W, FontAtlas::ATLAS_H,
                GX_TF_I4,
