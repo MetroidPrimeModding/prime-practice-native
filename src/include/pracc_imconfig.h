@@ -80,6 +80,10 @@
 // The only purpose of this define is if you want force compilation of the stb_truetype backend ALONG with the FreeType backend.
 //#define IMGUI_ENABLE_STB_TRUETYPE
 
+//--- Completely disable text inputs. With a controller, these don't work anyway
+//--- Saves a lot of space (~60k)
+#define IMGUI_DISABLE_TEXT_INPUTS
+
 // use imgui's vec math
 #define IMGUI_DEFINE_MATH_OPERATORS
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
