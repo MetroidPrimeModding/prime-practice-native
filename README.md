@@ -72,7 +72,6 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 - Reduce size by another ~70k
 - Make the menu fit on the screen properly at all times
 
-
 ### 2.2.0 (beta)
 - Reduce footprint by about ~200k
 - Fix font rendering to be far more legible
