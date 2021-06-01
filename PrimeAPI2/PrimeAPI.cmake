@@ -18,6 +18,7 @@ set(CMAKE_PRIME_C_FLAGS_LIST
         -fno-function-sections
         -fno-data-sections
         -fno-exceptions
+        -fno-unroll-loops
         -fno-asynchronous-unwind-tables
         -fvisibility=hidden
         -flto=thin
