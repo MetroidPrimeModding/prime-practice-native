@@ -69,6 +69,7 @@ public:
     static void StreamEnd();
     static void FlushStream();
     static void StreamColor(float r, float g, float b, float a);
+    static void StreamColor(unsigned int);
     static void StreamVertex(float x, float y, float z);
     static void StreamTexcoord(float s, float t);
     static void StreamVertex(const CVector3f &vec);

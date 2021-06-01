@@ -240,13 +240,7 @@ void NewPauseScreen::RenderMenu() {
         const ImDrawIdx *idx = &cmdList->IdxBuffer[cmdBuffer->IdxOffset + elemIdx];
         const ImDrawVert *dataStart = &cmdList->VtxBuffer[cmdBuffer->VtxOffset + *idx];
 
-        float r = (float) ((dataStart->col >> 0) & 0xFF) / 255.0f;
-        float g = (float) ((dataStart->col >> 8) & 0xFF) / 255.0f;
-        float b = (float) ((dataStart->col >> 16) & 0xFF) / 255.0f;
-        float a = (float) ((dataStart->col >> 24) & 0xFF) / 255.0f;
-//        r = g = b = a = 1;
-//        a = 1;
-        CGraphics::StreamColor(r, g, b, a);
+        CGraphics::StreamColor(dataStart->col);
         CGraphics::StreamTexcoord(dataStart->uv.x, dataStart->uv.y);
         CGraphics::StreamVertex(dataStart->pos.x, 0, dataStart->pos.y);
         idxPerBatch++;
