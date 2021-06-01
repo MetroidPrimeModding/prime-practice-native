@@ -16,9 +16,9 @@ void *prime_calloc(size_t nmemb, size_t size, void *user) {
 extern "C" {
 
 static u32 alloc_bytes{0};
-static u32 peak = {0};
+static u32 peak{0};
 
-#define DEBUG_ALLOCS
+//#define DEBUG_ALLOCS
 
 void prime_free(void *ptr, void *user) {
 #ifdef DEBUG_ALLOCS
