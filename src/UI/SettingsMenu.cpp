@@ -38,6 +38,15 @@ namespace GUI {
         ImGui::TreePop();
       }
 
+      if (ImGui::TreeNode("Misc")) {
+        ImGui::Text("Lag:");
+        ImGui::SliderInt("Loops", &SETTINGS.LAG_loop_iterations, 0, 30000, "%d",
+                         ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderInt("Tris", &SETTINGS.LAG_tri_renders, 0, 1000, "%d",
+                         ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_AlwaysClamp);
+        ImGui::TreePop();
+      }
+
       // End settings menu
       ImGui::TreePop();
     }

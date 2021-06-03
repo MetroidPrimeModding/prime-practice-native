@@ -140,9 +140,7 @@ void RenderHook() {
   if (!NewPauseScreen::instance) {
     NewPauseScreen::instance = new NewPauseScreen();
   }
-  if (NewPauseScreen::instance->shouldRenderGloballyInsteadOfInWorld()) {
-    NewPauseScreen::instance->Render();
-  }
+  NewPauseScreen::instance->Render();
   CGraphics::EndScene();
 }
 
@@ -167,9 +165,7 @@ void drawDebugStuff(CStateManager *mgr) {
     NewPauseScreen::instance = new NewPauseScreen();
   }
   WorldRenderer::RenderWorld();
-  if (!NewPauseScreen::instance->shouldRenderGloballyInsteadOfInWorld()) {
-    NewPauseScreen::instance->Render();
-  }
+//    NewPauseScreen::instance->Render();
 }
 //
 //CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue) {

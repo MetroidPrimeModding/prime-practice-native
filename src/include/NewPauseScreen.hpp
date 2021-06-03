@@ -21,8 +21,6 @@ public:
 
   void HandleInputs();
 
-  bool shouldRenderGloballyInsteadOfInWorld();
-
   void hide();
 
   void show();

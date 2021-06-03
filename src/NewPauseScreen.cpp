@@ -142,13 +142,6 @@ void warp(uint32_t world, uint32_t area) {
   NewPauseScreen::instance->hide();
 }
 
-bool NewPauseScreen::shouldRenderGloballyInsteadOfInWorld() {
-  // TODO: properly fix the in-game renderer? Or handle this better.
-  // For now the garble is preferable so it renders always
-//    return this->active;
-  return true;
-}
-
 void NewPauseScreen::RenderMenu() {
   ImGuiIO &io = ImGui::GetIO();
   io.DisplaySize = ImVec2(SVIEWPORT_GLOBAL->x8_width, SVIEWPORT_GLOBAL->xc_height);
@@ -176,6 +169,23 @@ void NewPauseScreen::RenderMenu() {
   }
 
   GUI::drawMonitorWindow(inputs);
+
+  // Lagger
+  if (!this->pauseScreenActive) {
+    if (SETTINGS.LAG_loop_iterations > 0) {
+      int c = 1;
+      for (int i = 1; i < SETTINGS.LAG_loop_iterations; i++) {
+        for (int j = 1; j < 100; j++) {
+          c = (c + 1 + i + j) * c - j;
+        }
+      }
+      ImDrawList *dl = ImGui::GetForegroundDrawList();
+      char text[64];
+      int l = snprintf(text, sizeof(text), "lag value: %d", c);
+      dl->AddText(ImVec2(20, 20), IM_COL32(255, 255, 255, 255),
+                  text, text + l);
+    }
+  }
 
   ImGui::Render();
   ImDrawData *drawData = ImGui::GetDrawData();
@@ -221,14 +231,35 @@ void NewPauseScreen::RenderMenu() {
   CGraphics::SetIdentityModelMatrix();
   CGraphics::SetIdentityViewPointMatrix();
 
-  // do this the dumb way first
-
   //*****the dumb way******//
   // This is the max characters that actually works per render, for some reason
   // 30 quads, or 154 verts, or 1386 floats, or 5544 bytes
   // Not sure why that's the limit...
   int maxIdxPerBatch = 3 * 30;
   int idxPerBatch = 0;
+
+  // Lag adder
+  if (!this->pauseScreenActive) {
+    const float two_pi_thirds = 3.1415f * 2.f / 3.f;
+    const float four_pi_thirds = 3.1415 * 4.f / 3.f;
+    const float size = 10;
+    float theta = 0;
+    for (int i = 0; i < SETTINGS.LAG_tri_renders; i++) {
+      CGraphics::StreamColor(IM_COL32(255, 255, 255, 255));
+      CGraphics::StreamTexcoord(io.Fonts->TexUvWhitePixel.x, io.Fonts->TexUvWhitePixel.y);
+      CGraphics::StreamVertex(CMath::FastCosR(theta) * size + size, 0, CMath::FastSinR(theta) * size + size);
+      CGraphics::StreamVertex(CMath::FastCosR(theta + two_pi_thirds) * size + size, 0, CMath::FastSinR(theta + two_pi_thirds) * size + size);
+      CGraphics::StreamVertex(CMath::FastCosR(theta + four_pi_thirds / 3) * size + size, 0, CMath::FastSinR(theta +four_pi_thirds / 3) * size + size);
+      theta += 0.1;
+      idxPerBatch += 3;
+      if (idxPerBatch > maxIdxPerBatch && idxPerBatch % 3 == 0) {
+        idxPerBatch = 0;
+        CGraphics::FlushStream();
+      }
+    }
+    idxPerBatch = 0;
+    CGraphics::FlushStream();
+  }
 
   CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
   for (int cmdListIdx = 0; cmdListIdx < drawData->CmdListsCount; cmdListIdx++) {
@@ -249,7 +280,7 @@ void NewPauseScreen::RenderMenu() {
           CGraphics::FlushStream();
         }
       }
-      // flsuh between buffers
+      // flush between buffers
       idxPerBatch = 0;
       CGraphics::FlushStream();
     }

@@ -1,6 +1,8 @@
 #ifndef PRIME_PRACTICE_NATIVE_SETTINGS_HPP
 #define PRIME_PRACTICE_NATIVE_SETTINGS_HPP
 
+#include <gctypes.h>
+
 struct Settings {
   bool OSD_show: 1{true};
   bool OSD_showFrameTime: 1{false};
@@ -17,6 +19,9 @@ struct Settings {
   bool TRIGGER_renderDoor: 1{false};
   bool TRIGGER_renderForce: 1{false};
   bool TRIGGER_renderCameraHint: 1{false};
+
+  s32 LAG_loop_iterations{0};
+  s32 LAG_tri_renders{0};
 
   inline bool TRIGGER_anyOn() {
     return TRIGGER_renderUnknown
