@@ -32,6 +32,7 @@ NewPauseScreen::NewPauseScreen() {
   OSReport("Hello, Dolphin\n");
 
   InitIMGui_BundledFont();
+  InitIMGui_Style();
   this->hide();
   inputs = new CFinalInput[4];
 
@@ -249,8 +250,10 @@ void NewPauseScreen::RenderMenu() {
       CGraphics::StreamColor(IM_COL32(255, 255, 255, 255));
       CGraphics::StreamTexcoord(io.Fonts->TexUvWhitePixel.x, io.Fonts->TexUvWhitePixel.y);
       CGraphics::StreamVertex(CMath::FastCosR(theta) * size + size, 0, CMath::FastSinR(theta) * size + size);
-      CGraphics::StreamVertex(CMath::FastCosR(theta + two_pi_thirds) * size + size, 0, CMath::FastSinR(theta + two_pi_thirds) * size + size);
-      CGraphics::StreamVertex(CMath::FastCosR(theta + four_pi_thirds / 3) * size + size, 0, CMath::FastSinR(theta + four_pi_thirds / 3) * size + size);
+      CGraphics::StreamVertex(CMath::FastCosR(theta + two_pi_thirds) * size + size, 0,
+                              CMath::FastSinR(theta + two_pi_thirds) * size + size);
+      CGraphics::StreamVertex(CMath::FastCosR(theta + four_pi_thirds / 3) * size + size, 0,
+                              CMath::FastSinR(theta + four_pi_thirds / 3) * size + size);
       theta += 0.1;
       idxPerBatch += 3;
       if (idxPerBatch > maxIdxPerBatch && idxPerBatch % 3 == 0) {
@@ -472,6 +475,13 @@ void NewPauseScreen::InitIMGui_GenerateFont() {
                   GX_DISABLE,
                   GX_ANISO_1
   );
+}
+
+void NewPauseScreen::InitIMGui_Style() {
+  ImGuiStyle *style = &ImGui::GetStyle();
+  style->WindowBorderSize = 0;
+  style->WindowPadding = ImVec2(2, 2);
+  style->WindowMinSize = ImVec2(2, 2);
 }
 
 // entities

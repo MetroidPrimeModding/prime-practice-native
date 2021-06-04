@@ -28,6 +28,7 @@ private:
   void RenderMenu();
   void InitIMGui_BundledFont();
   void InitIMGui_GenerateFont();
+  void InitIMGui_Style();
 };
 
 #endif
