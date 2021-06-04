@@ -409,8 +409,8 @@ void NewPauseScreen::InitIMGui_GenerateFont() {
 //  // setup font
   ImFontConfig fontConfig{};
   fontConfig.SizePixels = 10;
-  fontConfig.OversampleH = 2;
-  fontConfig.OversampleV = 2;
+  fontConfig.OversampleH = 1;
+  fontConfig.OversampleV = 1;
   fontConfig.PixelSnapH = true;
   fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
   // gen font and font data
