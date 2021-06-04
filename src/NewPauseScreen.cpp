@@ -239,17 +239,18 @@ void NewPauseScreen::RenderMenu() {
   int idxPerBatch = 0;
 
   // Lag adder
-  if (!this->pauseScreenActive) {
+  if (!this->pauseScreenActive && SETTINGS.LAG_tri_renders > 0) {
     const float two_pi_thirds = 3.1415f * 2.f / 3.f;
     const float four_pi_thirds = 3.1415 * 4.f / 3.f;
     const float size = 10;
     float theta = 0;
+    CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
     for (int i = 0; i < SETTINGS.LAG_tri_renders; i++) {
       CGraphics::StreamColor(IM_COL32(255, 255, 255, 255));
       CGraphics::StreamTexcoord(io.Fonts->TexUvWhitePixel.x, io.Fonts->TexUvWhitePixel.y);
       CGraphics::StreamVertex(CMath::FastCosR(theta) * size + size, 0, CMath::FastSinR(theta) * size + size);
       CGraphics::StreamVertex(CMath::FastCosR(theta + two_pi_thirds) * size + size, 0, CMath::FastSinR(theta + two_pi_thirds) * size + size);
-      CGraphics::StreamVertex(CMath::FastCosR(theta + four_pi_thirds / 3) * size + size, 0, CMath::FastSinR(theta +four_pi_thirds / 3) * size + size);
+      CGraphics::StreamVertex(CMath::FastCosR(theta + four_pi_thirds / 3) * size + size, 0, CMath::FastSinR(theta + four_pi_thirds / 3) * size + size);
       theta += 0.1;
       idxPerBatch += 3;
       if (idxPerBatch > maxIdxPerBatch && idxPerBatch % 3 == 0) {
@@ -258,7 +259,7 @@ void NewPauseScreen::RenderMenu() {
       }
     }
     idxPerBatch = 0;
-    CGraphics::FlushStream();
+    CGraphics::StreamEnd();
   }
 
   CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
