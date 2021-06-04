@@ -49,9 +49,6 @@ namespace GUI {
       drawIGT();
     }
     if (SETTINGS.OSD_showRoomTime) {
-      if (SETTINGS.OSD_showIGT) {
-        ImGui::SameLine();
-      }
       drawRoomTime();
     }
     if (SETTINGS.OSD_showPos) {
