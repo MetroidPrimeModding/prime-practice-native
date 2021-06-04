@@ -334,8 +334,8 @@ void NewPauseScreen::InitIMGui_BundledFont() {
   {
     ImFontConfig fontConfig{};
     fontConfig.SizePixels = 10;
-    fontConfig.OversampleH = 2;
-    fontConfig.OversampleV = 2;
+    fontConfig.OversampleH = 1;
+    fontConfig.OversampleV = 1;
     fontConfig.PixelSnapH = true;
     fontConfig.GlyphRanges = io.Fonts->GetGlyphRangesNone();
     // gen font and font data
@@ -396,7 +396,7 @@ void NewPauseScreen::InitIMGui_GenerateFont() {
 
   OSReport("Create context \n");
   ImFontAtlas *atlas = new ImFontAtlas();
-  atlas->TexDesiredWidth = 512;
+  atlas->TexDesiredWidth = 128;
   atlas->Flags |= ImFontAtlasFlags_NoMouseCursors;
   ImGui::CreateContext(atlas);
 
