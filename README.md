@@ -69,7 +69,7 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ### 2.2.1 (beta, next release)
 - Fix texture corruption
-- Reduce size by another ~60k
+- Reduce size by another ~65k
 - Make the menu fit on the screen properly at all times
 - Remove window border and shrink window padding
 - Move input to bottom right & default to on
