@@ -29,45 +29,48 @@ namespace GUI {
     if (!SETTINGS.OSD_show) {
       return;
     }
-    ImGui::SetNextWindowPos(ImVec2(620, 20), ImGuiCond_None, ImVec2(1, 0));
-    ImGui::Begin(
-        "Montitor", nullptr,
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_AlwaysAutoResize |
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoInputs |
-        ImGuiWindowFlags_NoNavInputs |
-        ImGuiWindowFlags_NoNavFocus |
-        ImGuiWindowFlags_NoNav |
-        ImGuiWindowFlags_NoFocusOnAppearing |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoDecoration |
-//        ImGuiWindowFlags_NoBackground |
-        ImGuiFocusedFlags_None // just for conveneint commenting in/out
-    );
-    if (SETTINGS.OSD_showIGT) {
-      drawIGT();
+    {
+      ImGui::SetNextWindowPos(ImVec2(620, 20), ImGuiCond_None, ImVec2(1, 0));
+      ImGui::Begin(
+          "Montitor", nullptr,
+          ImGuiWindowFlags_NoResize |
+          ImGuiWindowFlags_AlwaysAutoResize |
+          ImGuiWindowFlags_NoTitleBar |
+          ImGuiWindowFlags_NoInputs |
+          ImGuiWindowFlags_NoNavInputs |
+          ImGuiWindowFlags_NoNavFocus |
+          ImGuiWindowFlags_NoNav |
+          ImGuiWindowFlags_NoFocusOnAppearing |
+          ImGuiWindowFlags_NoMove |
+          ImGuiWindowFlags_NoDecoration |
+          //        ImGuiWindowFlags_NoBackground |
+          ImGuiFocusedFlags_None // just for conveneint commenting in/out
+      );
+      if (SETTINGS.OSD_showIGT) {
+        drawIGT();
+      }
+      if (SETTINGS.OSD_showRoomTime) {
+        drawRoomTime();
+      }
+      if (SETTINGS.OSD_showPos) {
+        drawPos();
+      }
+      if (SETTINGS.OSD_showVelocity) {
+        drawSpeed();
+      }
+      if (SETTINGS.OSD_showFrameTime) {
+        drawFrameTime();
+      }
+      if (SETTINGS.OSD_showMemoryGraph || SETTINGS.OSD_showMemoryInfo) {
+        drawMemoryUsage();
+      }
+
+      ImGui::End();
     }
-    if (SETTINGS.OSD_showRoomTime) {
-      drawRoomTime();
-    }
-    if (SETTINGS.OSD_showPos) {
-      drawPos();
-    }
-    if (SETTINGS.OSD_showVelocity) {
-      drawSpeed();
-    }
-    if (SETTINGS.OSD_showFrameTime) {
-      drawFrameTime();
-    }
-    if (SETTINGS.OSD_showMemoryGraph || SETTINGS.OSD_showMemoryInfo) {
-      drawMemoryUsage();
-    }
+
     if (SETTINGS.OSD_showInput) {
       drawInput(inputs);
     }
-
-    ImGui::End();
   }
 
   void drawIGT() {
@@ -75,10 +78,10 @@ namespace GUI {
     CGameState *gameState = globals->x134_gameState;
     if (gameState) {
       double time = gameState->PlayTime();
-      int ms = (int)(time * 1000.0) % 1000;
-      int seconds = (int)time % 60;
-      int minutes = ((int)time / 60) % 60;
-      int hours = ((int)time / 60 / 60) % 60;
+      int ms = (int) (time * 1000.0) % 1000;
+      int seconds = (int) time % 60;
+      int minutes = ((int) time / 60) % 60;
+      int hours = ((int) time / 60 / 60) % 60;
       ImGui::Text("%02d:%02d:%02d.%03d", hours, minutes, seconds, ms);
     }
   }
@@ -86,6 +89,7 @@ namespace GUI {
   u32 last_room = -1;
   double last_time = 0;
   double room_start_time = 0;
+
   void drawRoomTime() {
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
     CGameState *gameState = globals->x134_gameState;
@@ -103,7 +107,7 @@ namespace GUI {
       }
       double current_room_time = current_time - room_start_time;
       {
-        int frames = (int)(last_time / (1.0/60.0));
+        int frames = (int) (last_time / (1.0 / 60.0));
         int ms = (int) (last_time * 1000.0) % 1000;
         int seconds = (int) last_time % 60;
         int minutes = ((int) last_time / 60) % 60;
@@ -111,7 +115,7 @@ namespace GUI {
         ImGui::Text("Last: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
       {
-        int frames = (int)(current_room_time / (1.0/60.0));
+        int frames = (int) (current_room_time / (1.0 / 60.0));
         int ms = (int) (current_room_time * 1000.0) % 1000;
         int seconds = (int) current_room_time % 60;
         int minutes = ((int) current_room_time / 60) % 60;
@@ -248,11 +252,25 @@ namespace GUI {
   void drawInput(CFinalInput *inputs) {
     CFinalInput *p1 = &inputs[0];
 
+    ImGui::SetNextWindowPos(ImVec2(620, 440), ImGuiCond_None, ImVec2(1, 1));
+    ImGui::Begin(
+        "Input", nullptr,
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoInputs |
+        ImGuiWindowFlags_NoNavInputs |
+        ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoNav |
+        ImGuiWindowFlags_NoFocusOnAppearing |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_NoBackground |
+        ImGuiFocusedFlags_None // just for conveneint commenting in/out
+    );
+
     ImDrawList *dl = ImGui::GetWindowDrawList();
     ImVec2 p = ImGui::GetCursorScreenPos();
-
-    char text[64];
-    int len = 0;
 
     constexpr float leftStickRadius = 15;
     ImVec2 leftStickCenter = p + ImVec2(15, 35);
@@ -431,6 +449,7 @@ namespace GUI {
     }
 
     ImGui::Dummy(ImVec2(130, 80));
+    ImGui::End();
   }
 
 }

@@ -8,7 +8,7 @@ struct Settings {
   bool OSD_showFrameTime: 1{false};
   bool OSD_showMemoryInfo: 1{false};
   bool OSD_showMemoryGraph: 1{false};
-  bool OSD_showInput: 1{false};
+  bool OSD_showInput: 1{true};
   bool OSD_showVelocity: 1{true};
   bool OSD_showPos: 1{true};
   bool OSD_showIGT: 1{true};
