@@ -60,6 +60,7 @@ public:
     static void SetModelMatrix(const CTransform4f &mat);
     static void SetIdentityModelMatrix();
     static void SetIdentityViewPointMatrix();
+    static void SetScissor(int x, int y, int w, int h);
     static void VideoPreCallback(ulong arg);
     static void EndScene();
     static void BeginScene();

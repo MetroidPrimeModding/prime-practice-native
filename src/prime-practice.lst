@@ -133,3 +133,4 @@
 0x8030BA28 _ZN9CGraphics15SetAlphaCompareE13ERglAlphaFunch11ERglAlphaOpS0_h
 0x8030E148 _ZN8CTexture16InvalidateTexmapEi
 0x8030B56C _ZN9CGraphics11StreamColorEj
+0x8030C05C _ZN9CGraphics10SetScissorEiiii

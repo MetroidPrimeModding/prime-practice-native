@@ -265,12 +265,22 @@ void NewPauseScreen::RenderMenu() {
     CGraphics::StreamEnd();
   }
 
-  CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
   for (int cmdListIdx = 0; cmdListIdx < drawData->CmdListsCount; cmdListIdx++) {
     const ImDrawList *cmdList = drawData->CmdLists[cmdListIdx];
     // For each cmdlist
     for (int cmdBufferIdx = 0; cmdBufferIdx < cmdList->CmdBuffer.Size; cmdBufferIdx++) {
       const ImDrawCmd *cmdBuffer = &cmdList->CmdBuffer[cmdBufferIdx];
+      // (x0, y0, x1, y1) but also need to flip the two y coords
+      int x0 = (int) cmdBuffer->ClipRect.x;
+      int x1 = (int) cmdBuffer->ClipRect.z;
+      int y0 = (int) (bottom - cmdBuffer->ClipRect.w);
+      int y1 = (int) (bottom - cmdBuffer->ClipRect.y);
+      int clipX = x0;
+      int clipY = y0;
+      int clipW = x1 - x0;
+      int clipH = y1 - y0;
+      CGraphics::SetScissor(clipX, clipY, clipW, clipH);
+      CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
       for (int elemIdx = 0; elemIdx < cmdBuffer->ElemCount; elemIdx++) {
         const ImDrawIdx *idx = &cmdList->IdxBuffer[cmdBuffer->IdxOffset + elemIdx];
         const ImDrawVert *dataStart = &cmdList->VtxBuffer[cmdBuffer->VtxOffset + *idx];
@@ -284,12 +294,11 @@ void NewPauseScreen::RenderMenu() {
           CGraphics::FlushStream();
         }
       }
-      // flush between buffers
       idxPerBatch = 0;
-      CGraphics::FlushStream();
+      CGraphics::StreamEnd();
     }
-  }
-  CGraphics::StreamEnd();
+  } // done with rendering
+  CGraphics::SetScissor((int) left, (int) top, (int) right, (int) bottom);
 }
 
 const ImWchar EMPTY_FONT_RANGE[] = {
@@ -297,7 +306,7 @@ const ImWchar EMPTY_FONT_RANGE[] = {
 };
 
 float char_to_float(int width, unsigned char c) {
-  return ((float)c / (float)width);
+  return ((float) c / (float) width);
 }
 
 void NewPauseScreen::InitIMGui_BundledFont() {
@@ -373,9 +382,9 @@ void NewPauseScreen::InitIMGui_BundledFont() {
         .Colored=v.Colored,
         .Visible=v.Visible,
         .Codepoint=v.Codepoint,
-        .AdvanceX=(float)v.AdvanceX,
-        .X0=(float)v.X0, .Y0=(float)v.Y0,
-        .X1=(float)v.X1, .Y1=(float)v.Y1,
+        .AdvanceX=(float) v.AdvanceX,
+        .X0=(float) v.X0, .Y0=(float) v.Y0,
+        .X1=(float) v.X1, .Y1=(float) v.Y1,
         .U0=char_to_float(FontAtlas::ATLAS_W, v.U0), .V0=char_to_float(FontAtlas::ATLAS_H, v.V0),
         .U1=char_to_float(FontAtlas::ATLAS_W, v.U1), .V1= char_to_float(FontAtlas::ATLAS_H, v.V1)
     });
