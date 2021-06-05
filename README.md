@@ -73,6 +73,7 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 - Make the menu fit on the screen properly at all times
 - Remove window border and shrink window padding
 - Move input to bottom right & default to on
+- Back due to popular demand, Magmoor has been added to the warp menu
 
 ### 2.2.0 (beta)
 - Reduce footprint by about ~200k

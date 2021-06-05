@@ -12,8 +12,8 @@ set(CMAKE_PRIME_C_FLAGS_LIST
         -nostdlib
         -nostdinc
         -ffreestanding
-        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0/include"
-        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0/include-fixed"
+        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/11.1.0/include"
+        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/11.1.0/include-fixed"
         -isystem "${DEVKITPPC}/powerpc-eabi/include"
         -fno-function-sections
         -fno-data-sections
@@ -62,7 +62,7 @@ macro(add_prime_library name symbol_list base_dol)
             "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
     )
 
-    target_link_libraries(${name} "${DEVKITPPC}/lib/gcc/powerpc-eabi/10.2.0/libgcc.a")
+    target_link_libraries(${name} "${DEVKITPPC}/lib/gcc/powerpc-eabi/11.1.0/libgcc.a")
 
     # Create the ApplyCodePatches.cpp
     add_custom_command(

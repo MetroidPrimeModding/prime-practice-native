@@ -396,6 +396,7 @@ void NewPauseScreen::InitIMGui_BundledFont() {
     font->Used4kPagesMap[i] = FontAtlas::Used4kPagesMap[i];
   }
   font->ContainerAtlas = io.Fonts;
+  font->EllipsisChar = -1;
   // send it off to GX
   GXInitTexObj(&imguiFontTexture, (void *) FontAtlas::ATLAS_DATA,
                FontAtlas::ATLAS_W, FontAtlas::ATLAS_H,

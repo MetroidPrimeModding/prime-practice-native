@@ -38,7 +38,7 @@ namespace GUI {
 
   void drawInventoryMenu() {
     CStateManager *stateManager = CStateManager_INSTANCE;
-    CPlayer *player = stateManager->Player();
+//    CPlayer *player = stateManager->Player();
     CPlayerState *playerState = stateManager->GetPlayerState();
 
     if (ImGui::TreeNode("Inventory")) {
