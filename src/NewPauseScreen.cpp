@@ -296,6 +296,10 @@ const ImWchar EMPTY_FONT_RANGE[] = {
     0 // end
 };
 
+float char_to_float(int width, unsigned char c) {
+  return ((float)c / (float)width);
+}
+
 void NewPauseScreen::InitIMGui_BundledFont() {
   // see https://github.com/MetroidPrimeModding/imgui-font-atlas-generator
   // for how this stuff was generated
@@ -316,7 +320,13 @@ void NewPauseScreen::InitIMGui_BundledFont() {
   atlas->PackIdLines = FontAtlas::PackIdMouseCursors;
   atlas->PackIdMouseCursors = 0;
   for (int i = 0; i < IM_DRAWLIST_TEX_LINES_WIDTH_MAX + 1; i++) {
-    atlas->TexUvLines[i] = FontAtlas::TexUvLines[i];
+    auto uvline = &FontAtlas::TexUvLines[i];
+    atlas->TexUvLines[i] = ImVec4{
+        char_to_float(FontAtlas::ATLAS_W, uvline->W),
+        char_to_float(FontAtlas::ATLAS_H, uvline->X),
+        char_to_float(FontAtlas::ATLAS_W, uvline->Y),
+        char_to_float(FontAtlas::ATLAS_H, uvline->Z),
+    };
   }
   ImGui::CreateContext(atlas);
 
@@ -359,7 +369,16 @@ void NewPauseScreen::InitIMGui_BundledFont() {
     font->IndexLookup.push_back(v);
   }
   for (auto v : FontAtlas::FONT_GLYPHS) {
-    font->Glyphs.push_back(v);
+    font->Glyphs.push_back(ImFontGlyph{
+        .Colored=v.Colored,
+        .Visible=v.Visible,
+        .Codepoint=v.Codepoint,
+        .AdvanceX=(float)v.AdvanceX,
+        .X0=(float)v.X0, .Y0=(float)v.Y0,
+        .X1=(float)v.X1, .Y1=(float)v.Y1,
+        .U0=char_to_float(FontAtlas::ATLAS_W, v.U0), .V0=char_to_float(FontAtlas::ATLAS_H, v.V0),
+        .U1=char_to_float(FontAtlas::ATLAS_W, v.U1), .V1= char_to_float(FontAtlas::ATLAS_H, v.V1)
+    });
   }
   font->Ascent = FontAtlas::ASCENT;
   font->Descent = FontAtlas::DESCENT;
