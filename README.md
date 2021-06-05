@@ -67,7 +67,7 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
-### 2.2.1 (beta, next release)
+### 2.2.1 (beta)
 - Fix texture corruption
 - Reduce size by another ~65k
 - Make the menu fit on the screen properly at all times
