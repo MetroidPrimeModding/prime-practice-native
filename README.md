@@ -67,6 +67,9 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.2.2 (beta)
+- Save menu input location across menu opening/closing
+
 ### 2.2.1 (beta)
 - Fix texture corruption
 - Reduce size by another ~65k
