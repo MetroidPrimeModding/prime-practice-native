@@ -95,7 +95,7 @@ void NewPauseScreen::show() {
 }
 
 void NewPauseScreen::HandleInputs() {
-  if (this->pauseScreenActive) {
+  if (this->pauseScreenActive && this->menuActive) {
     ImGuiIO *io = &ImGui::GetIO();
     io->NavInputs[ImGuiNavInput_Activate] = inputs[0].DA();
     io->NavInputs[ImGuiNavInput_Cancel] = inputs[0].DB();
@@ -143,31 +143,41 @@ void warp(uint32_t world, uint32_t area) {
   NewPauseScreen::instance->hide();
 }
 
+static ImGuiID lastNavID = 0;
+static bool wasActive = false;
+
 void NewPauseScreen::RenderMenu() {
   ImGuiIO &io = ImGui::GetIO();
   io.DisplaySize = ImVec2(SVIEWPORT_GLOBAL->x8_width, SVIEWPORT_GLOBAL->xc_height);
   io.DeltaTime = 1.f / 60.f;
 
   ImGui::NewFrame();
-
-  if (this->pauseScreenActive && this->menuActive) {
-    ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_None, ImVec2(0, 0));
-    ImGui::SetNextWindowSizeConstraints(
-        ImVec2(0, 0),
-        ImVec2(400, SVIEWPORT_GLOBAL->xc_height - 20)
-    );
-    ImGui::Begin(
-        "Practice Mod", nullptr,
-        ImGuiWindowFlags_AlwaysAutoResize
-        | ImGuiWindowFlags_NoResize
-        | ImGuiWindowFlags_NoTitleBar
-    );
+  bool render = this->pauseScreenActive && this->menuActive;
+  if (render) {
+    ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Always, ImVec2(0, 0));
+  } else {
+    // Hack: if we're not rendering, just move off-screen so that it doesn't show up on-screen
+    // This allows it to persist selected item state
+    ImGui::SetNextWindowPos(ImVec2(1000, 20), ImGuiCond_Always, ImVec2(0, 0));
+  }
+  ImGui::SetNextWindowFocus();
+  ImGui::SetNextWindowCollapsed(!render, ImGuiCond_Always);
+  ImGui::SetNextWindowSizeConstraints(
+      ImVec2(0, 0),
+      ImVec2(400, SVIEWPORT_GLOBAL->xc_height - 40)
+  );
+  if (ImGui::Begin(
+      "Practice Mod", nullptr,
+      ImGuiWindowFlags_AlwaysAutoResize
+      | ImGuiWindowFlags_NoResize
+      | ImGuiWindowFlags_NoMove
+  )) {
     GUI::drawWarpMenu();
     GUI::drawPlayerMenu();
     GUI::drawInventoryMenu();
     GUI::drawSettingsMenu();
-    ImGui::End();
   }
+  ImGui::End();
 
   GUI::drawMonitorWindow(inputs);
 
