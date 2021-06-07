@@ -3,6 +3,7 @@
 
 #include <prime/CScriptTrigger.hpp>
 #include <prime/CFinalInput.hpp>
+#include <imgui.h>
 #include "prime/CStateManager.hpp"
 
 void warp(uint32_t world, uint32_t area);
@@ -26,9 +27,6 @@ public:
   void show();
 private:
   void RenderMenu();
-  void InitIMGui_BundledFont();
-  void InitIMGui_GenerateFont();
-  void InitIMGui_Style();
 };
 
 #endif

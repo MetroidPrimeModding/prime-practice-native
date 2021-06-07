@@ -105,6 +105,8 @@ set(SOURCE_FILES
         src/prime-practice.cpp
         src/settings.cpp
         src/font_atlas.hpp
+        src/ImGuiEngine.cpp
+        src/ImGuiEngine.hpp
         src/libc/libc.c
 
         src/UI/WarpMenu.h
