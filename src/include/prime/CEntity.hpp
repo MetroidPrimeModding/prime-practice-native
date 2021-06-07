@@ -249,7 +249,7 @@ public:
 
     inline u8 getStatus() { return *GetField<u8>(this, 0x30); }
 
-    rstl::vector<SConnection> *getConnections() { return GetField<rstl::vector<SConnection>>(this, 0x20); }
+    rstl::vector_type_2<SConnection> *getConnections() { return GetField<rstl::vector_type_2<SConnection>>(this, 0x20); }
 
 };
 

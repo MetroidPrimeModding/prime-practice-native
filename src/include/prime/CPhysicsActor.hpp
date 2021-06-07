@@ -10,8 +10,8 @@ class CPhysicsActor : public CActor {
 public:
     CPhysicsState GetPhysicsState() const;
 
-    CVector3f *GetVelocity() { return GetField<CVector3f>(this, 0x138); };
-    CVector3f *GetAngularVelocity() { return GetField<CVector3f>(this, 0x144); };
+    inline CVector3f *GetVelocity() { return GetField<CVector3f>(this, 0x138); };
+    inline CVector3f *GetAngularVelocity() { return GetField<CVector3f>(this, 0x144); };
 };
 
 #endif //PRIME_PRACTICE_CPHYSICSACTOR_HPP

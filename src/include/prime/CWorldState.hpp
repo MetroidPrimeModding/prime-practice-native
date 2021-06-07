@@ -27,6 +27,7 @@ public:
     PADDING(0x0c);
     CWorldLayerState **layerState;
 
+    inline CAssetId x10_desiredAreaAssetId() { return *GetField<u32>(this, 0x10); };
     CWorldLayerState &GetLayerState();
     void SetDesiredAreaAssetId(CAssetId id);
 };

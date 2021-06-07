@@ -24,6 +24,9 @@ extern const WarpWorld WARP_WORLD_MINES;
 extern const WarpWorld WARP_WORLD_CRATER;
 extern const WarpWorld WARP_WORLDS[];
 
+const char* getNameForWorldAsset(u32 world);
+const char* getNameForAreaAsset(u32 world, u32 area);
+
 namespace GUI {
   void drawWarpMenu();
 }

@@ -183,7 +183,7 @@ namespace WorldRenderer {
     if (entity->getVtablePtr() == vtable) return true;
     if (entity->getVtablePtr() == CScriptRelay::VTABLE_ADDR & depth < 2) {
       auto connections = entity->getConnections();
-      for (u32 i = 0; i < connections->len; i++) {
+      for (u32 i = 0; i < connections->length(); i++) {
         auto conn = &connections->ptr[i];
         if (entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, vtable, depth + 1)) {
           return ETriggerType::Load;
@@ -196,7 +196,7 @@ namespace WorldRenderer {
 
   ETriggerType determineTriggerType(CObjectList *list, CScriptTrigger *trigger) {
     auto connections = trigger->getConnections();
-    for (u32 i = 0; i < connections->len; i++) {
+    for (u32 i = 0; i < connections->length(); i++) {
       auto conn = &connections->ptr[i];
       if (conn->x0_state == EScriptObjectState::Entered) {
         if (entityHasVtableOrIsRelayThatPointsAtVtable(list, conn->x8_objId, CScriptDock::VTABLE_ADDR)) {

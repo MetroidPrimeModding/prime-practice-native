@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 include("PrimeAPI2/PrimeAPI.cmake")
 project(prime-practice-native C CXX)
 
-include_directories(PrimeAPI/include)
+#include_directories(PrimeAPI/include)
 include_directories(src/include)
 include_directories(src)
 include_directories(ext/imgui)
@@ -26,11 +26,11 @@ endif()
 message(${CMAKE_CXX_FLAGS})
 
 set(SOURCE_FILES
-        PrimeAPI/include/PrimeAPI.h
-
-        PrimeAPI/include/rstl/string.h
-        PrimeAPI/include/rstl/rstl.h
-        PrimeAPI/include/rstl/vector.h
+        src/include/PrimeAPI.h
+        src/include/rstl/string.h
+        src/include/rstl/rstl.h
+        src/include/rstl/vector.h
+        src/include/rstl/auto_ptr.h
         src/include/dvd.h
         src/include/types.h
         src/include/os.h
