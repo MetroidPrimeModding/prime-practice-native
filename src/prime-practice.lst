@@ -154,3 +154,4 @@
 0x8030C5E0 _ZN9CGraphics14SetModelMatrixERK12CTransform4f
 0x8030C74C _ZN9CGraphics18SetViewPointMatrixERK12CTransform4f
 0x8037C244 GXSetProjection
+0x8037EAB0 DCFlushRange

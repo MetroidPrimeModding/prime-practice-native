@@ -295,12 +295,14 @@ void NewPauseScreen::RenderMenu() {
   };
   CGX::SetVtxDescv(desc);
   CGraphics::SetTevStates(6); // tex | color
-  CGX::SetNumTexGens(2);
+  CGX::SetNumTexGens(2); // Apparently required
   WGPipe *const pipe = (WGPipe *) 0xCC008000;
   for (int cmdListIdx = 0; cmdListIdx < drawData->CmdListsCount; cmdListIdx++) {
     const ImDrawList *cmdList = drawData->CmdLists[cmdListIdx];
     // set up array
     const char *vtxBuffer = reinterpret_cast<const char *>(cmdList->VtxBuffer.Data);
+    // Make sure it's flushed to memory so the GPU can read it
+    DCFlushRange(cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
     CGX::SetArray(GX_VA_POS, vtxBuffer + offsetof(ImDrawVert, pos), sizeof(ImDrawVert));
     CGX::SetArray(GX_VA_CLR0, vtxBuffer + offsetof(ImDrawVert, col), sizeof(ImDrawVert));
     CGX::SetArray(GX_VA_TEX0, vtxBuffer + offsetof(ImDrawVert, uv), sizeof(ImDrawVert));
