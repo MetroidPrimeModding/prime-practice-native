@@ -13,7 +13,6 @@ public:
   static NewPauseScreen *instance;
   bool pauseScreenActive;
   bool menuActive;
-  int frames;
   CFinalInput *inputs;
 
   NewPauseScreen();

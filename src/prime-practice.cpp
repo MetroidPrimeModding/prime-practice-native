@@ -82,14 +82,13 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
 
   if (pause->InputEnabled()) {
     // Only close if you aren't holding the reload hotkey
+    NewPauseScreen::instance->show();
     if (input.PStart()) {
       NewPauseScreen::instance->hide();
 
       //Play some noises too
       CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId);
       pause->StartTransition(0.5f, mgr, CPauseScreen::ESubScreen_ToGame, 2);
-    } else if (NewPauseScreen::instance->frames < 0) {
-      NewPauseScreen::instance->show();
     } else if (input.PZ()) {
       NewPauseScreen::instance->menuActive = !NewPauseScreen::instance->menuActive;
     }

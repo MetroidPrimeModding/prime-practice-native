@@ -77,20 +77,15 @@ NewPauseScreen::NewPauseScreen() {
 }
 
 void NewPauseScreen::Render() {
-  if (pauseScreenActive) {
-    frames++;
-  }
   NewPauseScreen::RenderMenu();
 }
 
 void NewPauseScreen::hide() {
   pauseScreenActive = false;
-  frames = -1;
 }
 
 void NewPauseScreen::show() {
   this->pauseScreenActive = true;
-  this->frames = 0;
 }
 
 void NewPauseScreen::HandleInputs() {
