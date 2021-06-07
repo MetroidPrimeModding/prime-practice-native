@@ -71,6 +71,8 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 - Switch to a more efficient renderer (and fix some rendering bugs)
 - Add item presets for Start, Any%, and 21%
 - Save position now saves orientation and velocity
+- Save position now saves room and position
+- Unfortunately, it can currently only load room *or* position. Hopefully can fix this later.
 
 ### 2.2.2 (beta)
 - Save menu input location across menu opening/closing

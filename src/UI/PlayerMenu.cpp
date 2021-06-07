@@ -56,11 +56,17 @@ namespace GUI {
           warp(savedWorldAssetID, savedAreaAssetID);
         }
       }
-      ImGui::Text("Saved position: %.2fx, %.2fy, %.2fz", savedPos.x, savedPos.y, savedPos.z);
-      const char *worldName = getNameForWorldAsset(savedWorldAssetID);
-      const char *areaName = getNameForAreaAsset(savedWorldAssetID, savedAreaAssetID);
-      ImGui::Text("%s", worldName);
-      ImGui::Text("%s", areaName);
+      // TODO: when I figure out how to save both position and room, change this
+      if (currentWorldAssetID != savedWorldAssetID || currentAreaAssetID != savedAreaAssetID) {
+        const char *worldName = getNameForWorldAsset(savedWorldAssetID);
+        const char *areaName = getNameForAreaAsset(savedWorldAssetID, savedAreaAssetID);
+        ImGui::Text("Saved position:");
+        ImGui::Text("%s", worldName);
+        ImGui::Text("%s", areaName);
+      } else {
+        ImGui::Text("Saved position: %.2fx, %.2fy, %.2fz", savedPos.x, savedPos.y, savedPos.z);
+      }
+
 
       ImGui::DragFloat("X", &player->getTransform()->x, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
       ImGui::DragFloat("Y", &player->getTransform()->y, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
