@@ -81,7 +81,6 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
   if (pause->x8_curSubscreen == CPauseScreen::ESubScreen_ToGame) { return; }
 
   if (pause->InputEnabled()) {
-    // Only close if you aren't holding the reload hotkey
     NewPauseScreen::instance->show();
     if (input.PStart()) {
       NewPauseScreen::instance->hide();
