@@ -30,7 +30,10 @@ struct CAxisAngle : CVector3f {
 
 class CTransform4f {
 public:
+  union {
     float matrix[12];
+    float mtx[3][4];
+  };
 
     static inline CTransform4f Identity() {
       CTransform4f res;
@@ -63,6 +66,9 @@ public:
     }
 
     static CTransform4f Translate(float x, float y, float z);
+    CTransform4f RotateX(float theta);
+    CTransform4f RotateY(float theta);
+    CTransform4f RotateZ(float theta);
 
     inline CVector3f origin() { return CVector3f(matrix[3], matrix[3 + 4], matrix[3 + 8]); };
 };

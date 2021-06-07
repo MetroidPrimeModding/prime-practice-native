@@ -78,10 +78,12 @@ public:
     static float GetFPS();
     static void SetAlphaCompare(ERglAlphaFunc func0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc func1, u8 ref1);
     static void DisableAllLights();
+    static void SetTevStates(int i);
 };
 
 class CGX {
 public:
+    static void ResetStates();
     static void SetNumTevStages(u8 num);
     static void SetTevOrder(_GXTevStageID, _GXTexCoordID, _GXTexMapID, _GXChannelID);
     static void SetZMode(bool, _GXCompare, bool);
@@ -90,6 +92,13 @@ public:
     static void SetTevColorOp(_GXTevStageID, _GXTevOp, _GXTevBias, _GXTevScale, u8, _GXTevRegID);
     static void SetTevAlphaOp(_GXTevStageID, _GXTevOp, _GXTevBias, _GXTevScale, u8, _GXTevRegID);
     static void SetBlendMode(_GXBlendMode, _GXBlendFactor, _GXBlendFactor, _GXLogicOp);
+    static void SetVtxDescv(_GXVtxDescList *list);
+    static void SetArray(u32 attr, const void *base, unsigned char stride);
+    static void Begin(u32 prim, u32 fmt, ushort verts);
+    static void End();
+    static void SetNumChans(int);
+    static void SetNumTexGens(int);
+    static void SetTexCoordGen(u16 texCoord, u32 gen_typ, u32 gen_src, u32 mtxsrc, bool normalize, u32 postMix);
 };
 
 class CTexture {
