@@ -5,7 +5,10 @@
 #include "imgui.h"
 
 namespace GUI {
-  float savedX{0}, savedY{0}, savedZ{0};
+  CTransform4f savedPos{CTransform4f::Identity()};
+  CVector3f savedVelocity{};
+  CVector3f savedAngularVelocity{};
+
   void drawPlayerMenu() {
     CStateManager *stateManager = CStateManager_INSTANCE;
     CPlayer *player = stateManager->Player();
@@ -14,27 +17,22 @@ namespace GUI {
     ImGuiSliderFlags flags = ImGuiSliderFlags_None
                              | ImGuiSliderFlags_NoRoundToFormat;
     if (ImGui::TreeNode("Player")) {
-      float *x = &player->getTransform()->matrix[3];
-      float *y = &player->getTransform()->matrix[7];
-      float *z = &player->getTransform()->matrix[11];
-
       if (ImGui::Button("Save position")) {
-        savedX = *x;
-        savedY = *y;
-        savedZ = *z;
+        savedPos = *player->getTransform();
+        savedVelocity = *player->GetVelocity();
+        savedAngularVelocity = *player->GetAngularVelocity();
       }
       ImGui::SameLine();
       if (ImGui::Button("Load position")) {
-        *x = savedX;
-        *y = savedY;
-        *z = savedZ;
+        *player->getTransform() = savedPos;
+        *player->GetVelocity() = savedVelocity;
+        *player->GetAngularVelocity() = savedAngularVelocity;
       }
-      ImGui::Text("Saved position: %.2fx, %.2fy, %.2fz", savedX, savedY, savedZ);
+      ImGui::Text("Saved position: %.2fx, %.2fy, %.2fz", savedPos.x, savedPos.y, savedPos.z);
 
-
-      ImGui::DragFloat("X", x, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
-      ImGui::DragFloat("Y", y, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
-      ImGui::DragFloat("Z", z, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
+      ImGui::DragFloat("X", &player->getTransform()->x, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
+      ImGui::DragFloat("Y", &player->getTransform()->y, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
+      ImGui::DragFloat("Z", &player->getTransform()->z, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
       ImGui::TreePop();
     }
   }
