@@ -31,10 +31,67 @@ static constexpr CPlayerState::EItemType ArtifactItems[] = {
     CPlayerState::EItemType::World, CPlayerState::EItemType::Spirit, CPlayerState::EItemType::Newborn,
 };
 
+struct SItemAmt {
+  CPlayerState::EItemType item;
+  int count{1};
+};
+
+static constexpr SItemAmt StartingItems[] = {
+    {CPlayerState::EItemType::PowerSuit},
+    {CPlayerState::EItemType::PowerBeam},
+    {CPlayerState::EItemType::CombatVisor},
+    {CPlayerState::EItemType::ScanVisor},
+};
+
+static constexpr SItemAmt LowPercentItems[] = {
+    {CPlayerState::EItemType::EnergyTanks, 1},
+    {CPlayerState::EItemType::Missiles, 5},
+
+    {CPlayerState::EItemType::MorphBall},
+    {CPlayerState::EItemType::MorphBallBombs},
+    {CPlayerState::EItemType::PowerBombs, 4},
+
+    {CPlayerState::EItemType::VariaSuit},
+    {CPlayerState::EItemType::PhazonSuit},
+
+    {CPlayerState::EItemType::WaveBeam},
+    {CPlayerState::EItemType::IceBeam},
+    {CPlayerState::EItemType::PlasmaBeam},
+
+    {CPlayerState::EItemType::XRayVisor},
+};
+
+static constexpr SItemAmt AnyPercentItems[] = {
+    {CPlayerState::EItemType::EnergyTanks, 3},
+    {CPlayerState::EItemType::Missiles, 25},
+
+    {CPlayerState::EItemType::MorphBall},
+    {CPlayerState::EItemType::MorphBallBombs},
+    {CPlayerState::EItemType::BoostBall},
+    {CPlayerState::EItemType::PowerBombs, 5},
+
+    {CPlayerState::EItemType::VariaSuit},
+    {CPlayerState::EItemType::PhazonSuit},
+
+    {CPlayerState::EItemType::WaveBeam},
+    {CPlayerState::EItemType::IceBeam},
+    {CPlayerState::EItemType::PlasmaBeam},
+    {CPlayerState::EItemType::ChargeBeam},
+
+    {CPlayerState::EItemType::XRayVisor},
+    {CPlayerState::EItemType::ThermalVisor},
+
+    {CPlayerState::EItemType::SpaceJumpBoots},
+};
+
 namespace GUI {
   void RenderItemType(CPlayerState *playerState, CPlayerState::EItemType itemType);
   const char *ItemTypeToName(CPlayerState::EItemType type);
   static inline void RenderItemsDualColumn(CPlayerState *playerState, const CPlayerState::EItemType *items, int start, int end);
+
+  void clearItems(CPlayerState *playerState);
+
+  void refillItems(CPlayerState *playerState);
 
   void drawInventoryMenu() {
     CStateManager *stateManager = CStateManager_INSTANCE;
@@ -43,11 +100,7 @@ namespace GUI {
 
     if (ImGui::TreeNode("Inventory")) {
       if (ImGui::Button("Refill")) {
-        for (int i = 0; i < int(CPlayerState::EItemType::Max); i++) {
-          auto itemType = static_cast<CPlayerState::EItemType>(i);
-          u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
-          playerState->ResetAndIncrPickUp(itemType, maxValue);
-        }
+        refillItems(playerState);
       }
 //      {
 //        ImGui::SameLine();
@@ -68,10 +121,28 @@ namespace GUI {
       }
       ImGui::SameLine();
       if (ImGui::Button("None")) {
-        for (int i = 0; i < int(CPlayerState::EItemType::Max); i++) {
-          auto itemType = static_cast<CPlayerState::EItemType>(i);
-          playerState->ReInitializePowerUp(itemType, 0);
-        }
+        clearItems(playerState);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Start")) {
+        clearItems(playerState);
+        for (auto v : StartingItems) playerState->ReInitializePowerUp(v.item, v.count);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Any%")) {
+        clearItems(playerState);
+        for (auto v : StartingItems) playerState->ReInitializePowerUp(v.item, v.count);
+        for (auto v : AnyPercentItems) playerState->ReInitializePowerUp(v.item, v.count);
+        for (auto v : ArtifactItems) playerState->ReInitializePowerUp(v, 1);
+        refillItems(playerState);
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("21%")) {
+        clearItems(playerState);
+        for (auto v : StartingItems) playerState->ReInitializePowerUp(v.item, v.count);
+        for (auto v : LowPercentItems) playerState->ReInitializePowerUp(v.item, v.count);
+        for (auto v : ArtifactItems) playerState->ReInitializePowerUp(v, 1);
+        refillItems(playerState);
       }
 
       if (ImGui::BeginTabBar("Items")) {
@@ -100,6 +171,21 @@ namespace GUI {
       }
 
       ImGui::TreePop();
+    }
+  }
+
+  void refillItems(CPlayerState *playerState) {
+    for (int i = 0; i < int(CPlayerState::EItemType::Max); i++) {
+      auto itemType = static_cast<CPlayerState::EItemType>(i);
+      u32 maxValue = CPlayerState::GetPowerUpMaxValue(itemType);
+      playerState->ResetAndIncrPickUp(itemType, maxValue);
+    }
+  }
+
+  void clearItems(CPlayerState *playerState) {
+    for (int i = 0; i < int(CPlayerState::EItemType::Max); i++) {
+      auto itemType = static_cast<CPlayerState::EItemType>(i);
+      playerState->ReInitializePowerUp(itemType, 0);
     }
   }
 

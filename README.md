@@ -69,6 +69,7 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ### 2.2.3 (beta)
 - Switch to a more efficient renderer (and fix some rendering bugs)
+- Add item presets for Start, Any%, and 21%
 
 ### 2.2.2 (beta)
 - Save menu input location across menu opening/closing
