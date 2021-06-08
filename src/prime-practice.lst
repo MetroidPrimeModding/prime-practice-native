@@ -142,7 +142,6 @@
 0x8030A0D4 _ZN9CGraphics20SetDefaultVtxAttrFmtEv
 0x80377754 GXClearVtxDesc
 0x80377268 GXSetVtxDescv
-0x803788F4 GXBegin
 0x80308104 _ZN3CGX11ResetStatesEv
 0x80308e50 _ZN3CGX11SetNumChansEi
 0x80308e14 _ZN3CGX13SetNumTexGensEi
@@ -153,5 +152,5 @@
 0x80313810 _ZN12CTransform4f7RotateZEf
 0x8030C5E0 _ZN9CGraphics14SetModelMatrixERK12CTransform4f
 0x8030C74C _ZN9CGraphics18SetViewPointMatrixERK12CTransform4f
-0x8037C244 GXSetProjection
 0x8037EAB0 DCFlushRange
+0x8030B120 _ZN9CGraphics21ResetVertexDataStreamEb

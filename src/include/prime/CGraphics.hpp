@@ -69,6 +69,7 @@ public:
     static void StreamBegin(ERglPrimitive primitive);
     static void StreamEnd();
     static void FlushStream();
+    static void ResetVertexDataStream(bool);
     static void StreamColor(float r, float g, float b, float a);
     static void StreamColor(unsigned int);
     static void StreamVertex(float x, float y, float z);

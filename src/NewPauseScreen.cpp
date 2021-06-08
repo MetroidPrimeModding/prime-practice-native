@@ -171,7 +171,7 @@ void NewPauseScreen::RenderMenu() {
 
   ImGui::Render();
   ImDrawData *drawData = ImGui::GetDrawData();
-  ImGuiEngine::ImGui_Render_GX(drawData);
+  ImGuiEngine::ImGui_Render(drawData);
 
   // Lagger (tris)
   if (!pauseScreenActive && SETTINGS.LAG_tri_renders > 0) {

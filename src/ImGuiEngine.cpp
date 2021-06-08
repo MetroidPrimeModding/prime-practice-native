@@ -40,6 +40,15 @@ float char_to_float(int width, unsigned char c) {
 
 #define PI 3.14159265
 
+void ImGuiEngine::ImGui_Render(const ImDrawData *drawData) {
+#ifdef USE_GX
+  ImGui_Render_GX(drawData);
+#else
+  ImGui_Render_Stream(drawData);
+#endif
+}
+
+#ifdef USE_GX
 void ImGuiEngine::ImGui_Render_GX(const ImDrawData *drawData) {
   // Setup for GX
   // Prime's formats, which are what I want so that's convenient:
@@ -143,6 +152,106 @@ void ImGuiEngine::ImGui_Render_GX(const ImDrawData *drawData) {
   CGraphics::SetScissor((int) left, (int) top, (int) right, (int) bottom);
   CGraphics::SetDefaultVtxAttrFmt();
 }
+#else
+void ImGuiEngine::ImGui_Render_Stream(const ImDrawData *drawData) {
+  // Setup for GX
+  // Prime's formats, which are what I want so that's convenient:
+  // 0 9 1 4 0 GX_VTXFMT0 GX_VA_POS   GX_POS_XYZ  GX_F32    0
+  // 0 a 0 4 0 GX_VTXFMT0 GX_VA_NRM   GX_NRM_XYZ  GX_F32    0
+  // 0 b 1 5 0 GX_VTXFMT0 GX_VA_CLR0  GX_CLR_RGBA GX_RGBA8  0
+  // 0 d 1 4 0 GX_VTXFMT0 GX_VA_TEX0  GX_TEX_ST   GX_F32    0
+  // Repeat for all GX_VA_TEXs
+
+  CGraphics::DisableAllLights();
+  CGX::SetZMode(false, GxCompare_NEVER, false);
+  //  GXSetBlendMode(
+  //      GX_BM_BLEND,
+  //      GX_BL_SRCALPHA, GX_BL_INVSRCALPHA,
+  //      GX_LO_NOOP
+  //  );
+  CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
+  //  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
+  CGraphics::SetCullMode(ERglCullMode_None);
+  GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
+  CTexture::InvalidateTexmap(GX_TEXMAP0);
+
+  CGX::SetNumTevStages(1);
+  CGX::SetTevOrder(
+      GXTevStage0,
+      GXTexCoord0,
+      GXTexMap0,
+      GXChannelColor0A0
+  );
+  CGX::SetTevColorIn(GXTevStage0, GxTevColorArg_ZERO, GxTevColorArg_TEXC, GxTevColorArg_RASC, GxTevColorArg_ZERO);
+  CGX::SetTevAlphaIn(GXTevStage0, GxTevAlphaArg_ZERO, GxTevAlphaArg_TEXA, GxTevAlphaArg_RASA, GxTevAlphaArg_ZERO);
+  CGX::SetTevColorOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+  CGX::SetTevAlphaOp(GXTevStage0, GxTevOp_ADD, GxTevBias_ZERO, GxTevScale_SCALE_1, GX_TRUE, GxTevRegID_TEVPREV);
+
+  float left = drawData->DisplayPos.x;
+  float right = left + drawData->DisplaySize.x;
+  float top = drawData->DisplayPos.y;
+  float bottom = top + drawData->DisplaySize.y;
+  CGraphics::SetOrtho(left, right, top, bottom, -1, 1);
+  CGraphics::SetIdentityModelMatrix();
+  CGraphics::SetIdentityViewPointMatrix();
+  // Have to rotate the model matrix by 90 degrees along the X axis so it's XY instead of XZ
+  CTransform4f vp{};
+  memset(&vp, 0, sizeof(CTransform4f));
+  float theta = PI / 2.0;
+  vp.mtx[0][0] = 1;
+  vp.mtx[1][1] = CMath::FastCosR(theta);
+  vp.mtx[1][2] = -CMath::FastSinR(theta);
+  vp.mtx[2][1] = CMath::FastSinR(theta);
+  vp.mtx[2][2] = CMath::FastCosR(theta);
+  CGraphics::SetModelMatrix(vp);
+
+  constexpr int maxIdxPerBatch = 3 * 30;
+  int idxPerBatch = 0;
+  for (int cmdListIdx = 0; cmdListIdx < drawData->CmdListsCount; cmdListIdx++) {
+    const ImDrawList *cmdList = drawData->CmdLists[cmdListIdx];
+    // set up array
+    const char *vtxBuffer = reinterpret_cast<const char *>(cmdList->VtxBuffer.Data);
+    // Make sure it's flushed to memory so the GPU can read it
+    DCFlushRange(cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
+    CGX::SetArray(GX_VA_POS, vtxBuffer + offsetof(ImDrawVert, pos), sizeof(ImDrawVert));
+    CGX::SetArray(GX_VA_CLR0, vtxBuffer + offsetof(ImDrawVert, col), sizeof(ImDrawVert));
+    CGX::SetArray(GX_VA_TEX0, vtxBuffer + offsetof(ImDrawVert, uv), sizeof(ImDrawVert));
+    // For each cmdlist
+    for (int cmdBufferIdx = 0; cmdBufferIdx < cmdList->CmdBuffer.Size; cmdBufferIdx++) {
+      const ImDrawCmd *cmd = &cmdList->CmdBuffer[cmdBufferIdx];
+      // (x0, y0, x1, y1) but also need to flip the two y coords
+      int x0 = (int) cmd->ClipRect.x;
+      int x1 = (int) cmd->ClipRect.z;
+      int y0 = (int) (bottom - cmd->ClipRect.w);
+      int y1 = (int) (bottom - cmd->ClipRect.y);
+      int clipX = x0;
+      int clipY = y0;
+      int clipW = x1 - x0;
+      int clipH = y1 - y0;
+      CGraphics::SetScissor(clipX, clipY, clipW, clipH);
+      CGraphics::StreamBegin(ERglPrimitive_TRIANGLES);
+      for (int elemIdx = 0; elemIdx < cmd->ElemCount; elemIdx++) {
+        const ImDrawIdx *idx = &cmdList->IdxBuffer[cmd->IdxOffset + elemIdx];
+        const ImDrawVert *dataStart = &cmdList->VtxBuffer[cmd->VtxOffset + *idx];
+
+        CGraphics::StreamColor(dataStart->col);
+        CGraphics::StreamTexcoord(dataStart->uv.x, dataStart->uv.y);
+        CGraphics::StreamVertex(dataStart->pos.x, dataStart->pos.y, 0);
+        idxPerBatch++;
+        if (idxPerBatch > maxIdxPerBatch && idxPerBatch % 3 == 0) {
+          idxPerBatch = 0;
+          CGraphics::FlushStream();
+          CGraphics::ResetVertexDataStream(false);
+        }
+      }
+      idxPerBatch = 0;
+      CGraphics::StreamEnd();
+    }
+  } // done with rendering
+  CGraphics::SetScissor((int) left, (int) top, (int) right, (int) bottom);
+  CGraphics::SetDefaultVtxAttrFmt();
+}
+#endif
 
 void ImGuiEngine::ImGui_Init() {
   // see https://github.com/MetroidPrimeModding/imgui-font-atlas-generator

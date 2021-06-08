@@ -67,6 +67,10 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.2.4 (beta)
+- Fix running in Nintendont 
+- Revert from direct GX rendering back to Stream rendering, until I can figure out why it crashes nintendont
+
 ### 2.2.3 (beta)
 - Switch to a more efficient renderer (and fix some rendering bugs)
 - Add item presets for Start, Any%, and 21%
