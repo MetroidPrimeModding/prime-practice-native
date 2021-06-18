@@ -6,14 +6,35 @@ from src.DataReader import DataReader
 from src.DataWriter import DataWriter
 from src.GCDisc import GCDiscHeader, FST, FSTEntry
 from src.dol import DolFile
+import hashlib
 
+KNOWN_MP1_MD5 = "eeacd0ced8e2bae491eca14f141a4b7c"
 
-def patch_iso(inp_path, out_path, mod_path):
+def patch_iso(inp_path, out_path, mod_path, ignore_hash=False):
     # Set up the input
     print("Preparing...")
     inp_file = open(inp_path, 'rb')
     inp_mmap = mmap.mmap(inp_file.fileno(), 0, access=mmap.ACCESS_READ)
     inp_reader_root = DataReader(inp_mmap, 0)
+
+    if ignore_hash:
+        print("Skipping hash check")
+    else:
+        print("Calculating hash...")
+        m = hashlib.md5()
+        m.update(inp_mmap)
+        calculated_hash = m.hexdigest()
+        print(f"Expected: {calculated_hash}")
+        print(f"Actual:   {calculated_hash}")
+        if calculated_hash != KNOWN_MP1_MD5:
+            print("This is not an unmodified mp1 iso!")
+            print("*** THIS MOST LIKELY WILL NOT WORK ***")2
+            try_anyway = input("Try anyway? (y/n)").lower()
+            if try_anyway == 'y':
+                print("Trying anyway")
+            else:
+                print("Quitting.")
+                sys.exit(1)
 
     # Parse header & fst
     print("Loading FST")
@@ -146,14 +167,14 @@ def main():
     parser.add_argument("--input", '-i', required=True, help="Input iso file")
     parser.add_argument("--output", '-o', required=True, help="Output iso file")
     parser.add_argument("--mod", '-m', required=True, help="Mod.rel to insert")
+    parser.add_argument("--skip-hash", dest="skip_hash", action="store_true", help="Skip hash check")
 
     args = parser.parse_args()
     inp_path = args.input
     out_path = args.output
     mod_path = args.mod
 
-    patch_iso(inp_path, out_path, mod_path)
-
+    patch_iso(inp_path, out_path, mod_path, ignore_hash=args.skip_hash)
 
 if __name__ == '__main__':
     main()
