@@ -27,8 +27,8 @@ def patch_iso(inp_path, out_path, mod_path, ignore_hash=False):
         print(f"Expected: {calculated_hash}")
         print(f"Actual:   {calculated_hash}")
         if calculated_hash != KNOWN_MP1_MD5:
-            print("This is not an unmodified mp1 iso!")
-            print("*** THIS MOST LIKELY WILL NOT WORK ***")2
+            print("This is not an unmodified mp1 0-00 NTSC iso!")
+            print("*** THIS MOST LIKELY WILL NOT WORK ***")
             try_anyway = input("Try anyway? (y/n)").lower()
             if try_anyway == 'y':
                 print("Trying anyway")
