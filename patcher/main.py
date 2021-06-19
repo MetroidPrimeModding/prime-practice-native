@@ -143,7 +143,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Patch a MP1 0-00 dol or ISO to the practice mod"
     )
-    subparsers = parser.add_subparsers(help="sub-command help", dest="command")
+    subparsers = parser.add_subparsers(help="sub-command help", dest="command", required=True)
 
     patch_iso_parser = subparsers.add_parser('iso', help="Patch an ISO to practice mod")
     patch_iso_parser.add_argument("--input", '-i', required=True, help="Input iso file")
