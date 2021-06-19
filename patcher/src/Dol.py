@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-
 from src.DataReader import DataReader
 from src.DataWriter import DataWriter
-
+from typing import List
 
 @dataclass
 class SectionInfo:
@@ -12,8 +11,8 @@ class SectionInfo:
 
 @dataclass
 class DolHeader:
-    text: list[SectionInfo]
-    data: list[SectionInfo]
+    text: List[SectionInfo]
+    data: List[SectionInfo]
     bss_addr: int
     bss_size: int
     entry: int
