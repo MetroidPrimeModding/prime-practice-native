@@ -34,7 +34,7 @@ set(CMAKE_PRIME_CXX_FLAGS_LIST
 set(CMAKE_PRIME_LINK_FLAGS_LIST
         -nostdlib
         --gc-sections
-        "-e __rel_prolog"
+        "-e _prolog"
 #        "--unresolved-symbols=report-all"
 #        --error-unresolved-symbols
 #        --no-allow-shlib-undefined
@@ -53,7 +53,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_PRIME_CXX_FLAGS}")
 include_directories("${DEVKITPRO}/libogc/include/")
 
 # Macro to get the required link arguments in place
-macro(add_prime_library name symbol_list base_dol)
+macro(add_prime_binary name symbol_list base_dol)
     add_executable(${name} ${ARGN}
             "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
     )
@@ -99,10 +99,4 @@ macro(add_prime_library name symbol_list base_dol)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
             DESTINATION "sys/"
             RENAME "main.dol")
-endmacro()
-
-macro(patch_function orig dest)
-    list(APPEND PRIME_PATCH_FUNCTIONS
-            -p "'${orig}'" "'${dest}'"
-            )
 endmacro()

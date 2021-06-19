@@ -1,4 +1,4 @@
-ENTRY(__rel_prolog)
+ENTRY(_prolog)
 PHDRS
 {
   text PT_LOAD;
@@ -13,7 +13,7 @@ SECTIONS
     _INIT_START = .;
     . = ALIGN(4);
     *(.init)
-	  *(.text.__rel_prolog)
+	  *(.text._prolog)
 		*(.text*)
 		*(.text.*)
 		*(.gnu.warning)

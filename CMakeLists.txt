@@ -124,22 +124,4 @@ set(SOURCE_FILES
         src/world/WorldRenderer.hpp
         )
 
-patch_function("CGraphics::EndScene()"
-        "RenderHook()")
-patch_function("CPauseScreen::Draw()"
-        "PauseScreenDrawReplacement(CPauseScreen *)")
-patch_function("CPauseScreen::ProcessControllerInput(const CStateManager &, const CFinalInput &)"
-        "PauseControllerInputHandler(CPauseScreen *, CStateManager &, const CFinalInput &)")
-patch_function("CMainFlow::OnMessage(const CArchitectureMessage&, CArchitectureQueue&)"
-        "IOWinMessageHook(CMainFlow *, const CArchitectureMessage &, CArchitectureQueue &)")
-patch_function("CStateManager::DrawDebugStuff() const"
-        "drawDebugStuff(CStateManager *)")
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  patch_function("CMainFlow::AdvanceGameState(CArchitectureQueue&)"
-          "Hook_CMainFlow_AdvanceGameState(CMainFlow*, CArchitectureQueue&)")
-endif()
-
-add_prime_library(prime-practice src/prime-practice.lst default.dol ${SOURCE_FILES})
-#target_link_libraries(default-prime-practice
-#        "${CMAKE_SOURCE_DIR}/practice_mod_rust/target/powerpc-unknown-linux-gnu/release/libpractice_mod_rust.a"
-#        )
+add_prime_binary(prime-practice src/prime-practice.lst default.dol ${SOURCE_FILES})

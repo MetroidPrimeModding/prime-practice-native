@@ -27,24 +27,19 @@
 // Forward decls
 class CPlayer;
 
-extern "C" {
-void _prolog();
-}
-
-bool UpdateHealth(CPlayer *, CStateManager &);
-void VISetNextFrameBuffer(void *fb);
 void debug();
 void RenderHook();
 void PauseScreenDrawReplacement(CPauseScreen *);
 void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const CFinalInput &input);
-void resetLayerStates(const CStateManager &manager);
 CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue);
 void drawDebugStuff(CStateManager *);
 CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue);
-
-int crashVar;
+#ifdef DEBUG
+void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue);
+#endif
 
 extern "C" {
+__attribute__((visibility("default"))) extern void _prolog();
 void *memcpy(void *dest, const void *src, size_t count);
 }
 
@@ -52,48 +47,46 @@ void operator delete(void *ptr) {
   CMemory::Free(ptr);
 }
 
-// Impls
-extern "C" {
-extern int _INIT_START;
-__attribute__((visibility("default"))) extern void __rel_prolog();
-}
-
-__attribute__((visibility("default"))) void __rel_prolog() {
-  _prolog();
-}
+void ApplyCodePatches();
 
 void _prolog() {
-  MODULE_INIT;
+  ApplyCodePatches();
   char buffer[32];
-  sprintf(buffer, "_INIT_START= %8x\n", (int) (&_INIT_START));
-  OSReport(buffer);
   sprintf(buffer, "_prolog= %8x\n", (int) (&_prolog));
   OSReport(buffer);
 }
 
-void Relocate_Addr32(void *pRelocAddress, void *pSymbolAddress)
-{
-  uint32 *pReloc = (uint32*) pRelocAddress;
+void Relocate_Addr32(void *pRelocAddress, void *pSymbolAddress) {
+  uint32 *pReloc = (uint32 *) pRelocAddress;
   *pReloc = (uint32) pSymbolAddress;
 }
 
-void Relocate_Rel24(void *pRelocAddress, void *pSymbolAddress)
-{
-  uint32 *pReloc = (uint32*) pRelocAddress;
+void Relocate_Rel24(void *pRelocAddress, void *pSymbolAddress) {
+  uint32 *pReloc = (uint32 *) pRelocAddress;
   uint32 instruction = *pReloc;
   uint32 AA = (instruction >> 1) & 0x1;
-  *pReloc = (instruction & ~0x3FFFFFC) | (AA == 0 ? ((uint32) pSymbolAddress - (uint32) pRelocAddress) : (uint32) pSymbolAddress);
+  *pReloc = (instruction & ~0x3FFFFFC) |
+            (AA == 0 ? ((uint32) pSymbolAddress - (uint32) pRelocAddress) : (uint32) pSymbolAddress);
 }
 
-void ApplyCodePatches()
-{
-  Relocate_Rel24((void*) 0x80005734, reinterpret_cast<void*>(&RenderHook));
-  Relocate_Rel24((void*) 0x800061F4, reinterpret_cast<void*>(&RenderHook));
-  Relocate_Rel24((void*) 0x802BDC5C, reinterpret_cast<void*>(&RenderHook));
-  Relocate_Rel24((void*) 0x80108DB4, reinterpret_cast<void*>(&PauseScreenDrawReplacement));
-  Relocate_Rel24((void*) 0x80107A28, reinterpret_cast<void*>(&PauseControllerInputHandler));
-  Relocate_Addr32((void*) 0x803D9934, reinterpret_cast<void*>(&IOWinMessageHook));
-  Relocate_Rel24((void*) 0x80046B88, reinterpret_cast<void*>(&drawDebugStuff));
+void ApplyCodePatches() {
+  // CGraphics::EndScene
+  Relocate_Rel24((void *) 0x80005734, reinterpret_cast<void *>(&RenderHook));
+  Relocate_Rel24((void *) 0x800061F4, reinterpret_cast<void *>(&RenderHook));
+  Relocate_Rel24((void *) 0x802BDC5C, reinterpret_cast<void *>(&RenderHook));
+  // CPauseScreen::Draw
+  Relocate_Rel24((void *) 0x80108DB4, reinterpret_cast<void *>(&PauseScreenDrawReplacement));
+  // CPauseScreen::ProcessControllerInput
+  Relocate_Rel24((void *) 0x80107A28, reinterpret_cast<void *>(&PauseControllerInputHandler));
+  // CMainFlow::OnMessage
+  Relocate_Addr32((void *) 0x803D9934, reinterpret_cast<void *>(&IOWinMessageHook));
+  //CStateManager::DrawDebugStuff
+  Relocate_Rel24((void *) 0x80046B88, reinterpret_cast<void *>(&drawDebugStuff));
+
+#ifdef DEBUG
+  //CMainFlow::AdvanceGameState
+  Relocate_Rel24((void *) 0x80023950, reinterpret_cast<void *>(&Hook_CMainFlow_AdvanceGameState));
+#endif
 }
 
 
@@ -122,6 +115,67 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
     pause->ProcessControllerInput(mgr, input);
   }
 }
+
+void RenderHook() {
+//  CGraphics::BeginScene();
+  if (!NewPauseScreen::instance) {
+    NewPauseScreen::instance = new NewPauseScreen();
+  }
+  NewPauseScreen::instance->Render();
+  CGraphics::EndScene();
+}
+
+CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue) {
+  if (msg.x4_type == EArchMsgType_UserInput) {
+    if (!NewPauseScreen::instance) {
+      NewPauseScreen::instance = new NewPauseScreen();
+    }
+    CArchMsgParmUserInput *status = (CArchMsgParmUserInput *) msg.x8_parm.RawPointer();
+    // The mod 4 is just for safety
+    NewPauseScreen::instance->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
+    if (status->x4_parm.ControllerIdx() == 0) {
+      NewPauseScreen::instance->HandleInputs();
+    }
+  }
+
+  return thiz->OnMessage(msg, queue);
+}
+
+void drawDebugStuff(CStateManager *mgr) {
+  if (!NewPauseScreen::instance) {
+    NewPauseScreen::instance = new NewPauseScreen();
+  }
+  WorldRenderer::RenderWorld();
+//    NewPauseScreen::instance->Render();
+}
+
+// Hooks
+#ifdef DEBUG
+
+void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue) {
+  OSReport("Hooked advance game state\n");
+  // This hook is only compiled in if mode == Debug
+
+  // Hook into CMainFlow::AdvanceGameState(). When this function is called with
+  // the game state set to PreFrontEnd, that indicates that engine initialization
+  // is complete and the game is proceeding to the main menu. We hook in here to
+  // bypass the main menu and boot directly into the game.
+  static bool sHasDoneInitialBoot = false;
+
+  // Make sure the patch does not run twice if the player quits out to main menu
+  if (!sHasDoneInitialBoot && pMainFlow->GetGameState() == 7) {
+    sHasDoneInitialBoot = true;
+    CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
+    gameState->SetCurrentWorldId(0x39F2DE28);
+    gameState->CurrentWorldState().SetDesiredAreaAssetId(0xC44E7A07);
+    pMainFlow->SetGameState(kCFS_Game, Queue);
+    return;
+  } else {
+    pMainFlow->AdvanceGameState(Queue);
+  }
+}
+
+#endif
 
 //void resetLayerStates(const CStateManager &manager) {
 //  CMemoryCardSys *memorySystem = *(CMemoryCardSys **) 0x805A8C44;
@@ -158,72 +212,3 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
 //    crashVar = *((int *) 0xDEAD0002);
 //  }
 //}
-
-void RenderHook() {
-//  CGraphics::BeginScene();
-  if (!NewPauseScreen::instance) {
-    NewPauseScreen::instance = new NewPauseScreen();
-  }
-  NewPauseScreen::instance->Render();
-  CGraphics::EndScene();
-}
-
-CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue) {
-  if (msg.x4_type == EArchMsgType_UserInput) {
-    if (!NewPauseScreen::instance) {
-      NewPauseScreen::instance = new NewPauseScreen();
-    }
-    CArchMsgParmUserInput *status = (CArchMsgParmUserInput *) msg.x8_parm.RawPointer();
-    // The mod 4 is just for safety
-    NewPauseScreen::instance->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
-    if (status->x4_parm.ControllerIdx() == 0) {
-      NewPauseScreen::instance->HandleInputs();
-    }
-  }
-
-  return thiz->OnMessage(msg, queue);
-}
-
-void drawDebugStuff(CStateManager *mgr) {
-  if (!NewPauseScreen::instance) {
-    NewPauseScreen::instance = new NewPauseScreen();
-  }
-  WorldRenderer::RenderWorld();
-//    NewPauseScreen::instance->Render();
-}
-//
-//CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue) {
-//    thiz = new ((void*)thiz) CFrontEndUI(queue);
-//    *thiz->getPhase() = 6;
-//  //CStateManager *mgr = ((CStateManager *) 0x8045A1A8);
-////    mgr->GetWorld()->SetPauseState(true);
-//
-//  CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
-//  gameState->SetCurrentWorldId(0x83F6FF6F);
-////  gameState->CurrentWorldState().SetDesiredAreaAssetId(0x44E528F6);
-//
-//  return thiz;
-//}
-
-// Hooks
-void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue) {
-  // This hook is only compiled in if mode == Debug
-
-  // Hook into CMainFlow::AdvanceGameState(). When this function is called with
-  // the game state set to PreFrontEnd, that indicates that engine initialization
-  // is complete and the game is proceeding to the main menu. We hook in here to
-  // bypass the main menu and boot directly into the game.
-  static bool sHasDoneInitialBoot = false;
-
-  // Make sure the patch does not run twice if the player quits out to main menu
-  if (!sHasDoneInitialBoot && pMainFlow->GetGameState() == 7) {
-    sHasDoneInitialBoot = true;
-    CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
-    gameState->SetCurrentWorldId(0x39F2DE28);
-    gameState->CurrentWorldState().SetDesiredAreaAssetId(0xC44E7A07);
-    pMainFlow->SetGameState(kCFS_Game, Queue);
-    return;
-  } else {
-    pMainFlow->AdvanceGameState(Queue);
-  }
-}

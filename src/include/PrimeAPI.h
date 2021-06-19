@@ -3,11 +3,6 @@
 
 #include <gccore.h>
 
-// Add this macro at the beginning of _prolog
-#define MODULE_INIT \
-  extern void ApplyCodePatches(); \
-  ApplyCodePatches();
-
 // Patches all references to originalSymbol in the base game to point to newSymbol instead
 #define PATCH_SYMBOL(originalSymbol, newSymbol)
 
