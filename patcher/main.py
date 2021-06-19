@@ -5,7 +5,7 @@ import sys
 from src.DataReader import DataReader
 from src.DataWriter import DataWriter
 from src.GCDisc import GCDiscHeader, FST, FSTEntry
-from src.NewDolPatcher import patch_dol
+from src.DolPatcher import patch_dol
 
 import hashlib
 

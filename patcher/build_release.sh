@@ -9,10 +9,9 @@ rm -rf "release/${VERSION}/prime-practice-${VERSION}"
 mkdir -p "release/${VERSION}/prime-practice-${VERSION}"
 
 cp -r \
-  ../cmake-build-release-llvm/Mod.rel \
-  symbols \
+  ../cmake-build-release-llvm/prime-practice \
   src main.py release/main.exe \
-  DolPatch.bin opening_practice.bnr \
+  opening_practice.bnr \
   patch.sh patch.bat \
   ../README.md \
   "release/${VERSION}/prime-practice-${VERSION}"

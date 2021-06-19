@@ -4,7 +4,7 @@ from typing import Callable
 from pyelftools.elftools.elf.elffile import ELFFile
 from src.DataReader import DataReader
 from src.DataWriter import DataWriter
-from src.NewDol import DolHeader
+from src.Dol import DolHeader
 
 def patch_dol(mod_path: str, unpatched_dol_bytes: bytes) -> bytearray:
     header = DolHeader.parse(DataReader(unpatched_dol_bytes))
