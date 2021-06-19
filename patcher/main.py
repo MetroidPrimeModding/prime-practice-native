@@ -5,12 +5,14 @@ import sys
 from src.DataReader import DataReader
 from src.DataWriter import DataWriter
 from src.GCDisc import GCDiscHeader, FST, FSTEntry
-from src.dol import DolFile
+from src.NewDolPatcher import patch_dol
+
 import hashlib
 
 KNOWN_MP1_MD5 = "eeacd0ced8e2bae491eca14f141a4b7c"
 
-def patch_iso(inp_path, out_path, mod_path, ignore_hash=False):
+
+def patch_iso_file(inp_path, out_path, mod_path, ignore_hash=False):
     # Set up the input
     print("Preparing...")
     inp_file = open(inp_path, 'rb')
@@ -57,33 +59,7 @@ def patch_iso(inp_path, out_path, mod_path, ignore_hash=False):
     # Write it to disk
     # TODO: just do this all in memory
     # Involves re-writing DolFile, but it shouldn't be *too* bad
-    with open("default.dol", "wb") as f:
-        f.write(unpatched_dol_bytes)
-
-    # patch said dol
-    print("Patching dol")
-    dol_file = DolFile()
-    dol_file.read("default.dol")
-    if dol_file.buildVersion >= 2:
-        print("This isn't a Prime dol file, so I can't patch it")
-        sys.exit(1)
-
-    if not dol_file.load_symbols("symbols"):
-        raise IOError("Unable to load symbols")
-
-    if not dol_file.apply_patch("DolPatch.bin", "default_mod.dol"):
-        print("Failed to patch dol")
-        sys.exit(1)
-
-    # read it back from disk
-    with open("default_mod.dol", 'rb') as f:
-        patched_dol_bytes = f.read()
-        # patched_dol_bytes = unpatched_dol_bytes
-
-    # Load mod file
-    print("Loading mod")
-    with open(mod_path, 'rb') as f:
-        mod_rel_bytes = f.read()
+    patched_dol_bytes = patch_dol(mod_path, unpatched_dol_bytes)
 
     print("Loading bnr")
     with open("opening_practice.bnr", 'rb') as f:
@@ -93,8 +69,6 @@ def patch_iso(inp_path, out_path, mod_path, ignore_hash=False):
     print("Determining file offsets for new files")
     dol_offset = first_file - len(patched_dol_bytes)
     dol_offset -= dol_offset % 8192
-    mod_rel_offset = dol_offset - len(mod_rel_bytes)
-    mod_rel_offset -= mod_rel_offset % 8192
 
     # Build our new FST entries
     patched_dol_fst_entry = FSTEntry(
@@ -103,17 +77,10 @@ def patch_iso(inp_path, out_path, mod_path, ignore_hash=False):
         offset=dol_offset,
         length=len(patched_dol_bytes)
     )
-    mod_rel_fst_entry = FSTEntry(
-        directory=False,
-        name="Mod.rel",
-        offset=mod_rel_offset,
-        length=len(mod_rel_bytes)
-    )
 
     # Add them to the root entry
     print("Patching FST")
     fst.root.children.append(patched_dol_fst_entry)
-    fst.root.children.append(mod_rel_fst_entry)
     # It's time: copy the old
     print("Copying iso (note: this may take some time)")
     out_file = open(out_path, "wb+")
@@ -143,7 +110,6 @@ def patch_iso(inp_path, out_path, mod_path, ignore_hash=False):
 
     print("Writing mod & dol")
     out_writer.write_bytes(patched_dol_fst_entry.offset, patched_dol_bytes)
-    out_writer.write_bytes(mod_rel_fst_entry.offset, mod_rel_bytes)
 
     print("patching bnr")
     out_writer.write_string(0x20, "Metroid Prime Practice Mod")
@@ -160,21 +126,52 @@ def patch_iso(inp_path, out_path, mod_path, ignore_hash=False):
     pass
 
 
+def patch_dol_file(inp_path, out_path, mod_path):
+    print(f"Loading {inp_path}")
+    with open(inp_path, 'rb') as f:
+        dol_bytes = f.read()
+    print(f"{len(dol_bytes)} bytes")
+    out_bytes = patch_dol(mod_path, dol_bytes)
+    print(f"Writing {out_path}")
+    with open(out_path, 'wb') as f:
+        f.write(out_bytes)
+    print(f"{len(out_bytes)} bytes")
+    print(f"Mod size: {len(out_bytes) - len(dol_bytes)} bytes")
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Patch a MP1 0-00 ISO to the practice mod"
+        description="Patch a MP1 0-00 dol or ISO to the practice mod"
     )
-    parser.add_argument("--input", '-i', required=True, help="Input iso file")
-    parser.add_argument("--output", '-o', required=True, help="Output iso file")
-    parser.add_argument("--mod", '-m', required=True, help="Mod.rel to insert")
-    parser.add_argument("--skip-hash", dest="skip_hash", action="store_true", help="Skip hash check")
+    subparsers = parser.add_subparsers(help="sub-command help", dest="command")
+
+    patch_iso_parser = subparsers.add_parser('iso', help="Patch an ISO to practice mod")
+    patch_iso_parser.add_argument("--input", '-i', required=True, help="Input iso file")
+    patch_iso_parser.add_argument("--output", '-o', required=True, help="Output iso file")
+    patch_iso_parser.add_argument("--mod", '-m', required=True, help="Statically linked elf to insert")
+    patch_iso_parser.add_argument("--skip-hash", dest="skip_hash", action="store_true", help="Skip hash check")
+
+    patch_dol_parser = subparsers.add_parser('dol', help="Patch an ISO to practice mod")
+    patch_dol_parser.add_argument("--input", '-i', required=True, help="Input dol file")
+    patch_dol_parser.add_argument("--mod", '-m', required=True, help="Statically linked elf to insert")
+    patch_dol_parser.add_argument("--output", '-o', required=True, help="Output iso file")
 
     args = parser.parse_args()
-    inp_path = args.input
-    out_path = args.output
-    mod_path = args.mod
 
-    patch_iso(inp_path, out_path, mod_path, ignore_hash=args.skip_hash)
+    if args.command == 'iso':
+        inp_path = args.input
+        out_path = args.output
+        mod_path = args.mod
+        skip_hash = args.skip_hash
+
+        patch_iso_file(inp_path, out_path, mod_path, ignore_hash=skip_hash)
+    else:
+        inp_path = args.input
+        out_path = args.output
+        mod_path = args.mod
+
+        patch_dol_file(inp_path, out_path, mod_path)
+
 
 if __name__ == '__main__':
     main()

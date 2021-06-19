@@ -35,11 +35,11 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
         -nostdlib
         --gc-sections
         "-e __rel_prolog"
-        "--unresolved-symbols=report-all"
-        --error-unresolved-symbols
-        --no-allow-shlib-undefined
-        --no-undefined
-        -r
+#        "--unresolved-symbols=report-all"
+#        --error-unresolved-symbols
+#        --no-allow-shlib-undefined
+#        --no-undefined
+#        -r
         "-T ${PRIMEAPI2_PATH}/eppc.ld"
         )
 

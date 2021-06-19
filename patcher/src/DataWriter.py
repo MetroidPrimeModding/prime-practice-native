@@ -1,8 +1,9 @@
 from mmap import mmap
+from typing import Union
 
 
 class DataWriter:
-    def __init__(self, data: mmap, offset=0):
+    def __init__(self, data: Union[mmap, bytes, bytearray], offset=0):
         self.data = data
         self.offset = offset
 
