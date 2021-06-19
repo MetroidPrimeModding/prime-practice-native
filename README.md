@@ -67,6 +67,10 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.3.0 (beta)
+- Compile statically & link directly into default.dol
+- This reduces the size of the mod by ~100k
+
 ### 2.2.4 (beta)
 - Fix running in Nintendont 
 - Revert from direct GX rendering back to Stream rendering, until I can figure out why it crashes nintendont
