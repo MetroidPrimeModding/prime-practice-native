@@ -7,7 +7,7 @@
 #include <imgui.h>
 #include "prime/CStateManager.hpp"
 
-//#define USE_GX
+#define USE_GX
 
 class ImGuiEngine {
 public:

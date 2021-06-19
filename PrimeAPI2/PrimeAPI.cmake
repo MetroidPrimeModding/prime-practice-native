@@ -95,15 +95,14 @@ macro(add_prime_library name symbol_list base_dol)
             -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
             -o "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
             -m "${CMAKE_CURRENT_BINARY_DIR}/${name}"
-            DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
+            DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}" "${CMAKE_CURRENT_BINARY_DIR}/${name}"
             WORKING_DIRECTORY "${PRIMEAPI2_PATH}/../patcher/"
     )
     add_custom_target(
             patch_dol ALL
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol" "${CMAKE_CURRENT_BINARY_DIR}/${name}"
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
             SOURCES "${base_dol}"
     )
-#    add_dependencies(${name} patch_dol)
 
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
             DESTINATION "files/"
