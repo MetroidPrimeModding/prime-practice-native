@@ -71,6 +71,32 @@ void _prolog() {
   OSReport(buffer);
 }
 
+void Relocate_Addr32(void *pRelocAddress, void *pSymbolAddress)
+{
+  uint32 *pReloc = (uint32*) pRelocAddress;
+  *pReloc = (uint32) pSymbolAddress;
+}
+
+void Relocate_Rel24(void *pRelocAddress, void *pSymbolAddress)
+{
+  uint32 *pReloc = (uint32*) pRelocAddress;
+  uint32 instruction = *pReloc;
+  uint32 AA = (instruction >> 1) & 0x1;
+  *pReloc = (instruction & ~0x3FFFFFC) | (AA == 0 ? ((uint32) pSymbolAddress - (uint32) pRelocAddress) : (uint32) pSymbolAddress);
+}
+
+void ApplyCodePatches()
+{
+  Relocate_Rel24((void*) 0x80005734, reinterpret_cast<void*>(&RenderHook));
+  Relocate_Rel24((void*) 0x800061F4, reinterpret_cast<void*>(&RenderHook));
+  Relocate_Rel24((void*) 0x802BDC5C, reinterpret_cast<void*>(&RenderHook));
+  Relocate_Rel24((void*) 0x80108DB4, reinterpret_cast<void*>(&PauseScreenDrawReplacement));
+  Relocate_Rel24((void*) 0x80107A28, reinterpret_cast<void*>(&PauseControllerInputHandler));
+  Relocate_Addr32((void*) 0x803D9934, reinterpret_cast<void*>(&IOWinMessageHook));
+  Relocate_Rel24((void*) 0x80046B88, reinterpret_cast<void*>(&drawDebugStuff));
+}
+
+
 void PauseScreenDrawReplacement(CPauseScreen *pause) {
   if (!pause->IsLoaded()) { return; }
   pause->Draw();

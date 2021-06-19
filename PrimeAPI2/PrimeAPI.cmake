@@ -55,7 +55,6 @@ include_directories("${DEVKITPRO}/libogc/include/")
 # Macro to get the required link arguments in place
 macro(add_prime_library name symbol_list base_dol)
     add_executable(${name} ${ARGN}
-            "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
             "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
     )
     set_target_properties(${name} PROPERTIES LINK_FLAGS
@@ -63,16 +62,6 @@ macro(add_prime_library name symbol_list base_dol)
     )
 
     target_link_libraries(${name} "${DEVKITPPC}/lib/gcc/powerpc-eabi/11.1.0/libgcc.a")
-
-    # Create the ApplyCodePatches.cpp
-    add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
-            COMMAND python3 "parse_and_generate_patch.py"
-            -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
-            -o "${CMAKE_CURRENT_BINARY_DIR}/ApplyCodePatches.cpp"
-            ${PRIME_PATCH_FUNCTIONS}
-            WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
-    )
 
     # Create the dol_symbols.o
     get_filename_component(absolute_symbol_list "${symbol_list}" REALPATH)

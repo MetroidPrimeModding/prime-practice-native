@@ -5,8 +5,6 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from demangle import demangle
-
 
 yaml_template = '''\
 --- !ELF
@@ -38,13 +36,6 @@ def convert_symbol_list(list_file: Path, output_file: Path, llvm_dir: Path, yaml
                 continue
 
             addr, name = line.split(' ', maxsplit=1)
-            # demangled = name
-            # mangled = name
-            # try:
-            #     demangled = demangle(name)
-            #     mangled =
-            # except:
-            #     print('Unable to demangle ', name)
             symbols.append((addr.strip(), name.strip()))
 
     symbols_text = "".join([symbol_template.format(name, addr)
