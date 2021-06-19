@@ -50,6 +50,8 @@ void operator delete(void *ptr) {
 void ApplyCodePatches();
 
 void _prolog() {
+  // null out prac mod instance; this is called from reset()
+  NewPauseScreen::instance = nullptr;
   ApplyCodePatches();
   char buffer[32];
   sprintf(buffer, "_prolog= %8x\n", (int) (&_prolog));

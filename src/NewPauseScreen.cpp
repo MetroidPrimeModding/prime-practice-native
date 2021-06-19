@@ -25,7 +25,7 @@
 
 #define PAD_MAX_CONTROLLERS 4
 
-NewPauseScreen *NewPauseScreen::instance = NULL;
+NewPauseScreen *NewPauseScreen::instance = nullptr;
 
 NewPauseScreen::NewPauseScreen() {
   OSReport("Hello, Dolphin\n");
