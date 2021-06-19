@@ -90,38 +90,21 @@ macro(add_prime_library name symbol_list base_dol)
     # Create the patched dol
     add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
-            COMMAND python3 "patch_dol_file.py"
+            COMMAND python3 "main.py"
+            dol
             -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
             -o "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            -m "${CMAKE_CURRENT_BINARY_DIR}/${name}"
             DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
-            WORKING_DIRECTORY "${PRIMEAPI2_PATH}/python/"
+            WORKING_DIRECTORY "${PRIMEAPI2_PATH}/../patcher/"
     )
     add_custom_target(
-            patch_dol
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            patch_dol ALL
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol" "${CMAKE_CURRENT_BINARY_DIR}/${name}"
             SOURCES "${base_dol}"
     )
-    add_dependencies(${name} patch_dol)
+#    add_dependencies(${name} patch_dol)
 
-
-    # Create the Mod.rel
-    add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
-            COMMAND cargo run -p dol_linker --
-            rel
-            -o "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
-            -s "${PRIMEAPI2_PATH}/empty.lst"
-            "${CMAKE_CURRENT_BINARY_DIR}/${name}"
-            WORKING_DIRECTORY "${PRIMEAPI2_PATH}/randomprime/"
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${name}"
-    )
-    add_custom_target(
-            build_mod ALL
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
-    )
-
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/Mod.rel"
-            DESTINATION "files/")
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
             DESTINATION "files/"
             RENAME "default.dol")
