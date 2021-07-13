@@ -22,6 +22,7 @@
 #include "settings.hpp"
 #include "font_atlas.hpp"
 #include "ImGuiEngine.hpp"
+#include "version.h"
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -147,6 +148,7 @@ void NewPauseScreen::RenderMenu() {
     GUI::drawPlayerMenu();
     GUI::drawInventoryMenu();
     GUI::drawSettingsMenu();
+    ImGui::Text("v%s", PRAC_MOD_VERSION);
   }
   ImGui::End();
 

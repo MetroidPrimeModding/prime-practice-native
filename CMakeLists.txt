@@ -74,6 +74,7 @@ set(SOURCE_FILES
         src/include/prime/CScriptRelay.hpp
         src/include/prime/CScriptDoor.hpp
         src/include/prime/CScriptCameraHint.hpp
+        src/include/prime/CCameraBobber.hpp
         src/include/STriggerRenderConfig.hpp
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp
@@ -98,6 +99,7 @@ set(SOURCE_FILES
         src/libc/printf.c
         src/libc/sscanf.c
 
+        src/version.h
         src/new.cpp
         src/NewPauseScreen.cpp
         src/duk_mem.h

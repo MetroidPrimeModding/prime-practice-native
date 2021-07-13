@@ -67,6 +67,10 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.3.1 (beta)
+- Add IS & lightshowfix to player menu
+- Add version to main menu
+
 ### 2.3.0 (beta)
 - Compile statically & link directly into default.dol
 - This reduces the size of the mod by ~100k

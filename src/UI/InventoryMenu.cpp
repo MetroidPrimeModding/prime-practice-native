@@ -44,7 +44,7 @@ static constexpr SItemAmt StartingItems[] = {
 };
 
 static constexpr SItemAmt LowPercentItems[] = {
-    {CPlayerState::EItemType::EnergyTanks, 1},
+    {CPlayerState::EItemType::EnergyTanks, 0},
     {CPlayerState::EItemType::Missiles, 5},
 
     {CPlayerState::EItemType::MorphBall},

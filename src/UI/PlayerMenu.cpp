@@ -67,10 +67,44 @@ namespace GUI {
         ImGui::Text("Saved position: %.2fx, %.2fy, %.2fz", savedPos.x, savedPos.y, savedPos.z);
       }
 
+      float xyz[3] = {
+          player->getTransform()->x,
+          player->getTransform()->y,
+          player->getTransform()->z
+      };
 
-      ImGui::DragFloat("X", &player->getTransform()->x, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
-      ImGui::DragFloat("Y", &player->getTransform()->y, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
-      ImGui::DragFloat("Z", &player->getTransform()->z, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
+      ImGui::DragFloat3("", xyz, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
+      player->getTransform()->x = xyz[0];
+      player->getTransform()->y = xyz[1];
+      player->getTransform()->z = xyz[2];
+
+      if (ImGui::Button("IS on")) {
+        player->GetAngularVelocity()->x = NAN;
+        player->GetAngularVelocity()->y = NAN;
+        player->GetAngularVelocity()->z = NAN;
+      }
+      ImGui::SameLine();
+      ImGui::Text("Use while morphed");
+
+      auto *bobber = player->getCameraBobber();
+      if (ImGui::Button("Lightshow fix")) {
+        player->GetAngularVelocity()->x = 0;
+        player->GetAngularVelocity()->y = 0;
+        player->GetAngularVelocity()->z = 0;
+
+
+        *(bobber->getTargetBobMagnitude()) = 0;
+        *(bobber->getBobMagnitude()) = 0;
+        *(bobber->getBobTimescale()) = 0;
+        *(bobber->getBobTime()) = 0;
+        bobber->getCameraBobTransform()->x = 0;
+        bobber->getCameraBobTransform()->y = 0;
+        bobber->getCameraBobTransform()->z = 0;
+      }
+
+      ImGui::SameLine();
+      ImGui::Text("Use while unmorphed");
+
       ImGui::TreePop();
     }
   }
