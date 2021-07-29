@@ -29,6 +29,7 @@ namespace WorldRenderer {
     CGX::SetZMode(true, GxCompare_LEQUAL, false);
     CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
     CGraphics::DisableAllLights();
+    CGraphics::SetIdentityModelMatrix();
 
     CGX::SetNumTevStages(1);
     CGX::SetTevOrder(

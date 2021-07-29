@@ -10,6 +10,7 @@ struct Settings {
   bool OSD_showMemoryGraph: 1{false};
   bool OSD_showInput: 1{true};
   bool OSD_showVelocity: 1{true};
+  bool OSD_showRotationalVelocity: 1{false};
   bool OSD_showPos: 1{true};
   bool OSD_showIGT: 1{true};
   bool OSD_showRoomTime: 1{true};

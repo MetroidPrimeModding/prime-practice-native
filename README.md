@@ -67,6 +67,10 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.3.2
+- Add rotational speed back as OSD option
+- Swap current and last room ordering
+
 ### 2.3.1 (beta)
 - Add IS & lightshowfix to player menu
 - Add version to main menu

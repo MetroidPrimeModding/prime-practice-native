@@ -19,7 +19,8 @@ namespace GUI {
   void drawMemoryUsage();
   void drawInput(CFinalInput *inputs);
   void drawPos();
-  void drawSpeed();
+  void drawVelocity();
+  void drawRotationalVelocity();
 
   void drawIGT();
 
@@ -56,7 +57,10 @@ namespace GUI {
         drawPos();
       }
       if (SETTINGS.OSD_showVelocity) {
-        drawSpeed();
+        drawVelocity();
+      }
+      if (SETTINGS.OSD_showRotationalVelocity) {
+        drawRotationalVelocity();
       }
       if (SETTINGS.OSD_showFrameTime) {
         drawFrameTime();
@@ -107,14 +111,6 @@ namespace GUI {
       }
       double current_room_time = current_time - room_start_time;
       {
-        int frames = (int) (last_time / (1.0 / 60.0));
-        int ms = (int) (last_time * 1000.0) % 1000;
-        int seconds = (int) last_time % 60;
-        int minutes = ((int) last_time / 60) % 60;
-        int hours = ((int) last_time / 60 / 60) % 60;
-        ImGui::Text("Last: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
-      }
-      {
         int frames = (int) (current_room_time / (1.0 / 60.0));
         int ms = (int) (current_room_time * 1000.0) % 1000;
         int seconds = (int) current_room_time % 60;
@@ -122,6 +118,14 @@ namespace GUI {
         int hours = ((int) current_room_time / 60 / 60) % 60;
         ImGui::SameLine();
         ImGui::Text("Current: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
+      }
+      {
+        int frames = (int) (last_time / (1.0 / 60.0));
+        int ms = (int) (last_time * 1000.0) % 1000;
+        int seconds = (int) last_time % 60;
+        int minutes = ((int) last_time / 60) % 60;
+        int hours = ((int) last_time / 60 / 60) % 60;
+        ImGui::Text("Last: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
     }
   }
@@ -138,7 +142,7 @@ namespace GUI {
     }
   }
 
-  void drawSpeed() {
+  void drawVelocity() {
     CStateManager *stateManager = CStateManager_INSTANCE;
     CPlayer *player = stateManager->Player();
 
@@ -149,6 +153,20 @@ namespace GUI {
       float h = CMath::SqrtF(x * x + y * y);
 
       ImGui::Text("Vel: %5.2fx %5.2fy %5.2fz %5.2fh", x, y, z, h);
+    }
+  }
+
+  void drawRotationalVelocity() {
+    CStateManager *stateManager = CStateManager_INSTANCE;
+    CPlayer *player = stateManager->Player();
+
+    if (player) {
+      float x = player->GetAngularVelocity()->x;
+      float y = player->GetAngularVelocity()->y;
+      float z = player->GetAngularVelocity()->z;
+      float h = CMath::SqrtF(x * x + y * y);
+
+      ImGui::Text("Rot: %5.2fx %5.2fy %5.2fz %5.2fh", x, y, z, h);
     }
   }
 

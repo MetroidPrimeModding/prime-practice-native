@@ -11,6 +11,8 @@ namespace GUI {
         BITFIELD_CHECKBOX("Pos", SETTINGS.OSD_showPos);
         ImGui::SameLine();
         BITFIELD_CHECKBOX("Velocity", SETTINGS.OSD_showVelocity);
+        ImGui::SameLine();
+        BITFIELD_CHECKBOX("Angular Velocity", SETTINGS.OSD_showRotationalVelocity);
         BITFIELD_CHECKBOX("Input", SETTINGS.OSD_showInput);
         ImGui::SameLine();
         BITFIELD_CHECKBOX("Time", SETTINGS.OSD_showIGT);
