@@ -75,6 +75,10 @@ set(SOURCE_FILES
         src/include/prime/CScriptDoor.hpp
         src/include/prime/CScriptCameraHint.hpp
         src/include/prime/CCameraBobber.hpp
+        src/include/prime/CCameraManager.hpp
+        src/include/prime/CGameCamera.hpp
+        src/include/prime/CFirstPersonCamera.hpp
+        src/include/prime/CBallCamera.hpp
         src/include/STriggerRenderConfig.hpp
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp

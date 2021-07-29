@@ -1,5 +1,4 @@
-#ifndef PRIME_PRACTICE_NATIVE_CCAMERABOBBER_HPP
-#define PRIME_PRACTICE_NATIVE_CCAMERABOBBER_HPP
+#pragma once
 
 #include "GetField.hpp"
 #include "MathyTypes.hpp"
@@ -12,5 +11,3 @@ public:
   float *getBobTime() { return GetField<float>(this, 0x1C); }
   CTransform4f *getCameraBobTransform() { return GetField<CTransform4f>(this, 0x38); }
 };
-
-#endif //PRIME_PRACTICE_NATIVE_CCAMERABOBBER_HPP

@@ -1,5 +1,4 @@
-#ifndef CSTATEMANAGER_H
-#define CSTATEMANAGER_H
+#pragma  once
 
 #include "PrimeAPI.h"
 #include "types.h"
@@ -12,17 +11,12 @@
 #define CStateManager_INSTANCE ((CStateManager *) 0x8045A1A8)
 
 class CPlayerState;
-
 class CWorldLayerState;
-
 class CGameState;
-
 class CWorldState;
-
 class CWorld;
-
 class CPlayer;
-
+class CCameraManager;
 class CWorldTransManager;
 
 struct StateManagerFlags {
@@ -53,18 +47,13 @@ enum EInitPhase
     
     inline CPlayer* GetPlayer() const { return *GetField<CPlayer*>(this, 0x84C); }
     inline EInitPhase GetInitPhase() const { return *GetField<EInitPhase>(this, 0xB3C); }
-
     inline CPlayerState *GetPlayerState() const { return mpPlayerState.RawPointer(); }
-
     inline CWorldLayerState *GetWorldLayerState() const { return worldLayerState.RawPointer(); }
-
     CWorld *GetWorld() const { return *GetField<CWorld *>(this, 0x850); };
-
     CWorldTransManager *WorldTransManager() const { return GetField<CWorldTransManager>(this, 0x8c4); }
-
     CPlayer *Player() const { return *GetField<CPlayer *>(this, 0x84C); };
-
     CObjectList *GetAllObjs() { return *GetField<CObjectList *>(this, 0x810); };
+    inline CCameraManager *x870_cameraManager() { return *GetField<CCameraManager*>(this, 0x870); };
 
     void SetShouldQuitGame(bool should) { GetField<StateManagerFlags>(this, 0xf94)->xf94_25_quitGame = should; }
 
@@ -73,5 +62,3 @@ enum EInitPhase
     CFrustum SetupViewForDraw(const SViewport& vp) const;
     void ResetViewAfterDraw(const SViewport& backupViewport, const CTransform4f& backupViewMatrix) const;
 };
-
-#endif

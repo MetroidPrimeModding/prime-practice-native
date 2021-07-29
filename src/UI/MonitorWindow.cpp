@@ -21,9 +21,7 @@ namespace GUI {
   void drawPos();
   void drawVelocity();
   void drawRotationalVelocity();
-
   void drawIGT();
-
   void drawRoomTime();
 
   void drawMonitorWindow(CFinalInput *inputs) {
