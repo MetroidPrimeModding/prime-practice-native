@@ -81,6 +81,8 @@
 0x8000d2b0 _ZNK11CFinalInput2DZEv
 0x8000cfe0 _ZNK11CFinalInput2PAEv
 0x8000cfc8 _ZNK11CFinalInput2PBEv
+0x8000CFB0 _ZNK11CFinalInput2PXEv
+0x8000CF98 _ZNK11CFinalInput2PYEv
 0x8000d028 _ZNK11CFinalInput7PDPDownEv
 0x8000d1f4 _ZNK11CFinalInput7PLADownEv
 0x8000d10c _ZNK11CFinalInput7PRADownEv
@@ -157,3 +159,4 @@
 0x8030C74C _ZN9CGraphics18SetViewPointMatrixERK12CTransform4f
 0x8037EAB0 DCFlushRange
 0x8030B120 _ZN9CGraphics21ResetVertexDataStreamEb
+0x8003fc44 _ZN10CPlayerGun8DropBombE8EBWeaponR13CStateManager

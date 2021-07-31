@@ -70,6 +70,9 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 ### 2.3.2
 - Add rotational speed back as OSD option
 - Swap current and last room ordering
+- Bomb jump display/helper
+- Automatically show crash screen on crash
+- Move the UI a bit further towards the edges
 
 ### 2.3.1 (beta)
 - Add IS & lightshowfix to player menu

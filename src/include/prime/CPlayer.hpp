@@ -3,7 +3,9 @@
 
 #include "prime/CStateManager.hpp"
 #include "prime/CPhysicsActor.hpp"
-#include "prime/CCameraBobber.hpp"
+
+class CPlayerGun;
+class CCameraBobber;
 
 class CPlayer : public CPhysicsActor {
 public:
@@ -11,6 +13,7 @@ public:
 
 
   CCameraBobber *getCameraBobber() { return *GetField<CCameraBobber*>(this, 0x76C); }
+  CPlayerGun *getPlayerGun() { return *GetField<CPlayerGun*>(this, 0x490); }
 };
 
 #endif //PRIME_PRACTICE_CPLAYER_HPP

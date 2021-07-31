@@ -15,6 +15,8 @@ struct Settings {
   bool OSD_showIGT: 1{true};
   bool OSD_showRoomTime: 1{true};
 
+  bool BOMBJUMP_enable: 1{false};
+
   bool TRIGGER_renderUnknown: 1{false};
   bool TRIGGER_renderLoad: 1{false};
   bool TRIGGER_renderDoor: 1{false};

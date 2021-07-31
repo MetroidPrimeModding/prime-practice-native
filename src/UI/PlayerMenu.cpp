@@ -5,6 +5,7 @@
 #include <prime/CGameState.hpp>
 #include <prime/CWorldState.hpp>
 #include <prime/CWorld.hpp>
+#include <prime/CCameraBobber.hpp>
 #include "PlayerMenu.hpp"
 #include "WarpMenu.h"
 #include "imgui.h"

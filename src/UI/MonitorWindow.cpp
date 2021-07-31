@@ -29,7 +29,7 @@ namespace GUI {
       return;
     }
     {
-      ImGui::SetNextWindowPos(ImVec2(620, 20), ImGuiCond_None, ImVec2(1, 0));
+      ImGui::SetNextWindowPos(ImVec2(630, 10), ImGuiCond_None, ImVec2(1, 0));
       ImGui::Begin(
           "Montitor", nullptr,
           ImGuiWindowFlags_NoResize |
@@ -114,8 +114,7 @@ namespace GUI {
         int seconds = (int) current_room_time % 60;
         int minutes = ((int) current_room_time / 60) % 60;
         int hours = ((int) current_room_time / 60 / 60) % 60;
-        ImGui::SameLine();
-        ImGui::Text("Current: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
+        ImGui::Text("C: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
       {
         int frames = (int) (last_time / (1.0 / 60.0));
@@ -123,7 +122,8 @@ namespace GUI {
         int seconds = (int) last_time % 60;
         int minutes = ((int) last_time / 60) % 60;
         int hours = ((int) last_time / 60 / 60) % 60;
-        ImGui::Text("Last: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
+        ImGui::SameLine();
+        ImGui::Text("P: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
     }
   }
@@ -268,7 +268,7 @@ namespace GUI {
   void drawInput(CFinalInput *inputs) {
     CFinalInput *p1 = &inputs[0];
 
-    ImGui::SetNextWindowPos(ImVec2(620, 440), ImGuiCond_None, ImVec2(1, 1));
+    ImGui::SetNextWindowPos(ImVec2(630, 450), ImGuiCond_None, ImVec2(1, 1));
     ImGui::Begin(
         "Input", nullptr,
         ImGuiWindowFlags_NoResize |

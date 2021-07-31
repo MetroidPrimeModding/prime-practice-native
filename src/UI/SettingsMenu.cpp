@@ -2,6 +2,7 @@
 #include "ImHelpers.hpp"
 #include "SettingsMenu.hpp"
 #include "settings.hpp"
+#include "BombJumping.hpp"
 
 namespace GUI {
   void drawSettingsMenu() {
@@ -24,6 +25,15 @@ namespace GUI {
         BITFIELD_CHECKBOX("Memory graph", SETTINGS.OSD_showMemoryGraph);
 
         // end in-game display
+        ImGui::TreePop();
+      }
+
+      if (ImGui::TreeNode("Bomb Jumping")) {
+        BITFIELD_CHECKBOX("Timing and position UI", SETTINGS.BOMBJUMP_enable);
+        if (ImGui::TreeNode("Custom Bomb Jump (p2 b)")) {
+          drawCustomBombJumpConfigMenu();
+          ImGui::TreePop();
+        }
         ImGui::TreePop();
       }
 

@@ -1,9 +1,5 @@
-#ifndef PRIME_PRACTICE_NATIVE_INVENTORYMENU_HPP
-#define PRIME_PRACTICE_NATIVE_INVENTORYMENU_HPP
+#pragma once
 
 namespace GUI {
   void drawInventoryMenu();
 }
-
-
-#endif //PRIME_PRACTICE_NATIVE_INVENTORYMENU_HPP

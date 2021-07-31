@@ -2,7 +2,8 @@
 #include <prime/CFontEndUI.hpp>
 #include <os.h>
 #include <world/WorldRenderer.hpp>
-
+#include <prime/CPlayerGun.hpp>
+#include "UI/BombJumping.hpp"
 #include "types.h"
 #include "prime/CMain.hpp"
 #include "prime/CStateManager.hpp"
@@ -34,6 +35,7 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
 CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue);
 void drawDebugStuff(CStateManager *);
 CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue);
+void DropBombHook(CPlayerGun* thiz, EBWeapon weapon, CStateManager &mgr);
 #ifdef DEBUG
 void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue);
 #endif
@@ -84,6 +86,12 @@ void ApplyCodePatches() {
   Relocate_Addr32((void *) 0x803D9934, reinterpret_cast<void *>(&IOWinMessageHook));
   //CStateManager::DrawDebugStuff
   Relocate_Rel24((void *) 0x80046B88, reinterpret_cast<void *>(&drawDebugStuff));
+  //CPlayerGun::DropBomb
+  Relocate_Rel24((void *) 0x8003dc74, reinterpret_cast<void *>(&DropBombHook));
+  Relocate_Rel24((void *) 0x8003dd40, reinterpret_cast<void *>(&DropBombHook));
+  Relocate_Rel24((void *) 0x80152510, reinterpret_cast<void *>(&DropBombHook));
+  Relocate_Rel24((void *) 0x80152528, reinterpret_cast<void *>(&DropBombHook));
+
 
 #ifdef DEBUG
   //CMainFlow::AdvanceGameState
@@ -151,7 +159,13 @@ void drawDebugStuff(CStateManager *mgr) {
 //    NewPauseScreen::instance->Render();
 }
 
-// Hooks
+void DropBombHook(CPlayerGun* thiz, EBWeapon weapon, CStateManager &mgr) {
+  if (weapon == EBWeapon::Bomb) {
+    GUI::bombDropped();
+  }
+  thiz->DropBomb(weapon, mgr);
+}
+
 #ifdef DEBUG
 
 void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue) {
@@ -169,7 +183,7 @@ void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Q
     sHasDoneInitialBoot = true;
     CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
     gameState->SetCurrentWorldId(0x39F2DE28);
-    gameState->CurrentWorldState().SetDesiredAreaAssetId(0xC44E7A07);
+    gameState->CurrentWorldState().SetDesiredAreaAssetId(0x2398E906);
     pMainFlow->SetGameState(kCFS_Game, Queue);
     return;
   } else {

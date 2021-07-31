@@ -4,6 +4,7 @@
 #include <UI/InventoryMenu.hpp>
 #include <UI/MonitorWindow.hpp>
 #include <UI/SettingsMenu.hpp>
+#include <UI/BombJumping.hpp>
 #include "os.h"
 #include "NewPauseScreen.hpp"
 #include "prime/CGameState.hpp"
@@ -75,6 +76,9 @@ NewPauseScreen::NewPauseScreen() {
 
   // Swap what text is used for ELAPSED to blank
   *((u32 *) 0x8001FFB8) = 0x3880005C; // li r4, 92 - which is blank
+
+  // This will cause the crash screen to appear every time
+  *((u32 *) 0x802d6a44) = 0x60000000;
 }
 
 void NewPauseScreen::Render() {
@@ -153,6 +157,7 @@ void NewPauseScreen::RenderMenu() {
   ImGui::End();
 
   GUI::drawMonitorWindow(inputs);
+  GUI::drawBombJumpingInterface();
 
   // Lagger (loops)
   if (!this->pauseScreenActive) {
