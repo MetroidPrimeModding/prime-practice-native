@@ -67,6 +67,9 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.3.3
+- Fix the bomb jump timing lines
+
 ### 2.3.2
 - Add rotational speed back as OSD option
 - Swap current and last room ordering

@@ -58,6 +58,7 @@ struct BombJumpUIState {
 
   void reset() {
     currentBomb = 0;
+    bombRecharges = 0;
     frame = 0;
     autoJump = nullptr;
   }
@@ -72,8 +73,10 @@ struct BombJumpUIState {
     if (gun == nullptr) return;
 
     if (gun->x35c_bombTime() <= 0 && !justRecharged) {
-      bombRechargeTiming[bombRecharges] = frame;
-      bombRecharges++;
+      if (bombRecharges < BombMax) {
+        bombRechargeTiming[bombRecharges] = frame;
+        bombRecharges++;
+      }
       justRecharged = true;
     } else if (gun->x35c_bombTime() > 0) {
       justRecharged = false;
