@@ -41,8 +41,7 @@ namespace GUI {
     ImGuiSliderFlags flags = ImGuiSliderFlags_None
                              | ImGuiSliderFlags_NoRoundToFormat;
     if (ImGui::TreeNode("Player")) {
-      ImGui::Text("Position");
-      ImGui::SameLine();
+      ImGui::Text("Saved position:");
       if (ImGui::Button("Save")) {
         savedPos = *player->getTransform();
         savedVelocity = *player->GetVelocity();
@@ -60,13 +59,10 @@ namespace GUI {
       if (ImGui::Button("Warp")) {
         warp(savedWorldAssetID, savedAreaAssetID);
       }
-      ImGui::Text("Saved position:");
-      if (currentWorldAssetID != savedWorldAssetID || currentAreaAssetID != savedAreaAssetID) {
-        const char *worldName = getNameForWorldAsset(savedWorldAssetID);
-        const char *areaName = getNameForAreaAsset(savedWorldAssetID, savedAreaAssetID);
-        ImGui::Text("%s", worldName);
-        ImGui::Text("%s", areaName);
-      }
+      const char *worldName = getNameForWorldAsset(savedWorldAssetID);
+      const char *areaName = getNameForAreaAsset(savedWorldAssetID, savedAreaAssetID);
+      ImGui::Text("%s", worldName);
+      ImGui::Text("%s", areaName);
       ImGui::Text("%.2fx, %.2fy, %.2fz", savedPos.x, savedPos.y, savedPos.z);
 
       float xyz[3] = {
