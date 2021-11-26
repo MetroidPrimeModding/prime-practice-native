@@ -43,17 +43,11 @@ namespace GUI {
     if (ImGui::TreeNode("Player")) {
       ImGui::Text("Saved position:");
       if (ImGui::Button("Save")) {
-        savedPos = *player->getTransform();
-        savedVelocity = *player->GetVelocity();
-        savedAngularVelocity = *player->GetAngularVelocity();
-        savedWorldAssetID = currentWorldAssetID;
-        savedAreaAssetID = currentAreaAssetID;
+        savePos();
       }
       ImGui::SameLine();
       if (ImGui::Button("Load")) {
-        *player->getTransform() = savedPos;
-        *player->GetVelocity() = savedVelocity;
-        *player->GetAngularVelocity() = savedAngularVelocity;
+        loadPos();
       }
       ImGui::SameLine();
       if (ImGui::Button("Warp")) {
@@ -122,6 +116,36 @@ namespace GUI {
 
       ImGui::TreePop();
     }
+  }
+
+  void loadPos() {
+    CStateManager *stateManager = CStateManager_INSTANCE;
+    CPlayer *player = stateManager->Player();
+
+    *player->getTransform() = savedPos;
+    *player->GetVelocity() = savedVelocity;
+    *player->GetAngularVelocity() = savedAngularVelocity;
+  }
+
+  void savePos() {
+    CStateManager *stateManager = CStateManager_INSTANCE;
+    CPlayer *player = stateManager->Player();
+
+    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
+    CGameState *gameState = globals->x134_gameState;
+
+
+    u32 currentWorldAssetID = gameState->MLVL();
+    u32 currentAreaAssetID = 0;
+    CWorld *world = stateManager->GetWorld();
+    if (!world) return;
+    currentAreaAssetID = world->areas()->ptr[gameState->CurrentWorldState().x4_areaId].ptr->mrea();
+
+    savedPos = *player->getTransform();
+    savedVelocity = *player->GetVelocity();
+    savedAngularVelocity = *player->GetAngularVelocity();
+    savedWorldAssetID = currentWorldAssetID;
+    savedAreaAssetID = currentAreaAssetID;
   }
 }
 

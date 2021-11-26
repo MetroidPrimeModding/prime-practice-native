@@ -13,7 +13,8 @@ struct Settings {
   bool OSD_showRotationalVelocity: 1{false};
   bool OSD_showPos: 1{true};
   bool OSD_showIGT: 1{true};
-  bool OSD_showRoomTime: 1{true};
+  bool OSD_showCurrentRoomTime: 1{true};
+  bool OSD_showPreviousRoomTime: 1{true};
 
   bool BOMBJUMP_enable: 1{false};
 

@@ -48,9 +48,7 @@ namespace GUI {
       if (SETTINGS.OSD_showIGT) {
         drawIGT();
       }
-      if (SETTINGS.OSD_showRoomTime) {
-        drawRoomTime();
-      }
+      drawRoomTime();
       if (SETTINGS.OSD_showPos) {
         drawPos();
       }
@@ -108,22 +106,22 @@ namespace GUI {
         last_room = current_room;
       }
       double current_room_time = current_time - room_start_time;
-      {
+      if (SETTINGS.OSD_showPreviousRoomTime) {
+        int frames = (int) (last_time / (1.0 / 60.0));
+        int ms = (int) (last_time * 1000.0) % 1000;
+        int seconds = (int) last_time % 60;
+        int minutes = ((int) last_time / 60) % 60;
+        int hours = ((int) last_time / 60 / 60) % 60;
+        ImGui::Text("P: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
+      }
+      if (SETTINGS.OSD_showCurrentRoomTime) {
+        if (SETTINGS.OSD_showPreviousRoomTime) ImGui::SameLine();
         int frames = (int) (current_room_time / (1.0 / 60.0));
         int ms = (int) (current_room_time * 1000.0) % 1000;
         int seconds = (int) current_room_time % 60;
         int minutes = ((int) current_room_time / 60) % 60;
         int hours = ((int) current_room_time / 60 / 60) % 60;
         ImGui::Text("C: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
-      }
-      {
-        int frames = (int) (last_time / (1.0 / 60.0));
-        int ms = (int) (last_time * 1000.0) % 1000;
-        int seconds = (int) last_time % 60;
-        int minutes = ((int) last_time / 60) % 60;
-        int hours = ((int) last_time / 60 / 60) % 60;
-        ImGui::SameLine();
-        ImGui::Text("P: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
     }
   }

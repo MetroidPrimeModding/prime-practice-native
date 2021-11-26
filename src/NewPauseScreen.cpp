@@ -24,6 +24,7 @@
 #include "font_atlas.hpp"
 #include "ImGuiEngine.hpp"
 #include "version.h"
+#include "UI/PlayerMenu.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -119,6 +120,32 @@ void NewPauseScreen::HandleInputs() {
     MAP_BUTTON(ImGuiNavInput_TweakSlow,     SDL_CONTROLLER_BUTTON_LEFTSHOULDER);    // L1 / LB
     MAP_BUTTON(ImGuiNavInput_TweakFast,     SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);   // R1 / RB
      */
+  } else if (!this->pauseScreenActive) {
+    //  warp hotkeys
+    if (hotkeyInputTimeout <= 0) {
+      upPresses = 0;
+      downPresses = 0;
+    } else {
+      hotkeyInputTimeout -= 1.f/60.f;
+    }
+
+    if (inputs[0].PDPUp()) {
+      upPresses++;
+      if (hotkeyInputTimeout <= 0) hotkeyInputTimeout = 2.0f;
+    }
+    if (inputs[0].PDPDown()) {
+      downPresses++;
+      if (hotkeyInputTimeout <= 0) hotkeyInputTimeout = 2.0f;
+    }
+
+    if (upPresses >= 3) {
+      GUI::loadPos();
+      hotkeyInputTimeout = 0;
+    }
+    if (downPresses >= 2) {
+      GUI::savePos();
+      hotkeyInputTimeout = 0;
+    }
   }
 }
 
@@ -148,10 +175,10 @@ void NewPauseScreen::RenderMenu() {
       | ImGuiWindowFlags_NoResize
       | ImGuiWindowFlags_NoMove
   )) {
-    GUI::drawWarpMenu();
     GUI::drawPlayerMenu();
     GUI::drawInventoryMenu();
     GUI::drawSettingsMenu();
+    GUI::drawWarpMenu();
     ImGui::Text("v%s", PRAC_MOD_VERSION);
   }
   ImGui::End();

@@ -26,6 +26,9 @@ public:
   void show();
 private:
   void RenderMenu();
+  float hotkeyInputTimeout = 0;
+  int upPresses = 0;
+  int downPresses = 0;
 };
 
 #endif
