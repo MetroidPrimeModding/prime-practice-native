@@ -67,6 +67,10 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.3.4
+- Floaty jump added to menu
+- Split out warp from load pos
+
 ### 2.3.3
 - Fix the bomb jump timing lines
 

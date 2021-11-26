@@ -41,7 +41,9 @@ namespace GUI {
     ImGuiSliderFlags flags = ImGuiSliderFlags_None
                              | ImGuiSliderFlags_NoRoundToFormat;
     if (ImGui::TreeNode("Player")) {
-      if (ImGui::Button("Save position")) {
+      ImGui::Text("Position");
+      ImGui::SameLine();
+      if (ImGui::Button("Save")) {
         savedPos = *player->getTransform();
         savedVelocity = *player->GetVelocity();
         savedAngularVelocity = *player->GetAngularVelocity();
@@ -49,24 +51,23 @@ namespace GUI {
         savedAreaAssetID = currentAreaAssetID;
       }
       ImGui::SameLine();
-      if (ImGui::Button("Load position")) {
+      if (ImGui::Button("Load")) {
         *player->getTransform() = savedPos;
         *player->GetVelocity() = savedVelocity;
         *player->GetAngularVelocity() = savedAngularVelocity;
-        if (currentWorldAssetID != savedWorldAssetID || currentAreaAssetID != savedAreaAssetID) {
-          warp(savedWorldAssetID, savedAreaAssetID);
-        }
       }
-      // TODO: when I figure out how to save both position and room, change this
+      ImGui::SameLine();
+      if (ImGui::Button("Warp")) {
+        warp(savedWorldAssetID, savedAreaAssetID);
+      }
+      ImGui::Text("Saved position:");
       if (currentWorldAssetID != savedWorldAssetID || currentAreaAssetID != savedAreaAssetID) {
         const char *worldName = getNameForWorldAsset(savedWorldAssetID);
         const char *areaName = getNameForAreaAsset(savedWorldAssetID, savedAreaAssetID);
-        ImGui::Text("Saved position:");
         ImGui::Text("%s", worldName);
         ImGui::Text("%s", areaName);
-      } else {
-        ImGui::Text("Saved position: %.2fx, %.2fy, %.2fz", savedPos.x, savedPos.y, savedPos.z);
       }
+      ImGui::Text("%.2fx, %.2fy, %.2fz", savedPos.x, savedPos.y, savedPos.z);
 
       float xyz[3] = {
           player->getTransform()->x,
@@ -74,7 +75,7 @@ namespace GUI {
           player->getTransform()->z
       };
 
-      ImGui::DragFloat3("", xyz, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
+      ImGui::DragFloat3("##pos", xyz, 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
       player->getTransform()->x = xyz[0];
       player->getTransform()->y = xyz[1];
       player->getTransform()->z = xyz[2];
@@ -105,6 +106,23 @@ namespace GUI {
 
       ImGui::SameLine();
       ImGui::Text("Use while unmorphed");
+
+      bool floaty = player->getFluidCounter() >= 1 && *player->getDepthUnderWater() >= 2;
+      if (ImGui::Checkbox("Floaty", &floaty)) {
+        if (floaty) {
+          player->setFluidCounter(1);
+          *player->getDepthUnderWater() = 20;
+        } else {
+          player->setFluidCounter(0);
+          *player->getDepthUnderWater() = 0;
+        };
+      }
+
+      int fluidCounter = (int) player->getFluidCounter();
+      if (ImGui::DragInt("Water box count", &fluidCounter, 1, 0, 0b11)) {
+        player->setFluidCounter((u32) fluidCounter);
+      }
+      ImGui::DragFloat("Water depth", player->getDepthUnderWater(), 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
 
       ImGui::TreePop();
     }
