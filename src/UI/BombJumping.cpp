@@ -33,9 +33,9 @@ const BombJumpTimings TIMINGS_VENT_SHAFT{
 
 BombJumpTimings TIMINGS_CUSTOM{
     .name="Custom",
-    .count=3,
-    .timings={0, 50, 75} // dbj (1 - 3 4 method)
-//  .timings={0, 118, 150, 185, 217, 229} // ubj
+    .count=6,
+//    .timings={0, 50, 75} // dbj (1 - 3 4 method)
+  .timings={0, 118, 150, 185, 217, 229} // ubj
 };
 
 

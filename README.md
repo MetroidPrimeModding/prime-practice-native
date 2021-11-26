@@ -74,6 +74,7 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 - Hotkey: dpad-down x3 to save pos
 - Move warps menu to bottom (to make scrolling easier)
 - Add option to toggle current and previous room timers individually
+- Set default custom bomb jump to UBJ
 
 ### 2.3.3
 - Fix the bomb jump timing lines
