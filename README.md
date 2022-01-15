@@ -67,6 +67,9 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.4.0
+- New option to show current loads in bottom left
+
 ### 2.3.4
 - Floaty jump added to menu
 - Split out warp from load pos

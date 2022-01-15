@@ -1,5 +1,4 @@
-#ifndef PRIME_PRACTICE_NATIVE_CACTOR_HPP
-#define PRIME_PRACTICE_NATIVE_CACTOR_HPP
+#pragma once
 
 #include "PrimeAPI.h"
 #include "prime/CEntity.hpp"
@@ -15,5 +14,3 @@ public:
     }
 
 };
-
-#endif //PRIME_PRACTICE_NATIVE_CACTOR_HPP

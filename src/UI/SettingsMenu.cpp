@@ -23,6 +23,7 @@ namespace GUI {
         BITFIELD_CHECKBOX("Memory info", SETTINGS.OSD_showMemoryInfo);
         ImGui::SameLine();
         BITFIELD_CHECKBOX("Memory graph", SETTINGS.OSD_showMemoryGraph);
+        BITFIELD_CHECKBOX("Loads", SETTINGS.OSD_showLoads);
 
         // end in-game display
         ImGui::TreePop();

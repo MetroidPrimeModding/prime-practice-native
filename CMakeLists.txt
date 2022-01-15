@@ -31,6 +31,7 @@ set(SOURCE_FILES
         src/include/rstl/rstl.h
         src/include/rstl/vector.h
         src/include/rstl/auto_ptr.h
+        src/include/rstl/list.h
         src/include/dvd.h
         src/include/types.h
         src/include/os.h
@@ -79,6 +80,7 @@ set(SOURCE_FILES
         src/include/prime/CGameCamera.hpp
         src/include/prime/CFirstPersonCamera.hpp
         src/include/prime/CBallCamera.hpp
+        src/include/prime/CResFactory.hpp
         src/include/STriggerRenderConfig.hpp
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp

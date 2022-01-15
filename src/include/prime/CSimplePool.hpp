@@ -1,5 +1,6 @@
-#ifndef PRIMEWATCH_PRIME_CSIMPLEPOOL_HPP
-#define PRIMEWATCH_PRIME_CSIMPLEPOOL_HPP
+#pragma once
+
+const char * const HEX = "0123456789ABCDEF";
 
 class SObjectTag {
 public:
@@ -7,6 +8,18 @@ public:
 
     u32 fourCC;
     u32 id;
+
+    /** Requires 14 length output str! */
+    inline void writeToString(char *res) {
+      for (int i = 0; i < 8; i++) {
+        res[i] = HEX[(id >> ((7 - i) * 4)) & 0xF];
+      }
+      res[8] = '.';
+      for (int i = 0; i < 4; i++) {
+        res[9+i] = (fourCC >> ((3 - i) * 8)) & 0xFF;
+      }
+      res[13] = 0;
+    }
 };
 
 
@@ -26,5 +39,3 @@ public:
 //    void ObjectUnreferenced(const SObjectTag &);
 //    std::vector <SObjectTag> GetReferencedTags() const;
 };
-
-#endif //PRIMEWATCH_PRIME_CSIMPLEPOOL_HPP

@@ -1,13 +1,12 @@
-#ifndef PRIME_PRACTICE_CGAMEGLOBALOBJECTS_HPP
-#define PRIME_PRACTICE_CGAMEGLOBALOBJECTS_HPP
+#pragma once
 
 #include "prime/CStateManager.hpp"
+#include "prime/CResFactory.hpp"
+#include "CSimplePool.hpp"
 
 class CGameGlobalObjects {
 public:
-    PADDING(0x134);
-    CGameState *x134_gameState;
+  inline CResFactory *getResFactory() { return GetField<CResFactory>(this, 0x4); }
+  inline CSimplePool *getMainPool() { return GetField<CSimplePool>(this, 0xCC); }
+  inline CGameState *getGameState() { return *GetField<CGameState*>(this, 0x134); }
 };
-
-
-#endif //PRIME_PRACTICE_CGAMEGLOBALOBJECTS_HPP

@@ -23,7 +23,7 @@ namespace GUI {
     CPlayerState *playerState = stateManager->GetPlayerState();
 
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
-    CGameState *gameState = globals->x134_gameState;
+    CGameState *gameState = globals->getGameState();
 
     u32 currentWorldAssetID = gameState->MLVL();
     u32 currentAreaAssetID = 0;
@@ -132,7 +132,7 @@ namespace GUI {
     CPlayer *player = stateManager->Player();
 
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
-    CGameState *gameState = globals->x134_gameState;
+    CGameState *gameState = globals->getGameState();
 
 
     u32 currentWorldAssetID = gameState->MLVL();

@@ -1,5 +1,4 @@
-#ifndef RSTL_VECTOR_H
-#define RSTL_VECTOR_H
+#pragma once
 
 #include "rstl/rstl.h"
 
@@ -46,6 +45,3 @@ public:
 };
 
 RSTL_END
-
-
-#endif //PRIME_PRACTICE_STRING_H

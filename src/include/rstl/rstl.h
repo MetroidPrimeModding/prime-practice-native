@@ -1,9 +1,6 @@
-#ifndef RSTL_H
-#define RSTL_H
+#pragma once
 
-#include "PrimeAPI.h"
+#include "../PrimeAPI.h"
 
 #define RSTL_BEGIN namespace rstl {
 #define RSTL_END }
-
-#endif

@@ -23,6 +23,7 @@ namespace GUI {
   void drawRotationalVelocity();
   void drawIGT();
   void drawRoomTime();
+  void drawLoads();
 
   void drawMonitorWindow(CFinalInput *inputs) {
     if (!SETTINGS.OSD_show) {
@@ -68,14 +69,67 @@ namespace GUI {
       ImGui::End();
     }
 
+    if (SETTINGS.OSD_showLoads) {
+      drawLoads();
+    }
+
     if (SETTINGS.OSD_showInput) {
       drawInput(inputs);
     }
   }
 
+  void drawLoads() {
+    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
+    CResFactory *resFactory = globals->getResFactory();
+    auto list = resFactory->getLoadList();
+
+    u32 count = list->size;
+    if (count > 0) {
+      // actually draw
+      ImGui::SetNextWindowPos(ImVec2(10, 450), ImGuiCond_None, ImVec2(0, 1));
+      ImGui::Begin(
+          "Loads", nullptr,
+          ImGuiWindowFlags_NoResize |
+          ImGuiWindowFlags_AlwaysAutoResize |
+          ImGuiWindowFlags_NoTitleBar |
+          ImGuiWindowFlags_NoInputs |
+          ImGuiWindowFlags_NoNavInputs |
+          ImGuiWindowFlags_NoNavFocus |
+          ImGuiWindowFlags_NoNav |
+          ImGuiWindowFlags_NoFocusOnAppearing |
+          ImGuiWindowFlags_NoMove |
+          ImGuiWindowFlags_NoDecoration |
+          //        ImGuiWindowFlags_NoBackground |
+          ImGuiFocusedFlags_None // just for conveneint commenting in/out
+      );
+
+      char sObjTagBuff[14];
+
+      int shown = 0;
+      auto end = list->end;
+      auto current = list->first;
+
+      u32 totalSize = 0;
+      while (end != current) {
+        u32 size = current->item.getResLen();
+        totalSize += size;
+        if (shown < 5) {
+          current->item.getTag()->writeToString(sObjTagBuff);
+          ImGui::Text("%s %d", sObjTagBuff, size);
+          shown++;
+        }
+        current = current->next;
+      }
+      ImGui::Text("%d/%dkb left", count, totalSize / 1024);
+
+      ImGui::End();
+    }
+
+  }
+
   void drawIGT() {
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
-    CGameState *gameState = globals->x134_gameState;
+    CGameState *gameState = globals->getGameState();
     if (gameState) {
       double time = gameState->PlayTime();
       int ms = (int) (time * 1000.0) % 1000;
@@ -92,7 +146,7 @@ namespace GUI {
 
   void drawRoomTime() {
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
-    CGameState *gameState = globals->x134_gameState;
+    CGameState *gameState = globals->getGameState();
     CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
     const CWorld *world = stateManager->GetWorld();
 
