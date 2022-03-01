@@ -16,7 +16,8 @@ public:
     }
 
     static void AuxGetAreaId(TAreaId* out, CWorld* obj, CAssetId areaAssetId);
-    
+
+    CGameArea* IGetAreaAlways(TAreaId id);
     TAreaId GetCurrentAreaId() const { return *(GetField<TAreaId>(this, 0x68)); };
     void SetPauseState(bool paused);
     inline rstl::vector<rstl::auto_ptr<CGameArea>> *areas() { return GetField<rstl::vector<rstl::auto_ptr<CGameArea>>>(this, 0x18); };

@@ -9,4 +9,8 @@ inline Res *GetField(const void *thiz, u32 offset) {
   return (Res*)ptr;
 };
 
+inline uint32_t GetVtable(const void *thiz) {
+  return *GetField<uint32_t>(thiz, 0);
+}
+
 #endif //PRIME_PRACTICE_GETFIELD_HPP
