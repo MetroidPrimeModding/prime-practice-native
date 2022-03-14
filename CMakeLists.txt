@@ -129,6 +129,8 @@ set(SOURCE_FILES
         src/UI/SettingsMenu.hpp
         src/UI/BombJumping.hpp
         src/UI/BombJumping.cpp
+        src/UI/RoomMenu.cpp
+        src/UI/RoomMenu.hpp
 
         src/world/WorldRenderer.cpp
         src/world/WorldRenderer.hpp

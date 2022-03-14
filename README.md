@@ -67,6 +67,10 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.4.1
+- Add option to occlude/show rooms (e.g. "where's the room")
+- Add load/unload room option (not perfect)
+
 ### 2.4.0
 - New option to show current loads in bottom left
 

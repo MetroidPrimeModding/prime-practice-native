@@ -182,8 +182,8 @@ void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Q
   if (!sHasDoneInitialBoot && pMainFlow->GetGameState() == 7) {
     sHasDoneInitialBoot = true;
     CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
-    gameState->SetCurrentWorldId(0x39F2DE28);
-    gameState->CurrentWorldState().SetDesiredAreaAssetId(0x2398E906);
+    gameState->SetCurrentWorldId(0x83F6FF6F); // chozo ruins
+    gameState->CurrentWorldState().SetDesiredAreaAssetId(0x47E73BC5); // gathering hall
     pMainFlow->SetGameState(kCFS_Game, Queue);
     return;
   } else {

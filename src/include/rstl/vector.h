@@ -29,7 +29,8 @@ public:
 
   inline uint32 length() const	{ return end; }
   inline uint32 capacity() const { return size; }
-  inline T& operator[](int i) const { return ptr[i]; }
+  inline T& operator[](int i) { return ptr[i]; }
+  inline T& get(int i) { return ptr[i]; }
   inline T* data() const { return ptr; }
 };
 
