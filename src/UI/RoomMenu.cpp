@@ -75,7 +75,7 @@ namespace GUI {
         } else {
           char label[32];
           memset(label, 0, 32);
-          snprintf(label, 32, "Show###%d", area->mrea());
+          snprintf(label, 32, "Hide###%d", area->mrea());
           if (ImGui::Button(label)) {
             area->SetOcclusionState(EOcclusionState::Occluded);
           }
