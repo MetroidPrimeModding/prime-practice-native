@@ -3,6 +3,8 @@
 #include "SettingsMenu.hpp"
 #include "settings.hpp"
 #include "BombJumping.hpp"
+#include "prime/CGameGlobalObjects.hpp"
+#include "prime/CWorld.hpp"
 #include "utils.hpp"
 #include "prime/CStateManager.hpp"
 #include "prime/CPlayer.hpp"
@@ -10,6 +12,8 @@
 
 
 namespace GUI {
+  void drawWorldLightOption();
+
   void drawSettingsMenu() {
     if (ImGui::TreeNode("Settings")) {
       if (ImGui::TreeNode("On-screen display")) {
@@ -28,6 +32,7 @@ namespace GUI {
         BITFIELD_CHECKBOX("Memory info", SETTINGS.OSD_showMemoryInfo);
         ImGui::SameLine();
         BITFIELD_CHECKBOX("Memory graph", SETTINGS.OSD_showMemoryGraph);
+        BITFIELD_CHECKBOX("Loads", SETTINGS.OSD_showLoads);
 
         // end in-game display
         ImGui::TreePop();
@@ -71,17 +76,52 @@ namespace GUI {
       }
 
       if (ImGui::TreeNode("Misc")) {
+        // Turns out this isn't actually useful for speedrunners. But I'll leave it for posterity.
+        //drawWorldLightOption();
+
         ImGui::Text("Lag:");
         ImGui::SliderInt("Loops", &SETTINGS.LAG_loop_iterations, 0, 30000, "%d",
                          ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_AlwaysClamp);
         ImGui::SliderInt("Tris", &SETTINGS.LAG_tri_renders, 0, 10000, "%d",
                          ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_AlwaysClamp);
+
         ImGui::TreePop();
       }
 
       // End settings menu
       ImGui::TreePop();
     }
+  }
+
+  void drawWorldLightOption() {
+    CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
+    CWorld *world = stateManager->GetWorld();
+    if (world == nullptr) {
+      ImGui::Text("World is null");
+      return;
+    }
+    TAreaId areaId = world->GetCurrentAreaId();
+    CGameArea *currentArea = world->IGetAreaAlways(areaId);
+    if (currentArea == nullptr) {
+      ImGui::Text("Area is null");
+      return;
+    }
+
+    // Saftey check to make sure this is actually a CGameArea (this is it's vtable)
+    uint32_t vt = GetVtable(currentArea);
+    if (vt != 0x803da234) {
+      ImGui::Text("Vtable is wrong: %x", vt);
+      return;
+    };
+
+    CPostConstructed *pConstructed = currentArea->postConstructed();
+    if (pConstructed == nullptr) {
+      ImGui::Text("pcons is null");
+      return;
+    }
+
+    float *light = pConstructed->GetWorldLightingLevel();
+    ImGui::SliderFloat("Light level", light, 0.0f, 2.0f, "%.3f");
   }
 }
 

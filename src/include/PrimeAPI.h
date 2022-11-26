@@ -1,5 +1,4 @@
-#ifndef PRIMEAPI_H
-#define PRIMEAPI_H
+#pragma once
 
 #include <gccore.h>
 
@@ -56,7 +55,5 @@ inline void operator delete[](void * ptr, size_t) {
 #endif
 
 //#define new new("", "")
-
-#endif
 
 #endif

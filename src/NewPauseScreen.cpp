@@ -26,6 +26,7 @@
 #include "ImGuiEngine.hpp"
 #include "version.h"
 #include "UI/PlayerMenu.hpp"
+#include "UI/RoomMenu.hpp"
 #include "utils.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
@@ -181,6 +182,7 @@ void NewPauseScreen::RenderMenu() {
     GUI::drawInventoryMenu();
     GUI::drawSettingsMenu();
     GUI::drawWarpMenu();
+    GUI::drawRoomMenu();
     ImGui::Text("v%s", PRAC_MOD_VERSION);
   }
   ImGui::End();

@@ -67,11 +67,18 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
-### 2.4.0
+### 2.5.0
 - Configurable maximum bomb count
 - Infinite bombs cheat
 - All cutscenes may be skipped
-- Reduce memory footprint by ~64k by using unused sections of bss
+- Reduce memory footprint by ~64k by using unused sections of bss4
+
+### 2.4.1
+- Add option to occlude/show rooms (e.g. "where's the room")
+- Add load/unload room option (not perfect)
+
+### 2.4.0
+- New option to show current loads in bottom left
 
 ### 2.3.4
 - Floaty jump added to menu

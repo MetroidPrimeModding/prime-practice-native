@@ -13,12 +13,7 @@ typedef s16 TUniqueId;
 typedef uint ResId;
 typedef uint CAssetId;
 
-struct TAreaId {
-    s32 id;
-
-    inline TAreaId(s32 v) : id(v) {}
-    inline operator s32() const { return id; }
-};
+using TAreaId = s32;
 
 #define kInvalidAreaId (TAreaId(-1))
 
