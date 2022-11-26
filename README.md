@@ -70,8 +70,8 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 ### 2.5.0
 - Configurable maximum bomb count
 - Infinite bombs cheat
-- All cutscenes may be skipped
-- Reduce memory footprint by ~64k by using unused sections of bss4
+- All cutscenes may be skipped (as if they had been seen already)
+- Reduce memory footprint by ~64k by using unused sections of bss
 
 ### 2.4.1
 - Add option to occlude/show rooms (e.g. "where's the room")
