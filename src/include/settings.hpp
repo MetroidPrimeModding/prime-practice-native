@@ -17,6 +17,7 @@ struct Settings {
   bool OSD_showPreviousRoomTime: 1{true};
 
   bool BOMBJUMP_enable: 1{false};
+  bool BOMBJUMP_infiniteBombs: 1{false};
 
   bool TRIGGER_renderUnknown: 1{false};
   bool TRIGGER_renderLoad: 1{false};

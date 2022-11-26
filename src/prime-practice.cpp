@@ -31,17 +31,24 @@ class CPlayer;
 void debug();
 void RenderHook();
 void PauseScreenDrawReplacement(CPauseScreen *);
+void CStateManager_UpdateHook(CStateManager *self, float dt);
 void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const CFinalInput &input);
 CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue);
 void drawDebugStuff(CStateManager *);
 CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue);
-void DropBombHook(CPlayerGun* thiz, EBWeapon weapon, CStateManager &mgr);
+void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr);
+bool SkipCutsceneHook(void*, void*);
 #ifdef DEBUG
 void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue);
 #endif
 
 extern "C" {
+#pragma clang attribute push (__attribute__((section(".boot"))), apply_to=function)
+
 __attribute__((visibility("default"))) extern void _prolog();
+[[maybe_unused]] __attribute__((visibility("default"))) extern void _earlyboot_memset(void *dst, char val, u32 size);
+#pragma clang attribute pop
+
 void *memcpy(void *dest, const void *src, size_t count);
 }
 
@@ -50,6 +57,74 @@ void operator delete(void *ptr) {
 }
 
 void ApplyCodePatches();
+
+u32 safeBlocks[] = {
+    0x8056A7E4, 0x1610,
+//    0x8056D5E0, 0x138,
+//    0x8056F654, 0x104,
+//    0x8056F874, 0x20,
+    0x8056F8CC, 0x1080,
+//    0x80571ABC, 0xD4,
+//    0x80571CCC, 0x1A0,
+//    0x80572030, 0xC,
+//    0x80572054, 0xC,
+//    0x80572088, 0x50,
+//    0x805723EC, 0xC,
+//    0x80572414, 0x100,
+//    0x8057267C, 0xC,
+    0x80577BAC, 0x14000,
+//    0x8059FBB8, 0xC,
+//    0x8059FBE8, 0x90,
+    0x805A02F8, 0x2868,
+//    0x805A53D4, 0xC,
+    0x805A56E4, 0x78C,
+//    0x805A66AC, 0x48,
+//    0x805A676C, 0x18,
+//    0x805A67EC, 0x10,
+//    0x805A6B90, 0x10,
+};
+
+void memset_start_end(u32 dst, u32 end) {
+  if (end > dst) return;
+  u32 size = end - dst;
+  memset((void *) dst, 0, size);
+}
+
+[[maybe_unused]] [[maybe_unused]] void _earlyboot_memset(void *dst, char val, u32 size) {
+  u32 start = (u32) dst;
+  u32 end = start + size;
+  for (u32 i = 0; i < sizeof(safeBlocks) / sizeof(u32); i += 2) {
+    if (end >= start) break; // we're done
+
+    u32 blockStart = safeBlocks[i];
+    u32 blockSize = safeBlocks[i + 1];
+    u32 blockEnd = blockStart + blockSize;
+
+    // if the start is after the end, continue
+    if (start > blockEnd) {
+      continue;
+    } else
+      // if the end is before this block starts, then it's safe.
+    if (end < blockStart) {
+      // finish the memset
+      memset_start_end(start, end);
+      start = end; // we're done
+      break;
+    } else
+      // if the end address is less than our end, finish
+    if (end < blockEnd) {
+      start = end; // we're done
+      break;
+    } else
+      // otherwise, write until start of block and resume after
+    {
+      memset_start_end(start, blockStart);
+      start = blockEnd;
+    }
+  }
+  // whatever is left is after us
+  memset_start_end(start, end);
+}
 
 void _prolog() {
   // null out prac mod instance; this is called from reset()
@@ -91,6 +166,12 @@ void ApplyCodePatches() {
   Relocate_Rel24((void *) 0x8003dd40, reinterpret_cast<void *>(&DropBombHook));
   Relocate_Rel24((void *) 0x80152510, reinterpret_cast<void *>(&DropBombHook));
   Relocate_Rel24((void *) 0x80152528, reinterpret_cast<void *>(&DropBombHook));
+  //CStateManager::Update
+  Relocate_Rel24((void *) 0x80024854, reinterpret_cast<void *>(&CStateManager_UpdateHook));
+  Relocate_Rel24((void *) 0x80024a0c, reinterpret_cast<void *>(&CStateManager_UpdateHook));
+  //CScriptSpecialFunction::ShouldSkipCinematic
+  Relocate_Rel24((void *) 0x80044a04, reinterpret_cast<void *>(&SkipCutsceneHook));
+  Relocate_Rel24((void *) 0x801521d4, reinterpret_cast<void *>(&SkipCutsceneHook));
 
 
 #ifdef DEBUG
@@ -135,6 +216,13 @@ void RenderHook() {
   CGraphics::EndScene();
 }
 
+void CStateManager_UpdateHook(CStateManager *self, float dt) {
+  if (NewPauseScreen::instance) {
+    NewPauseScreen::instance->update(dt);
+  }
+  self->Update(dt);
+}
+
 CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue) {
   if (msg.x4_type == EArchMsgType_UserInput) {
     if (!NewPauseScreen::instance) {
@@ -145,6 +233,8 @@ CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMess
     NewPauseScreen::instance->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
     if (status->x4_parm.ControllerIdx() == 0) {
       NewPauseScreen::instance->HandleInputs();
+      // TODO: move this to hook in Game::Update or something
+      NewPauseScreen::instance->update(0);
     }
   }
 
@@ -159,11 +249,15 @@ void drawDebugStuff(CStateManager *mgr) {
 //    NewPauseScreen::instance->Render();
 }
 
-void DropBombHook(CPlayerGun* thiz, EBWeapon weapon, CStateManager &mgr) {
+void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr) {
   if (weapon == EBWeapon::Bomb) {
     GUI::bombDropped();
   }
   thiz->DropBomb(weapon, mgr);
+}
+
+bool SkipCutsceneHook(void *, void*) {
+  return true;
 }
 
 #ifdef DEBUG

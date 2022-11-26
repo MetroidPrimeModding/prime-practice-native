@@ -30,7 +30,7 @@ public:
 	void FireSecondary(CStateManager& rStateMgr);
 
 	EChargePhase x32c_chargePhase() { return *GetField<EChargePhase>(this, 0x32c); }
-	u32 x308_bombCount() { return *GetField<u32>(this, 0x308); }
+	u32 *x308_bombCount() { return GetField<u32>(this, 0x308); }
 	float x35c_bombTime() { return *GetField<float>(this, 0x35C); }
 };
 

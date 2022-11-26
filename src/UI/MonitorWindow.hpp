@@ -2,9 +2,10 @@
 #define PRIME_PRACTICE_NATIVE_MONITORWINDOW_HPP
 
 #include <prime/CFinalInput.hpp>
+#include "utils.hpp"
 
 namespace GUI {
-    void drawMonitorWindow(CFinalInput *inputs);
+  void drawMonitorWindow(CFinalInput *inputs);
 }
 
 

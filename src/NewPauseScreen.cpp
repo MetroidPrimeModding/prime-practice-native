@@ -14,6 +14,7 @@
 #include "prime/CGameGlobalObjects.hpp"
 #include "prime/CPlayer.hpp"
 #include "prime/CPlayerState.hpp"
+#include "prime/CPlayerGun.hpp"
 #include "prime/CWorld.hpp"
 #include "prime/CMain.hpp"
 #include "prime/CSfxManager.hpp"
@@ -25,6 +26,7 @@
 #include "ImGuiEngine.hpp"
 #include "version.h"
 #include "UI/PlayerMenu.hpp"
+#include "utils.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -126,7 +128,7 @@ void NewPauseScreen::HandleInputs() {
       upPresses = 0;
       downPresses = 0;
     } else {
-      hotkeyInputTimeout -= 1.f/60.f;
+      hotkeyInputTimeout -= 1.f / 60.f;
     }
 
     if (inputs[0].PDPUp()) {
@@ -186,23 +188,6 @@ void NewPauseScreen::RenderMenu() {
   GUI::drawMonitorWindow(inputs);
   GUI::drawBombJumpingInterface();
 
-  // Lagger (loops)
-  if (!this->pauseScreenActive) {
-    if (SETTINGS.LAG_loop_iterations > 0) {
-      int c = 1;
-      for (int i = 1; i < SETTINGS.LAG_loop_iterations; i++) {
-        for (int j = 1; j < 100; j++) {
-          c = (c + 1 + i + j) * c - j;
-        }
-      }
-      ImDrawList *dl = ImGui::GetForegroundDrawList();
-      char text[64];
-      int l = snprintf(text, sizeof(text), "lag value: %d", c);
-      dl->AddText(ImVec2(20, 20), IM_COL32(255, 255, 255, 255),
-                  text, text + l);
-    }
-  }
-
   ImGui::Render();
   ImDrawData *drawData = ImGui::GetDrawData();
   ImGuiEngine::ImGui_Render(drawData);
@@ -236,6 +221,40 @@ void NewPauseScreen::RenderMenu() {
     idxPerBatch = 0;
     CGraphics::StreamEnd();
   }
+}
+
+
+float bombTime = 0;
+
+void NewPauseScreen::update(float dt) const {
+  // Lagger (loops)
+  if (!this->pauseScreenActive) {
+    if (SETTINGS.LAG_loop_iterations > 0) {
+      int c = 1;
+      for (int i = 1; i < SETTINGS.LAG_loop_iterations; i++) {
+        for (int j = 1; j < 100; j++) {
+          c = (c + 1 + i + j) * c - j;
+        }
+      }
+      ImDrawList *dl = ImGui::GetForegroundDrawList();
+      char text[64];
+      int l = snprintf(text, sizeof(text), "lag value: %d", c);
+      dl->AddText(ImVec2(20, 20), IM_COL32(255, 255, 255, 255),
+                  text, text + l);
+    }
+  }
+
+  if (SETTINGS.BOMBJUMP_infiniteBombs) {
+    CStateManager *stateManager = CStateManager_INSTANCE;
+    CPlayer *player = stateManager->Player();
+    if (player == nullptr) goto bombjump_done;
+    CPlayerGun *gun = player->getPlayerGun();
+    if (gun == nullptr) goto bombjump_done;
+    u32 maxBomb = readValueFromMemory<u32>(0x80041644) & 0xFFFF;
+    *gun->x308_bombCount() = maxBomb;
+  }
+  bombjump_done:;
+
 }
 
 

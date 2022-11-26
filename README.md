@@ -67,6 +67,12 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 
 ## Changelog
 
+### 2.4.0
+- Configurable maximum bomb count
+- Infinite bombs cheat
+- All cutscenes may be skipped
+- Reduce memory footprint by ~64k by using unused sections of bss
+
 ### 2.3.4
 - Floaty jump added to menu
 - Split out warp from load pos

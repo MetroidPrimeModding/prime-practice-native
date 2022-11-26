@@ -56,3 +56,13 @@ strstr(const char *hs, const char *ne) {
 
   return NULL;
 }
+
+double atan2(double a, double b);
+
+float atan2f(float a, float b) {
+  return atan2(a, b);
+}
+
+int toupper(int c) {
+  return c & 0b11011111;
+}

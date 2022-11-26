@@ -23,6 +23,8 @@ def patch_dol(mod_path: str, unpatched_dol_bytes: bytes) -> bytearray:
         link_size = symbol_section.get_symbol_by_name("_LINK_SIZE")[0].entry['st_value']
         patch_arena_lo_1 = symbol_section.get_symbol_by_name("_PATCH_ARENA_LO_1")[0].entry['st_value']
         patch_arena_lo_2 = symbol_section.get_symbol_by_name("_PATCH_ARENA_LO_2")[0].entry['st_value']
+        patch_earlyboot_memset = symbol_section.get_symbol_by_name("_PATCH_EARLYBOOT_MEMSET")[0].entry['st_value']
+        patch_earlyboot_memset_addr = symbol_section.get_symbol_by_name("_earlyboot_memset")[0].entry['st_value']
         hook_addr = symbol_section.get_symbol_by_name("PPCSetFpIEEEMode")[0].entry['st_value']
 
         print(f"linking from 0x{link_start:08x} to 0x{link_end:08x} {link_size} bytes")
@@ -36,20 +38,35 @@ def patch_dol(mod_path: str, unpatched_dol_bytes: bytes) -> bytearray:
             segment_start = len(out_bytes)
             out_bytes.extend(data)
 
-            if segment.header['p_flags'] & 1 == 1:
-                print('Text segment')
-                target = header.text
-            else:
-                print('Data segment')
-                target = header.data
+
+            # if segment.header['p_flags'] & 1 == 1 and False:
+            #     print('Text segment')
+            #     type = "text"
+            #     target = header.text
+            # else:
+            #     print('Data segment')
+            #     type = "data"
+            #     target = header.data
 
             found = False
-            for seg in target:
+            for (i, seg) in enumerate(header.text):
                 if seg.offset == 0:
                     found = True
                     seg.offset = segment_start
                     seg.loading = addr
                     seg.size = len(data)
+                    print(f"Patching text segment {i}: offset {seg.offset:08X} loading {seg.loading:08X} size {seg.size:08X} end {(seg.loading + seg.size):08X}")
+                    break
+
+            for (i, seg) in enumerate(header.data):
+                if found:
+                    break
+                if seg.offset == 0:
+                    found = True
+                    seg.offset = segment_start
+                    seg.loading = addr
+                    seg.size = len(data)
+                    print(f"Patching data segment {i}: offset {seg.offset:08X} loading {seg.loading:08X} size {seg.size:08X} end {(seg.loading + seg.size):08X}")
                     break
 
             if not found:
@@ -80,6 +97,7 @@ def patch_dol(mod_path: str, unpatched_dol_bytes: bytes) -> bytearray:
     patch_addr_32(patch_arena_lo_1, lambda x: (x & 0xFFFF_0000) | arenahi_upper)
     patch_addr_32(patch_arena_lo_2, lambda x: (x & 0xFFFF_0000) | arenahi_upper)
     patch_addr_32(hook_addr, lambda x: b_rel24(hook_addr, entry_addr))
+    patch_addr_32(patch_earlyboot_memset, lambda x: b_rel24(patch_earlyboot_memset, patch_earlyboot_memset_addr))
 
 
     return out_bytes

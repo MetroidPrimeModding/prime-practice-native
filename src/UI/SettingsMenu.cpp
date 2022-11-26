@@ -3,6 +3,11 @@
 #include "SettingsMenu.hpp"
 #include "settings.hpp"
 #include "BombJumping.hpp"
+#include "utils.hpp"
+#include "prime/CStateManager.hpp"
+#include "prime/CPlayer.hpp"
+#include "prime/CPlayerGun.hpp"
+
 
 namespace GUI {
   void drawSettingsMenu() {
@@ -30,6 +35,21 @@ namespace GUI {
 
       if (ImGui::TreeNode("Bomb Jumping")) {
         BITFIELD_CHECKBOX("Timing and position UI", SETTINGS.BOMBJUMP_enable);
+        u32 maxBomb = readValueFromMemory<u32>(0x80041644) & 0xFFFF;
+        if (ImGui::SliderInt("Max bomb count", (int *) &maxBomb, 0, 10)) {
+          writeValueToMemory<u32>(0x80041644, readValueFromMemory<u32>(0x80041644) & 0xFFFF0000 | maxBomb);
+          writeValueToMemory<u32>(0x8003fdd0, readValueFromMemory<u32>(0x8003fdd0) & 0xFFFF0000 | maxBomb);
+
+          CStateManager *stateManager = CStateManager_INSTANCE;
+          CPlayer *player = stateManager->Player();
+          if (player == nullptr) return;
+          CPlayerGun *gun = player->getPlayerGun();
+          if (gun == nullptr) return;
+          *gun->x308_bombCount() = maxBomb;
+        }
+
+        BITFIELD_CHECKBOX("Infinite Bombs", SETTINGS.BOMBJUMP_infiniteBombs);
+
         if (ImGui::TreeNode("Custom Bomb Jump (p2 b)")) {
           drawCustomBombJumpConfigMenu();
           ImGui::TreePop();

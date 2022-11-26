@@ -6,14 +6,16 @@ set(CMAKE_TOOLCHAIN_FILE "${PRIMEAPI2_PATH}/PrimeToolchain.cmake")
 set(DEVKITPRO "/opt/devkitpro")
 set(DEVKITPPC "/opt/devkitpro/devkitPPC")
 
+set(GCC_VERSION "12.1.0")
+
 set(CMAKE_PRIME_C_FLAGS_LIST
         -target powerpc-unknown-eabi
         -mllvm --relocation-model=static
         -nostdlib
         -nostdinc
         -ffreestanding
-        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/11.1.0/include"
-        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/11.1.0/include-fixed"
+        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/include"
+        -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/include-fixed"
         -isystem "${DEVKITPPC}/powerpc-eabi/include"
         -fno-function-sections
         -fno-data-sections
@@ -34,13 +36,14 @@ set(CMAKE_PRIME_CXX_FLAGS_LIST
 set(CMAKE_PRIME_LINK_FLAGS_LIST
         -nostdlib
         --gc-sections
-        "-e _prolog"
+        --keep-unique=_earlyboot_memset
+        #        "-e _prolog"
 #        "--unresolved-symbols=report-all"
 #        --error-unresolved-symbols
 #        --no-allow-shlib-undefined
 #        --no-undefined
 #        -r
-        "-T ${PRIMEAPI2_PATH}/eppc.ld"
+        "-T ${PRIMEAPI2_PATH}/0-00.ld"
         )
 
 list(JOIN CMAKE_PRIME_C_FLAGS_LIST " " CMAKE_PRIME_C_FLAGS)
@@ -61,7 +64,7 @@ macro(add_prime_binary name symbol_list base_dol)
             "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
     )
 
-    target_link_libraries(${name} "${DEVKITPPC}/lib/gcc/powerpc-eabi/11.1.0/libgcc.a")
+    target_link_libraries(${name} "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/libgcc.a")
 
     # Create the dol_symbols.o
     get_filename_component(absolute_symbol_list "${symbol_list}" REALPATH)

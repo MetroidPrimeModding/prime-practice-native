@@ -5,6 +5,7 @@
 #include <prime/CFinalInput.hpp>
 #include <imgui.h>
 #include "prime/CStateManager.hpp"
+#include "utils.hpp"
 
 void warp(uint32_t world, uint32_t area);
 
@@ -18,11 +19,10 @@ public:
   NewPauseScreen();
 
   void Render();
-
   void HandleInputs();
+  void update(float d) const;
 
   void hide();
-
   void show();
 private:
   void RenderMenu();
@@ -30,5 +30,6 @@ private:
   int upPresses = 0;
   int downPresses = 0;
 };
+
 
 #endif

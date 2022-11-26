@@ -44,7 +44,8 @@ enum EInitPhase
     };
     
     void InitializeState(uint WorldAssetId, TAreaId AreaId, uint AreaAssetId);
-    
+    void Update(float dt);
+
     inline CPlayer* GetPlayer() const { return *GetField<CPlayer*>(this, 0x84C); }
     inline EInitPhase GetInitPhase() const { return *GetField<EInitPhase>(this, 0xB3C); }
     inline CPlayerState *GetPlayerState() const { return mpPlayerState.RawPointer(); }

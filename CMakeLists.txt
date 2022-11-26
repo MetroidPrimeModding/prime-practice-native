@@ -34,6 +34,7 @@ set(SOURCE_FILES
         src/include/dvd.h
         src/include/types.h
         src/include/os.h
+        src/include/utils.hpp
 
         src/include/MathyTypes.hpp
         src/include/prime/fnAddr.cpp
@@ -91,7 +92,7 @@ set(SOURCE_FILES
         ext/imgui/imgui_draw.cpp
         ext/imgui/imgui_tables.cpp
         ext/imgui/imgui_widgets.cpp
-        ext/imgui/imgui_demo.cpp
+#        ext/imgui/imgui_demo.cpp
         ext/imgui/imgui.h
         ext/imgui/imgui_internal.h
 #        imgui/imgui_draw.cpp
