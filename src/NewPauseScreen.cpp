@@ -27,6 +27,7 @@
 #include "version.h"
 #include "UI/PlayerMenu.hpp"
 #include "UI/RoomMenu.hpp"
+#include "UI/QR.hpp"
 #include "utils.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
@@ -38,6 +39,7 @@ NewPauseScreen::NewPauseScreen() {
 
   ImGuiEngine::ImGui_Init();
   ImGuiEngine::ImGui_Init_Style();
+  UI::initQR();
   this->hide();
   inputs = new CFinalInput[4];
 
@@ -83,6 +85,11 @@ NewPauseScreen::NewPauseScreen() {
 
   // This will cause the crash screen to appear every time
   *((u32 *) 0x802d6a44) = 0x60000000;
+
+#if DEBUG
+  // force splash disabled
+  *((u32*)0x8003732c) = 0x38000001; // li, r0, 1
+#endif
 }
 
 void NewPauseScreen::Render() {
@@ -158,6 +165,7 @@ void NewPauseScreen::RenderMenu() {
   io.DeltaTime = 1.f / 60.f;
 
   ImGui::NewFrame();
+  UI::qrNewFrame();
   bool render = this->pauseScreenActive && this->menuActive;
   if (render) {
     ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Always, ImVec2(0, 0));
@@ -183,7 +191,18 @@ void NewPauseScreen::RenderMenu() {
     GUI::drawSettingsMenu();
     GUI::drawWarpMenu();
     GUI::drawRoomMenu();
-    ImGui::Text("v%s", PRAC_MOD_VERSION);
+    if (ImGui::TreeNode("v%s", PRAC_MOD_VERSION)) {
+      ImGui::Text("Links (QR codes):");
+      if (ImGui::TreeNode("Releases")) {
+        UI::drawQRCode("https://github.com/MetroidPrimeModding/prime-practice-native/releases", 3.0f);
+        ImGui::TreePop();
+      }
+      if (ImGui::TreeNode("Discord")) {
+        UI::drawQRCode("https://discord.gg/m4UreBdq9V", 3.0f);
+        ImGui::TreePop();
+      }
+      ImGui::TreePop();
+    }
   }
   ImGui::End();
 
@@ -258,7 +277,6 @@ void NewPauseScreen::update(float dt) const {
   bombjump_done:;
 
 }
-
 
 void warp(uint32_t world, uint32_t area) {
   CAssetId worldID = (CAssetId) (world);

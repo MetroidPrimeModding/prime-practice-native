@@ -24,6 +24,7 @@
 #include "prime/CIOWinManager.hpp"
 #include "prime/CMainFlow.hpp"
 #include "NewPauseScreen.hpp"
+#include "prime/CTweaks.hpp"
 
 // Forward decls
 class CPlayer;

@@ -100,6 +100,7 @@ SECTIONS
     *(.boot._prolog*)
     _earlyboot_memset = .;
     *(.boot._earlyboot_memset*)
+    *(.boot*)
     *(.init)
     *(.text._prolog)
     *(.text*)

@@ -9,10 +9,13 @@ project(prime-practice-native C CXX)
 include_directories(src/include)
 include_directories(src)
 include_directories(ext/imgui)
+include_directories(ext/QRCode/src)
 
 set(IMGUI_H_DEFINE [=[-DIMGUI_USER_CONFIG="\"pracc_imconfig.h\""]=])
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMGUI_H_DEFINE}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${IMGUI_H_DEFINE}")
+set(QR_DEFINE "-DLOCK_VERSION=4")
+#set(QR_DEFINE "")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMGUI_H_DEFINE} ${QR_DEFINE}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${IMGUI_H_DEFINE} ${QR_DEFINE}")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG")
@@ -99,6 +102,8 @@ set(SOURCE_FILES
         ext/imgui/imgui_internal.h
 #        imgui/imgui_draw.cpp
 
+        ext/QRCode/src/qrcode.c
+
         src/include/pracc_imconfig.h
         src/CrashAssert.h
         src/CrashAssert.cpp
@@ -132,6 +137,8 @@ set(SOURCE_FILES
         src/UI/BombJumping.cpp
         src/UI/RoomMenu.cpp
         src/UI/RoomMenu.hpp
+        src/UI/QR.cpp
+        src/UI/QR.hpp
 
         src/world/WorldRenderer.cpp
         src/world/WorldRenderer.hpp

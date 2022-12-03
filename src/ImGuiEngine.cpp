@@ -68,7 +68,6 @@ void ImGuiEngine::ImGui_Render_GX(const ImDrawData *drawData) {
   CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);
   //  CGraphics::SetAlphaCompare(ERglAlphaFunc_GREATER, 0, ERglAlphaOp_OR, ERglAlphaFunc_GREATER, 0);
   CGraphics::SetCullMode(ERglCullMode_None);
-  GXLoadTexObj(&imguiFontTexture, GX_TEXMAP0);
   CTexture::InvalidateTexmap(GX_TEXMAP0);
 
   CGX::SetNumTevStages(1);
@@ -127,6 +126,7 @@ void ImGuiEngine::ImGui_Render_GX(const ImDrawData *drawData) {
     // For each cmdlist
     for (int cmdBufferIdx = 0; cmdBufferIdx < cmdList->CmdBuffer.Size; cmdBufferIdx++) {
       const ImDrawCmd *cmd = &cmdList->CmdBuffer[cmdBufferIdx];
+      GXLoadTexObj((GXTexObj *)cmd->TextureId, GX_TEXMAP0);
       // (x0, y0, x1, y1) but also need to flip the two y coords
       int x0 = (int) cmd->ClipRect.x;
       int x1 = (int) cmd->ClipRect.z;
@@ -341,6 +341,7 @@ void ImGuiEngine::ImGui_Init() {
   }
   font->ContainerAtlas = io.Fonts;
   font->EllipsisChar = -1;
+  io.Fonts->SetTexID(&imguiFontTexture);
   // send it off to GX
   GXInitTexObj(&imguiFontTexture, (void *) FontAtlas::ATLAS_DATA,
                FontAtlas::ATLAS_W, FontAtlas::ATLAS_H,

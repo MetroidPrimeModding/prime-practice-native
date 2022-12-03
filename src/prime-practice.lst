@@ -42,6 +42,7 @@
 0x8030b034 _ZN9CGraphics11FlushStreamEv
 0x8030b410 _ZN9CGraphics9StreamEndEv
 0x803901c0 strlen
+0x8038CE1C abs
 0x8030c598 _ZN9CGraphics22SetIdentityModelMatrixEv
 0x8030c6c4 _ZN9CGraphics26SetIdentityViewPointMatrixEv
 0x80309854 _ZN9CGraphics6GetFPSEv
@@ -168,3 +169,4 @@
 0x8005f728 _ZN9CGameArea17SetOcclusionStateE15EOcclusionState
 0x80057e50 _ZN6CWorld18ScheduleAreaToLoadEP9CGameAreaP13CStateManager
 0x80057b34 _ZN6CWorld11MoveToChainEP9CGameArea6EChain
+0x805A8CE0 g_TweakGame
