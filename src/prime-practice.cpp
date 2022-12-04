@@ -349,7 +349,7 @@ void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager& mgr, const CTra
   mapper->Draw(mgr, xf, alpha);
   EAutoMapperState state = mapper->state();
   EAutoMapperState nextState = mapper->nextState();
-  NewPauseScreen::instance->mapActive = itstate == EAutoMapperState::MapScreen && nextState == EAutoMapperState::MapScreen;
+  NewPauseScreen::instance->mapActive = state == EAutoMapperState::MapScreen && nextState == EAutoMapperState::MapScreen;
 }
 
 void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr) {
