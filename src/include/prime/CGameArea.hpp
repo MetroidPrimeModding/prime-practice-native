@@ -22,8 +22,24 @@ public:
 
 };
 
+class IGameArea {
+public:
+//  virtual ~IGameArea() = 0;
+//  virtual const CTransform4f& IGetTM() const = 0;
+//  virtual CAssetId IGetStringTableAssetId() const = 0;
+//  virtual u32 IGetNumAttachedAreas() const = 0;
+//  virtual TAreaId IGetAttachedAreaId(int) const = 0;
+//  virtual bool IIsActive() const = 0;
+//  virtual CAssetId IGetAreaAssetId() const = 0;
+//  virtual s32 IGetAreaSaveId() const = 0;
+//  virtual std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const = 0;
 
-class CGameArea {
+  inline CAssetId IGetAreaAssetId() {
+    return VtableLookup<CAssetId(*)(IGameArea*)>(this, 6)(this);
+  }
+};
+
+class CGameArea: public IGameArea {
 public:
   struct PACKED Dock {
     struct PACKED SDockReference {
@@ -46,7 +62,7 @@ public:
     void Validate(CStateManager&);
     void LoadScriptObjects(CStateManager&);
 
-  inline CAssetId mrea() { return *GetField<u32>(this, 0x84); };
+//  inline CAssetId mrea() { return *GetField<u32>(this, 0x84); };
   inline u32 areaID() { return *GetField<u32>(this, 0x88); };
   inline u32 areaIDx() { return *GetField<u32>(this, 0x4); }; // this is like, the index in the array
   inline rstl::vector<u16>* attachedAreaIndices() { return GetField<rstl::vector<u16>>(this, 0x90); };
@@ -54,6 +70,12 @@ public:
   inline CPostConstructed *postConstructed() { return *GetField<CPostConstructed*>(this, 0x12C); };
   inline EChain curChain() { return *GetField<EChain>(this, 0x138); };
   void SetOcclusionState(EOcclusionState state);
+};
+
+class CDummyGameArea: public IGameArea {
+public:
+//  inline CAssetId mrea() { return *GetField<u32>(this, 0xc); };
+
 };
 
 #endif // CGAMEAREA_HPP

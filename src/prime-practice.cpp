@@ -38,7 +38,17 @@ CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMess
 void drawDebugStuff(CStateManager *);
 CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue);
 void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr);
-bool SkipCutsceneHook(void*, void*);
+bool SkipCutsceneHook(void *, void *);
+
+// Automapper hooks
+//bool IsDoorVisited(void *, u32);
+//bool IsAreaVisited(void *, u32);
+bool IsMapped(void *, u32);
+bool IsWorldVisible(void *, u32);
+bool IsAreaVisible(void *, u32);
+bool IsAnythingSet(void *);
+bool GetIsVisibleToAutoMapper(void*, bool, bool);
+void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr);
 #ifdef DEBUG
 void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue);
 #endif
@@ -173,7 +183,43 @@ void ApplyCodePatches() {
   //CScriptSpecialFunction::ShouldSkipCinematic
   Relocate_Rel24((void *) 0x80044a04, reinterpret_cast<void *>(&SkipCutsceneHook));
   Relocate_Rel24((void *) 0x801521d4, reinterpret_cast<void *>(&SkipCutsceneHook));
+  //CMapWorldInfo::IsDoorVisited
+//  Relocate_Rel24((void *) 0x80168d24, reinterpret_cast<void *>(&IsDoorVisited));
+//  Relocate_Rel24((void *) 0x800e9274, reinterpret_cast<void *>(&IsDoorVisited));
+//  Relocate_Rel24((void *) 0x800e8b10, reinterpret_cast<void *>(&IsDoorVisited));
+  //CMapWorldInfo::IsAreaVisited
+//  Relocate_Rel24((void *) 0x80167d34, reinterpret_cast<void *>(&IsAreaVisited));
+//  Relocate_Rel24((void *) 0x8009fd1c, reinterpret_cast<void *>(&IsAreaVisited));
+//  Relocate_Rel24((void *) 0x80098a28, reinterpret_cast<void *>(&IsAreaVisited));
+//  Relocate_Rel24((void *) 0x8004c134, reinterpret_cast<void *>(&IsAreaVisited));
+  //CMapWorldInfo:IsMapped
+  Relocate_Rel24((void *) 0x8016846c, reinterpret_cast<void *>(&IsMapped));
+  Relocate_Rel24((void *) 0x80167d50, reinterpret_cast<void *>(&IsMapped));
+  Relocate_Rel24((void *) 0x80098a08, reinterpret_cast<void *>(&IsMapped));
+  //CMapWorldInfo::IsWorldVisible
+  Relocate_Rel24((void *) 0x800a0ea0, reinterpret_cast<void *>(&IsWorldVisible));
+  Relocate_Rel24((void *) 0x800a0088, reinterpret_cast<void *>(&IsWorldVisible));
+  Relocate_Rel24((void *) 0x8009fc6c, reinterpret_cast<void *>(&IsWorldVisible));
+  Relocate_Rel24((void *) 0x8009f90c, reinterpret_cast<void *>(&IsWorldVisible));
+  Relocate_Rel24((void *) 0x80095f14, reinterpret_cast<void *>(&IsWorldVisible));
+  //CMapWorldInfo::IsAreaVisible
+  Relocate_Rel24((void *) 0x800e8a80, reinterpret_cast<void *>(&IsAreaVisible));
+  Relocate_Rel24((void *) 0x800a0e90, reinterpret_cast<void *>(&IsAreaVisible));
+  Relocate_Rel24((void *) 0x800a00d8, reinterpret_cast<void *>(&IsAreaVisible));
+  Relocate_Rel24((void *) 0x8009fc5c, reinterpret_cast<void *>(&IsAreaVisible));
+  Relocate_Rel24((void *) 0x8009f8fc, reinterpret_cast<void *>(&IsAreaVisible));
+  Relocate_Rel24((void *) 0x80095f04, reinterpret_cast<void *>(&IsAreaVisible));
+  //CMapWorldInfo::IsAnythingSet
+  Relocate_Rel24((void *) 0x80096414, reinterpret_cast<void *>(&IsAnythingSet));
+  Relocate_Rel24((void *) 0x80202448, reinterpret_cast<void *>(&IsAnythingSet));
 
+  //CAutoMapper::ProcessMapScreenInput
+  Relocate_Rel24((void *) 0x8009af68, reinterpret_cast<void *>(&MapScreenInputHook));
+  //CMapArea::GetIsVisibleToAutoMapper
+  Relocate_Rel24((void *) 0x80095f24, reinterpret_cast<void *>(&GetIsVisibleToAutoMapper));
+  Relocate_Rel24((void *) 0x8009f91c, reinterpret_cast<void *>(&GetIsVisibleToAutoMapper));
+  Relocate_Rel24((void *) 0x8009fc7c, reinterpret_cast<void *>(&GetIsVisibleToAutoMapper));
+  Relocate_Rel24((void *) 0x800a0eb0, reinterpret_cast<void *>(&GetIsVisibleToAutoMapper));
 
 #ifdef DEBUG
   //CMainFlow::AdvanceGameState
@@ -181,6 +227,13 @@ void ApplyCodePatches() {
 #endif
 }
 
+bool tweaksPatched = false;
+void TweakPatcher() {
+  if (tweaksPatched) return;
+  if (!g_TweakGame) return;
+  *g_TweakAutoMappers->maxCamDist() *= 2;
+  tweaksPatched = true;
+}
 
 void PauseScreenDrawReplacement(CPauseScreen *pause) {
   if (!pause->IsLoaded()) { return; }
@@ -197,7 +250,7 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
       NewPauseScreen::instance->hide();
 
       //Play some noises too
-      CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId);
+      CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId.id);
       pause->StartTransition(0.5f, mgr, CPauseScreen::ESubScreen_ToGame, 2);
     } else if (input.PZ()) {
       NewPauseScreen::instance->menuActive = !NewPauseScreen::instance->menuActive;
@@ -209,6 +262,7 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
 }
 
 void RenderHook() {
+  TweakPatcher();
 //  CGraphics::BeginScene();
   if (!NewPauseScreen::instance) {
     NewPauseScreen::instance = new NewPauseScreen();
@@ -257,8 +311,49 @@ void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr) {
   thiz->DropBomb(weapon, mgr);
 }
 
-bool SkipCutsceneHook(void *, void*) {
+bool SkipCutsceneHook(void *, void *) {
   return true;
+}
+
+//bool IsDoorVisited(void *, u32) {
+//  return true;
+//}
+//
+//bool IsAreaVisited(void *, u32) {
+//  return true;
+//}
+
+bool IsMapped(void *, u32) {
+  return true;
+}
+
+bool IsWorldVisible(void *, u32) {
+  return true;
+}
+
+bool IsAreaVisible(void *, u32) {
+  return true;
+}
+
+bool IsAnythingSet(void *) {
+  return true;
+}
+
+bool GetIsVisibleToAutoMapper(void*, bool, bool){
+  return true;
+}
+
+void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr) {
+  mapper->ProcessMapScreenInput(input, mgr);
+  if (input.PX()) {
+    IWorld *world = mapper->world();
+    u32 worldid = world->IGetWorldAssetId();
+    TAreaId areaId = *mapper->curAreaId();
+    IGameArea *area = world->IGetAreaAlways(areaId);
+    u32 mrea = area->IGetAreaAssetId();
+//    OSReport("world %x %x %d vt %x\n", world, area, areaId, GetVtable(world));
+    warp(worldid, mrea);
+  }
 }
 
 #ifdef DEBUG

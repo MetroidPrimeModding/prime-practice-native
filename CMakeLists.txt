@@ -85,6 +85,9 @@ set(SOURCE_FILES
         src/include/prime/CFirstPersonCamera.hpp
         src/include/prime/CBallCamera.hpp
         src/include/prime/CResFactory.hpp
+        src/include/prime/CAutoMapper.hpp
+        src/include/prime/CInGameGuiManager.hpp
+        src/include/prime/CGameArchitectureSupport.hpp
         src/include/STriggerRenderConfig.hpp
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp

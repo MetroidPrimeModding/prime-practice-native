@@ -40,11 +40,11 @@ namespace GUI {
     if (world == nullptr) {
       return;
     }
-    TAreaId areaId = world->GetCurrentAreaId();
+    TAreaId areaId = world->IGetCurrentAreaId();
     auto areas = world->areas();
     for (int i = 0; i < areas->length(); i++) {
       auto area = areas->get(i).ptr;
-      if (area->areaIDx() == areaId) continue;
+      if (area->areaIDx() == areaId.id) continue;
       area->SetOcclusionState(EOcclusionState::Occluded);
     }
   }
@@ -55,27 +55,27 @@ namespace GUI {
     if (world == nullptr) {
       return;
     }
-    TAreaId areaId = world->GetCurrentAreaId();
+    TAreaId areaId = world->IGetCurrentAreaId();
     auto areas = world->areas();
     for (int i = 0; i < areas->length(); i++) {
       auto area = areas->get(i).ptr;
       auto post = area->postConstructed();
       if (post != nullptr && area->curChain() == EChain::Alive) {
-        if (area->areaIDx() == areaId) continue;
-        const char *name = getNameForAreaAsset(world->GetWorldId(), area->mrea());
+        if (area->areaIDx() == areaId.id) continue;
+        const char *name = getNameForAreaAsset(world->IGetWorldAssetId(), area->IGetAreaAssetId());
         ImGui::Text("%s", name);
         ImGui::SameLine();
         if (post->occlusionState() == EOcclusionState::Occluded) {
           char label[32];
           memset(label, 0, 32);
-          snprintf(label, 32, "Show###%d", area->mrea());
+          snprintf(label, 32, "Show###%d", area->IGetAreaAssetId());
           if (ImGui::Button(label)) {
             area->SetOcclusionState(EOcclusionState::Visible);
           }
         } else {
           char label[32];
           memset(label, 0, 32);
-          snprintf(label, 32, "Hide###%d", area->mrea());
+          snprintf(label, 32, "Hide###%d", area->IGetAreaAssetId());
           if (ImGui::Button(label)) {
             area->SetOcclusionState(EOcclusionState::Occluded);
           }
@@ -90,8 +90,8 @@ namespace GUI {
     if (world == nullptr) {
       return;
     }
-    TAreaId areaId = world->GetCurrentAreaId();
-    auto currentArea = world->areas()->get(areaId).ptr;
+    TAreaId areaId = world->IGetCurrentAreaId();
+    auto currentArea = world->areas()->get(areaId.id).ptr;
     auto docks = currentArea->docks();
     for (int i = 0; i < docks->length(); i++) {
       auto dock = &docks->get(i);
@@ -99,22 +99,22 @@ namespace GUI {
       for (int j = 0; j < refs->length(); j++) {
         auto ref = &refs->get(j);
         auto connectedAreaId = ref->x0_area;
-        auto connectedArea = world->areas()->get(connectedAreaId).ptr;
-        const char *name = getNameForAreaAsset(world->GetWorldId(), connectedArea->mrea());
+        auto connectedArea = world->areas()->get(connectedAreaId.id).ptr;
+        const char *name = getNameForAreaAsset(world->IGetWorldAssetId(), connectedArea->IGetAreaAssetId());
         ImGui::Text("%s %x", name, ref->x6_loadOther);
         ImGui::SameLine();
         bool loadOther = (ref->x6_loadOther & 0x80) > 0;
         if (loadOther) {
           char label[32];
           memset(label, 0, 32);
-          snprintf(label, 32, "Unload###%d", connectedAreaId);
+          snprintf(label, 32, "Unload###%d", connectedAreaId.id);
           if (ImGui::Button(label)) {
             ref->x6_loadOther &= 0x7F;
           }
         } else {
           char label[32];
           memset(label, 0, 32);
-          snprintf(label, 32, "Load###%d", connectedAreaId);
+          snprintf(label, 32, "Load###%d", connectedAreaId.id);
           if (ImGui::Button(label)) {
             ref->x6_loadOther |= 0x80;
           }

@@ -15,6 +15,8 @@ public:
         EMessageReturn_RemoveIOWin = 3
     } EMessageReturn;
 
+    inline u32 vtable() { return GetVtable(this); }
+
 //    CIOWin(const rstl::string &name);
 //    virtual ~CIOWin();
 //    virtual EMessageReturn OnMessage(const CArchitectureMessage &, CArchitectureQueue &);

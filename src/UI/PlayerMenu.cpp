@@ -29,7 +29,7 @@ namespace GUI {
     u32 currentAreaAssetID = 0;
     CWorld *world = stateManager->GetWorld();
     if (world) {
-      currentAreaAssetID = world->areas()->ptr[gameState->CurrentWorldState().x4_areaId].ptr->mrea();
+      currentAreaAssetID = world->areas()->ptr[gameState->CurrentWorldState().x4_areaId.id].ptr->IGetAreaAssetId();
     }
     if (savedWorldAssetID == 0 || savedWorldAssetID == 0xFFFFFFFF) {
       savedWorldAssetID = currentWorldAssetID;
@@ -139,7 +139,7 @@ namespace GUI {
     u32 currentAreaAssetID = 0;
     CWorld *world = stateManager->GetWorld();
     if (!world) return;
-    currentAreaAssetID = world->areas()->ptr[gameState->CurrentWorldState().x4_areaId].ptr->mrea();
+    currentAreaAssetID = world->areas()->ptr[gameState->CurrentWorldState().x4_areaId.id].ptr->IGetAreaAssetId();
 
     savedPos = *player->getTransform();
     savedVelocity = *player->GetVelocity();

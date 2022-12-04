@@ -21,6 +21,7 @@ set(CMAKE_PRIME_C_FLAGS_LIST
         -fno-data-sections
         -fno-exceptions
         -fno-unroll-loops
+        -fno-rtti
         -fno-asynchronous-unwind-tables
         -fvisibility=hidden
         -flto=thin
@@ -33,6 +34,11 @@ set(CMAKE_PRIME_CXX_FLAGS_LIST
         -Wno-delete-incomplete
         )
 
+set(LD_FILE ${PRIMEAPI2_PATH}/0-00.ld)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(LD_FILE ${PRIMEAPI2_PATH}/debug.ld)
+endif()
+
 set(CMAKE_PRIME_LINK_FLAGS_LIST
         -nostdlib
         --gc-sections
@@ -43,7 +49,7 @@ set(CMAKE_PRIME_LINK_FLAGS_LIST
 #        --no-allow-shlib-undefined
 #        --no-undefined
 #        -r
-        "-T ${PRIMEAPI2_PATH}/0-00.ld"
+        "-T ${LD_FILE}"
         )
 
 list(JOIN CMAKE_PRIME_C_FLAGS_LIST " " CMAKE_PRIME_C_FLAGS)

@@ -279,6 +279,7 @@ void NewPauseScreen::update(float dt) const {
 }
 
 void warp(uint32_t world, uint32_t area) {
+  OSReport("Warping to %x, %x\n", world, area);
   CAssetId worldID = (CAssetId) (world);
   CAssetId areaID = (CAssetId) (area);
 
@@ -286,7 +287,7 @@ void warp(uint32_t world, uint32_t area) {
   mgr->GetWorld()->SetPauseState(true);
 
   CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
-  CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId);
+  CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId.id);
   gameState->SetCurrentWorldId(worldID);
   gameState->CurrentWorldState().SetDesiredAreaAssetId(areaID);
 

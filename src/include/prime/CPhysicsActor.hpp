@@ -1,5 +1,4 @@
-#ifndef PRIME_PRACTICE_CPHYSICSACTOR_HPP
-#define PRIME_PRACTICE_CPHYSICSACTOR_HPP
+#pragma once
 
 #include "GetField.hpp"
 #include "MathyTypes.hpp"
@@ -13,5 +12,3 @@ public:
     inline CVector3f *GetVelocity() { return GetField<CVector3f>(this, 0x138); };
     inline CVector3f *GetAngularVelocity() { return GetField<CVector3f>(this, 0x144); };
 };
-
-#endif //PRIME_PRACTICE_CPHYSICSACTOR_HPP

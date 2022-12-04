@@ -148,10 +148,10 @@ namespace GUI {
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
     CGameState *gameState = globals->getGameState();
     CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
-    const CWorld *world = stateManager->GetWorld();
+    CWorld *world = stateManager->GetWorld();
 
     if (gameState && world) {
-      u32 current_room = world->GetCurrentAreaId();
+      u32 current_room = world->IGetCurrentAreaId().id;
       double current_time = gameState->PlayTime();
 
       if (current_room != last_room) {

@@ -100,8 +100,8 @@ namespace GUI {
       ImGui::Text("World is null");
       return;
     }
-    TAreaId areaId = world->GetCurrentAreaId();
-    CGameArea *currentArea = world->IGetAreaAlways(areaId);
+    TAreaId areaId = world->IGetCurrentAreaId();
+    CGameArea *currentArea = (CGameArea*)world->IGetAreaAlways(areaId);
     if (currentArea == nullptr) {
       ImGui::Text("Area is null");
       return;
