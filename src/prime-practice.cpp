@@ -49,6 +49,7 @@ bool IsAreaVisible(void *, u32);
 bool IsAnythingSet(void *);
 bool GetIsVisibleToAutoMapper(void*, bool, bool);
 void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr);
+void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager& mgr, const CTransform4f& xf, float alpha);
 #ifdef DEBUG
 void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue);
 #endif
@@ -101,7 +102,7 @@ void memset_start_end(u32 dst, u32 end) {
   memset((void *) dst, 0, size);
 }
 
-[[maybe_unused]] [[maybe_unused]] void _earlyboot_memset(void *dst, char val, u32 size) {
+[[maybe_unused]] void _earlyboot_memset(void *dst, char val, u32 size) {
   u32 start = (u32) dst;
   u32 end = start + size;
   for (u32 i = 0; i < sizeof(safeBlocks) / sizeof(u32); i += 2) {
@@ -212,7 +213,8 @@ void ApplyCodePatches() {
   //CMapWorldInfo::IsAnythingSet
   Relocate_Rel24((void *) 0x80096414, reinterpret_cast<void *>(&IsAnythingSet));
   Relocate_Rel24((void *) 0x80202448, reinterpret_cast<void *>(&IsAnythingSet));
-
+  //CAutoMapper::Draw
+  Relocate_Rel24((void *) 0x80108d1c, reinterpret_cast<void *>(&MapScreenDrawHook));
   //CAutoMapper::ProcessMapScreenInput
   Relocate_Rel24((void *) 0x8009af68, reinterpret_cast<void *>(&MapScreenInputHook));
   //CMapArea::GetIsVisibleToAutoMapper
@@ -343,16 +345,27 @@ bool GetIsVisibleToAutoMapper(void*, bool, bool){
   return true;
 }
 
+void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager& mgr, const CTransform4f& xf, float alpha) {
+  mapper->Draw(mgr, xf, alpha);
+  EAutoMapperState state = mapper->state();
+  EAutoMapperState nextState = mapper->nextState();
+  NewPauseScreen::instance->mapActive = itstate == EAutoMapperState::MapScreen && nextState == EAutoMapperState::MapScreen;
+}
+
 void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr) {
   mapper->ProcessMapScreenInput(input, mgr);
-  if (input.PX()) {
-    IWorld *world = mapper->world();
-    u32 worldid = world->IGetWorldAssetId();
-    TAreaId areaId = *mapper->curAreaId();
-    IGameArea *area = world->IGetAreaAlways(areaId);
-    u32 mrea = area->IGetAreaAssetId();
+  EAutoMapperState state = mapper->state();
+  EAutoMapperState nextState = mapper->nextState();
+  if (state == EAutoMapperState::MapScreen && nextState == EAutoMapperState::MapScreen) {
+    if (input.PX()) {
+      IWorld *world = mapper->world();
+      u32 worldid = world->IGetWorldAssetId();
+      TAreaId areaId = *mapper->curAreaId();
+      IGameArea *area = world->IGetAreaAlways(areaId);
+      u32 mrea = area->IGetAreaAssetId();
 //    OSReport("world %x %x %d vt %x\n", world, area, areaId, GetVtable(world));
-    warp(worldid, mrea);
+      warp(worldid, mrea);
+    }
   }
 }
 

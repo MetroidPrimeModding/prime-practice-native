@@ -32,7 +32,7 @@ namespace GUI {
     {
       ImGui::SetNextWindowPos(ImVec2(630, 10), ImGuiCond_None, ImVec2(1, 0));
       ImGui::Begin(
-          "Montitor", nullptr,
+          "Monitor", nullptr,
           ImGuiWindowFlags_NoResize |
           ImGuiWindowFlags_AlwaysAutoResize |
           ImGuiWindowFlags_NoTitleBar |

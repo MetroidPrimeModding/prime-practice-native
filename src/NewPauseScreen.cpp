@@ -209,6 +209,25 @@ void NewPauseScreen::RenderMenu() {
   GUI::drawMonitorWindow(inputs);
   GUI::drawBombJumpingInterface();
 
+  if (mapActive) {
+    ImGui::SetNextWindowPos(ImVec2(320, 360), ImGuiCond_Always, ImVec2(0.5, 1));
+    ImGui::Begin(
+        "Hint", nullptr,
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoInputs |
+        ImGuiWindowFlags_NoNavInputs |
+        ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoNav |
+        ImGuiWindowFlags_NoFocusOnAppearing |
+        ImGuiWindowFlags_NoMove |
+        ImGuiFocusedFlags_None // just for conveneint commenting in/out
+    );
+    ImGui::Text("Press X to warp");
+    ImGui::End();
+  }
+
   ImGui::Render();
   ImDrawData *drawData = ImGui::GetDrawData();
   ImGuiEngine::ImGui_Render(drawData);

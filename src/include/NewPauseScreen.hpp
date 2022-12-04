@@ -13,7 +13,8 @@ class NewPauseScreen {
 public:
   static NewPauseScreen *instance;
   bool pauseScreenActive;
-  bool menuActive;
+  bool menuActive = false;
+  bool mapActive = false;
   CFinalInput *inputs;
 
   NewPauseScreen();
