@@ -9,12 +9,12 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: actions/setup-python@v2.2.2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: '3.11'
       
       - name: Run pyinstaller
         run: |
@@ -22,7 +22,7 @@ jobs:
           cd patcher
           pyinstaller --onefile main.py
         
-      - uses: actions/upload-artifact@v2.2.3
+      - uses: actions/upload-artifact@v3
         with:
           name: main.exe
           path: patcher/dist/main.exe

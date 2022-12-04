@@ -28,8 +28,7 @@ public:
 
 
   inline CAssetId IGetWorldAssetId() {
-    CAssetId (*fn)(IWorld *) = VtableLookup<CAssetId(*)(IWorld *)>(this, 1);
-    return fn(this);
+    return VtableLookup<CAssetId(*)(IWorld *)>(this, 1)(this);
   }
 
   inline IGameArea *IGetAreaAlways(TAreaId id) {
@@ -41,6 +40,9 @@ public:
     // This uses weird CW linkage for struct returns
     void (*fn)(TAreaId &, IWorld *) = VtableLookup<void (*)(TAreaId &, IWorld *)>(this, 7);
     if (fn) {
+      // sometimes this gets called on an IWorld, somehow, which obviously crashes. So, work around!
+      // invalid makes sense there anyway
+      // (this is called during a warp, basically)
       fn(res, this);
     }
     return res;

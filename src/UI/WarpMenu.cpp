@@ -352,6 +352,7 @@ const WarpWorld WARP_WORLDS[] = {
 namespace GUI {
   void drawWarpMenu() {
     if (ImGui::TreeNode("Warps")) {
+      ImGui::Text("You can also warp by pressing 'x' on the map");
       for (auto world : WARP_WORLDS) {
         if (ImGui::TreeNode(world.name)) {
           for (int i = 0; i < world.areaCount; i++) {

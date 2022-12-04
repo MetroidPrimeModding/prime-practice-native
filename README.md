@@ -68,7 +68,8 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 ## Changelog
 
 ### 2.6.0
-- Added QR rendering support (used for links)
+- Press 'x' to warp on map
+- Added link to releases and the discord
 
 ### 2.5.0
 - Configurable maximum bomb count
