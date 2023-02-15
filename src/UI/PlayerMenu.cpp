@@ -113,9 +113,21 @@ namespace GUI {
         player->setFluidCounter((u32) fluidCounter);
       }
       ImGui::DragFloat("Water depth", player->getDepthUnderWater(), 1.f, -FLT_MAX, FLT_MAX, "%.3f", flags);
+      if (ImGui::Button("Death")) {
+        kill();
+      }
 
       ImGui::TreePop();
     }
+  }
+
+  void kill() {
+    CStateManager *stateManager = CStateManager_INSTANCE;
+    CPlayerState *playerState = stateManager->GetPlayerState();
+
+    // game checks for flags & 0x80000000 to tell if player is alive
+    // if flag is set then the player is alive
+    player->flags &= ~(1 << 31);
   }
 
   void loadPos() {
