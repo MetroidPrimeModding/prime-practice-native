@@ -34,6 +34,7 @@ namespace GUI {
         BITFIELD_CHECKBOX("Memory graph", SETTINGS.OSD_showMemoryGraph);
         BITFIELD_CHECKBOX("Loads", SETTINGS.OSD_showLoads);
         BITFIELD_CHECKBOX("RNG value", SETTINGS.OSD_showRng);
+        BITFIELD_CHECKBOX("Incinerator Drone", SETTINGS.OSD_showIDrone);
 
         // end in-game display
         ImGui::TreePop();
@@ -46,7 +47,7 @@ namespace GUI {
           writeValueToMemory<u32>(0x80041644, readValueFromMemory<u32>(0x80041644) & 0xFFFF0000 | maxBomb);
           writeValueToMemory<u32>(0x8003fdd0, readValueFromMemory<u32>(0x8003fdd0) & 0xFFFF0000 | maxBomb);
 
-          CStateManager *stateManager = CStateManager_INSTANCE;
+          CStateManager *stateManager = CStateManager::instance();
           CPlayer *player = stateManager->Player();
           if (player == nullptr) return;
           CPlayerGun *gun = player->getPlayerGun();
@@ -95,7 +96,7 @@ namespace GUI {
   }
 
   void drawWorldLightOption() {
-    CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
+    CStateManager *stateManager = CStateManager::instance();
     CWorld *world = stateManager->GetWorld();
     if (world == nullptr) {
       ImGui::Text("World is null");

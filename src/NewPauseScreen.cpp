@@ -285,7 +285,7 @@ void NewPauseScreen::update(float dt) const {
   }
 
   if (SETTINGS.BOMBJUMP_infiniteBombs) {
-    CStateManager *stateManager = CStateManager_INSTANCE;
+    CStateManager *stateManager = CStateManager::instance();
     CPlayer *player = stateManager->Player();
     if (player == nullptr) goto bombjump_done;
     CPlayerGun *gun = player->getPlayerGun();
@@ -302,7 +302,7 @@ void warp(uint32_t world, uint32_t area) {
   CAssetId worldID = (CAssetId) (world);
   CAssetId areaID = (CAssetId) (area);
 
-  CStateManager *mgr = ((CStateManager *) 0x8045A1A8);
+  CStateManager *mgr = CStateManager::instance();
   mgr->GetWorld()->SetPauseState(true);
 
   CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
@@ -320,7 +320,7 @@ void warp(uint32_t world, uint32_t area) {
 
 // entities
 /*duk_ret_t script_getEntities(duk_context *ctx) {
-  CStateManager *mgr = CStateManager_INSTANCE;
+  CStateManager *mgr = CStateManager::instance();
   CObjectList *list = mgr->GetAllObjs();
   if (list == nullptr) {
     duk_push_undefined(ctx);

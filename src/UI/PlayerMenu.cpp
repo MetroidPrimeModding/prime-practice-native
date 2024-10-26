@@ -18,7 +18,7 @@ namespace GUI {
   u32 savedAreaAssetID{0};
 
   void drawPlayerMenu() {
-    CStateManager *stateManager = CStateManager_INSTANCE;
+    CStateManager *stateManager = CStateManager::instance();
     CPlayer *player = stateManager->Player();
     CPlayerState *playerState = stateManager->GetPlayerState();
 
@@ -119,7 +119,7 @@ namespace GUI {
   }
 
   void loadPos() {
-    CStateManager *stateManager = CStateManager_INSTANCE;
+    CStateManager *stateManager = CStateManager::instance();
     CPlayer *player = stateManager->Player();
 
     *player->getTransform() = savedPos;
@@ -128,7 +128,7 @@ namespace GUI {
   }
 
   void savePos() {
-    CStateManager *stateManager = CStateManager_INSTANCE;
+    CStateManager *stateManager = CStateManager::instance();
     CPlayer *player = stateManager->Player();
 
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);

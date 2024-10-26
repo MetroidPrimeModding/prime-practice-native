@@ -71,6 +71,7 @@ set(SOURCE_FILES
         src/include/prime/CIOWin.hpp
         src/include/prime/CObjectList.hpp
         src/include/prime/CActor.hpp
+        src/include/prime/CScriptTimer.hpp
         src/include/prime/CScriptTrigger.hpp
         src/include/prime/CScriptDock.hpp
         src/include/prime/CEntity.hpp

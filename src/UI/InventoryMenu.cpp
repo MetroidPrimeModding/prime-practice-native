@@ -94,7 +94,7 @@ namespace GUI {
   void refillItems(CPlayerState *playerState);
 
   void drawInventoryMenu() {
-    CStateManager *stateManager = CStateManager_INSTANCE;
+    CStateManager *stateManager = CStateManager::instance();
 //    CPlayer *player = stateManager->Player();
     CPlayerState *playerState = stateManager->GetPlayerState();
 

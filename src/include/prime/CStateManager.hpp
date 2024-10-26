@@ -8,8 +8,6 @@
 #include "CObjectList.hpp"
 #include "CGraphics.hpp"
 
-#define CStateManager_INSTANCE ((CStateManager *) 0x8045A1A8)
-
 class CPlayerState;
 class CWorldLayerState;
 class CGameState;
@@ -31,19 +29,21 @@ struct StateManagerFlags {
 };
 
 class CStateManager {
+
     PADDING(0x8b8);
     rstl::rc_ptr<CPlayerState> mpPlayerState;
     PADDING(12);
     rstl::rc_ptr<CWorldLayerState> worldLayerState;
 
 public:
-enum EInitPhase
+  static inline CStateManager* instance() { return  ((CStateManager *) 0x8045A1A8); }
+  enum EInitPhase
     {
         kInit_LoadWorld = 0,
         kInit_LoadFirstArea = 1,
         kInit_Done = 2
     };
-    
+
     void InitializeState(uint WorldAssetId, TAreaId AreaId, uint AreaAssetId);
     void Update(float dt);
 
@@ -65,4 +65,5 @@ enum EInitPhase
     void DrawDebugStuff() const;
     CFrustum SetupViewForDraw(const SViewport& vp) const;
     void ResetViewAfterDraw(const SViewport& backupViewport, const CTransform4f& backupViewMatrix) const;
+
 };

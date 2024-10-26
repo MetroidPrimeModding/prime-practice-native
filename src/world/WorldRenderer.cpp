@@ -17,7 +17,7 @@ namespace WorldRenderer {
       return;
     }
 
-    CStateManager *mgr = CStateManager_INSTANCE;
+    CStateManager *mgr = CStateManager::instance();
     CObjectList *list = mgr->GetAllObjs();
     if (list == nullptr) return;
 

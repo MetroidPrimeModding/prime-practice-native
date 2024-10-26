@@ -8,6 +8,7 @@
 #include <prime/CGameState.hpp>
 #include <prime/CWorld.hpp>
 #include <prime/CRandom16.hpp>
+#include <prime/CScriptTimer.hpp>
 #include "MonitorWindow.hpp"
 #include "settings.hpp"
 
@@ -35,6 +36,8 @@ namespace GUI {
   void drawLoads();
 
   void drawRng();
+
+  void drawIDrone();
 
   void drawMonitorWindow(CFinalInput *inputs) {
     if (!SETTINGS.OSD_show) {
@@ -75,6 +78,9 @@ namespace GUI {
       }
       if (SETTINGS.OSD_showRng) {
         drawRng();
+      }
+      if (SETTINGS.OSD_showIDrone) {
+        drawIDrone();
       }
       if (SETTINGS.OSD_showMemoryGraph || SETTINGS.OSD_showMemoryInfo) {
         drawMemoryUsage();
@@ -161,7 +167,7 @@ namespace GUI {
   void drawRoomTime() {
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
     CGameState *gameState = globals->getGameState();
-    CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
+    CStateManager *stateManager = CStateManager::instance();
     CWorld *world = stateManager->GetWorld();
 
     if (gameState && world) {
@@ -195,7 +201,7 @@ namespace GUI {
   }
 
   void drawPos() {
-    CStateManager *stateManager = CStateManager_INSTANCE;
+    CStateManager *stateManager = CStateManager::instance();
     CPlayer *player = stateManager->Player();
 
     if (player) {
@@ -207,7 +213,7 @@ namespace GUI {
   }
 
   void drawVelocity() {
-    CStateManager *stateManager = CStateManager_INSTANCE;
+    CStateManager *stateManager = CStateManager::instance();
     CPlayer *player = stateManager->Player();
 
     if (player) {
@@ -221,7 +227,7 @@ namespace GUI {
   }
 
   void drawRotationalVelocity() {
-    CStateManager *stateManager = CStateManager_INSTANCE;
+    CStateManager *stateManager = CStateManager::instance();
     CPlayer *player = stateManager->Player();
 
     if (player) {
@@ -534,10 +540,224 @@ namespace GUI {
     ImGui::End();
   }
 
-
   void drawRng() {
-    CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
+    CStateManager *stateManager = CStateManager::instance();
     CRandom16 *rng = stateManager->GetRandom();
     ImGui::Text("RNG: %08x", rng->GetSeed());
+  }
+
+  float timer1_max = 0;
+  float timer2_max = 0;
+  float timer3_max = 0;
+  float timer4_max = 0;
+  float currentTimer = 0;
+
+  enum class IDronePhase {
+    START,
+    PHASE1,
+    BETWEEN12,
+    PHASE2,
+    BETWEEN23,
+    PHASE3,
+    BETWEEN34,
+    PHASE4,
+    END
+  };
+  IDronePhase currentPhase = IDronePhase::START;
+
+  inline u32 timerFrames(float time) {
+    return CMath::CeilingF(time / (1.0 / 60.0));
+  }
+
+  void drawIDrone() {
+    CStateManager *mgr = CStateManager::instance();
+    CWorld* world = mgr->GetWorld();
+    if (!world) {
+      return;
+    }
+    auto worldId = world->IGetWorldAssetId();
+    auto areaId = world->IGetCurrentAreaId();
+
+    // we wanna only check in the right room, this is idrone's area
+    if (worldId != 0x83F6FF6F || areaId.id != 0x30) {
+      return;
+    }
+
+    u32 timer1_id = 0x00300050;
+    u32 timer2_id = 0x00302737;
+
+    CScriptTimer *timerShort = nullptr;
+    CScriptTimer *timerLong = nullptr;
+
+
+
+
+    CObjectList *list = mgr->GetAllObjs();
+    int visited = 0;
+    int id = list->first;
+    while (id != 0xFFFF && visited < list->count) {
+      SObjectListEntry entry = list->entries[id & 0x3FF];
+      if (!VALID_PTR(entry.entity)) {
+        break;
+      }
+      CEntity *entity = entry.entity;
+      if (entity->getEditorID() == timer1_id) {
+        CScriptTimer *timer = reinterpret_cast<CScriptTimer *>(entity);
+        timerShort = timer;
+      }
+      if (entity->getEditorID() == timer2_id) {
+        CScriptTimer *timer = reinterpret_cast<CScriptTimer *>(entity);
+        timerLong = timer;
+      }
+      visited++;
+      id = entry.next;
+      if (timerShort && timerLong) {
+        break;
+      }
+    }
+
+    if (timerShort && timerLong) {
+      // check the phase
+      switch (currentPhase) {
+        case IDronePhase::START:
+          if (timerShort->getIsTiming()) {
+            currentPhase = IDronePhase::PHASE1;
+            currentTimer = timerShort->getTime();
+            timer1_max = timerShort->getTime();
+          }
+          break;
+        case IDronePhase::PHASE1:
+          currentTimer = timerShort->getTime();
+          if (!timerShort->getIsTiming()) {
+            currentPhase = IDronePhase::BETWEEN12;
+          }
+          break;
+        case IDronePhase::BETWEEN12:
+          if (timerLong->getIsTiming()) {
+            currentPhase = IDronePhase::PHASE2;
+            currentTimer = timerLong->getTime();
+            timer2_max = timerLong->getTime();
+          }
+          break;
+        case IDronePhase::PHASE2:
+          currentTimer = timerLong->getTime();
+          if (!timerLong->getIsTiming()) {
+            currentPhase = IDronePhase::BETWEEN23;
+          }
+          break;
+        case IDronePhase::BETWEEN23:
+          if (timerLong->getIsTiming()) {
+            currentPhase = IDronePhase::PHASE3;
+            currentTimer = timerLong->getTime();
+            timer3_max = timerLong->getTime();
+          }
+          break;
+        case IDronePhase::PHASE3:
+          currentTimer = timerLong->getTime();
+          if (!timerLong->getIsTiming()) {
+            currentPhase = IDronePhase::BETWEEN34;
+          }
+          break;
+        case IDronePhase::BETWEEN34:
+          if (timerLong->getIsTiming()) {
+            currentPhase = IDronePhase::PHASE4;
+            currentTimer = timerLong->getTime();
+            timer4_max = timerLong->getTime();
+          }
+          break;
+        case IDronePhase::PHASE4:
+          currentTimer = timerLong->getTime();
+          if (!timerLong->getIsTiming()) {
+            currentPhase = IDronePhase::END;
+          }
+          break;
+        case IDronePhase::END:
+          break;
+      }
+      ImGui::Text("IDrone:");
+
+      ImGui::SameLine();
+      ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+      switch (currentPhase) {
+        case IDronePhase::PHASE1:
+        case IDronePhase::PHASE2:
+        case IDronePhase::PHASE3:
+        case IDronePhase::PHASE4:
+          ImGui::Text("%3d", timerFrames(currentTimer));
+          break;
+        case IDronePhase::START:
+        case IDronePhase::BETWEEN12:
+        case IDronePhase::BETWEEN23:
+        case IDronePhase::BETWEEN34:
+        case IDronePhase::END:
+          ImGui::Text("...");
+          break;
+      }
+      ImGui::PopStyleColor();
+
+      ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(150, 150, 150, 255));
+      ImGui::SameLine();
+      if (timer1_max > 0) {
+        ImGui::Text("%03d", timerFrames(timer1_max));
+      } else {
+        ImGui::Text("...");
+      }
+
+      ImGui::SameLine();
+      if (timer2_max > 0) {
+        ImGui::Text("%03d", timerFrames(timer2_max));
+      } else {
+        ImGui::Text("...");
+      }
+
+      ImGui::SameLine();
+      if (timer3_max > 0) {
+        ImGui::Text("%03d", timerFrames(timer3_max));
+      } else {
+        ImGui::Text("...");
+      }
+
+      ImGui::SameLine();
+      if (timer4_max > 0) {
+        ImGui::Text("%03d", timerFrames(timer4_max));
+      } else {
+        ImGui::Text("...");
+      }
+
+      ImGui::SameLine();
+      switch (currentPhase) {
+        case IDronePhase::START:
+          ImGui::Text("Wakeup");
+          break;
+        case IDronePhase::PHASE1:
+          ImGui::Text("Phase 1");
+          break;
+        case IDronePhase::BETWEEN12:
+          ImGui::Text("1->2");
+          break;
+        case IDronePhase::PHASE2:
+          ImGui::Text("Phase 2");
+          break;
+        case IDronePhase::BETWEEN23:
+          ImGui::Text("2->3");
+          break;
+        case IDronePhase::PHASE3:
+          ImGui::Text("Phase 3");
+          break;
+        case IDronePhase::BETWEEN34:
+          ImGui::Text("3->4");
+          break;
+        case IDronePhase::PHASE4:
+          ImGui::Text("Phase 4");
+          break;
+        case IDronePhase::END:
+          ImGui::Text("Done");
+          break;
+      }
+
+      ImGui::PopStyleColor();
+    } else if (timerShort || timerLong) {
+      ImGui::Text("Error: Only some idrone timers found");
+    }
   }
 }
