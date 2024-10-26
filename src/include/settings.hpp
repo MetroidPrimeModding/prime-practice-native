@@ -22,6 +22,7 @@ struct Settings {
   bool OSD_showCurrentRoomTime: 1{true};
   bool OSD_showPreviousRoomTime: 1{true};
   bool OSD_showLoads: 1{DEBUG_TRUE};
+  bool OSD_showRng: 1{false};
 
   bool BOMBJUMP_enable: 1{false};
   bool BOMBJUMP_infiniteBombs: 1{false};

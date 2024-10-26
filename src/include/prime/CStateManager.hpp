@@ -18,6 +18,7 @@ class CWorld;
 class CPlayer;
 class CCameraManager;
 class CWorldTransManager;
+class CRandom16;
 
 struct StateManagerFlags {
     bool xf94_24_ : 1;
@@ -48,6 +49,8 @@ enum EInitPhase
 
     inline CPlayer* GetPlayer() const { return *GetField<CPlayer*>(this, 0x84C); }
     inline EInitPhase GetInitPhase() const { return *GetField<EInitPhase>(this, 0xB3C); }
+    inline CRandom16* GetRandom() const { return GetField<CRandom16>(this, 0x8FC); }
+    inline CRandom16* GetActiveRandom() const { return *GetField<CRandom16*>(this, 0x900); }
     inline CPlayerState *GetPlayerState() const { return mpPlayerState.RawPointer(); }
     inline CWorldLayerState *GetWorldLayerState() const { return worldLayerState.RawPointer(); }
     CWorld *GetWorld() const { return *GetField<CWorld *>(this, 0x850); };

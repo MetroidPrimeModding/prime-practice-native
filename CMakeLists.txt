@@ -88,6 +88,7 @@ set(SOURCE_FILES
         src/include/prime/CAutoMapper.hpp
         src/include/prime/CInGameGuiManager.hpp
         src/include/prime/CGameArchitectureSupport.hpp
+        src/include/prime/CRandom16.hpp
         src/include/STriggerRenderConfig.hpp
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp

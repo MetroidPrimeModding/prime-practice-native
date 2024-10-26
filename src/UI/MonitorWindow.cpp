@@ -7,6 +7,7 @@
 #include <prime/CGameGlobalObjects.hpp>
 #include <prime/CGameState.hpp>
 #include <prime/CWorld.hpp>
+#include <prime/CRandom16.hpp>
 #include "MonitorWindow.hpp"
 #include "settings.hpp"
 
@@ -16,14 +17,24 @@
 
 namespace GUI {
   void drawFrameTime();
+
   void drawMemoryUsage();
+
   void drawInput(CFinalInput *inputs);
+
   void drawPos();
+
   void drawVelocity();
+
   void drawRotationalVelocity();
+
   void drawIGT();
+
   void drawRoomTime();
+
   void drawLoads();
+
+  void drawRng();
 
   void drawMonitorWindow(CFinalInput *inputs) {
     if (!SETTINGS.OSD_show) {
@@ -61,6 +72,9 @@ namespace GUI {
       }
       if (SETTINGS.OSD_showFrameTime) {
         drawFrameTime();
+      }
+      if (SETTINGS.OSD_showRng) {
+        drawRng();
       }
       if (SETTINGS.OSD_showMemoryGraph || SETTINGS.OSD_showMemoryInfo) {
         drawMemoryUsage();
@@ -520,4 +534,10 @@ namespace GUI {
     ImGui::End();
   }
 
+
+  void drawRng() {
+    CStateManager *stateManager = ((CStateManager *) 0x8045A1A8);
+    CRandom16 *rng = stateManager->GetRandom();
+    ImGui::Text("RNG: %08x", rng->GetSeed());
+  }
 }

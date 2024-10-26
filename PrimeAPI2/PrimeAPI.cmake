@@ -6,11 +6,11 @@ set(CMAKE_TOOLCHAIN_FILE "${PRIMEAPI2_PATH}/PrimeToolchain.cmake")
 set(DEVKITPRO "/opt/devkitpro")
 set(DEVKITPPC "/opt/devkitpro/devkitPPC")
 
-set(GCC_VERSION "12.1.0")
+set(GCC_VERSION "13.1.0")
 
 set(CMAKE_PRIME_C_FLAGS_LIST
         -target powerpc-unknown-eabi
-        -mllvm --relocation-model=static
+#        -mllvm --relocation-model=static
         -nostdlib
         -nostdinc
         -ffreestanding

@@ -33,6 +33,7 @@ namespace GUI {
         ImGui::SameLine();
         BITFIELD_CHECKBOX("Memory graph", SETTINGS.OSD_showMemoryGraph);
         BITFIELD_CHECKBOX("Loads", SETTINGS.OSD_showLoads);
+        BITFIELD_CHECKBOX("RNG value", SETTINGS.OSD_showRng);
 
         // end in-game display
         ImGui::TreePop();
