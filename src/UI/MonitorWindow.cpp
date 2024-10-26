@@ -589,9 +589,6 @@ namespace GUI {
     CScriptTimer *timerShort = nullptr;
     CScriptTimer *timerLong = nullptr;
 
-
-
-
     CObjectList *list = mgr->GetAllObjs();
     int visited = 0;
     int id = list->first;
