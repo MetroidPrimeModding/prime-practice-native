@@ -755,6 +755,13 @@ namespace GUI {
       ImGui::PopStyleColor();
     } else if (timerShort || timerLong) {
       ImGui::Text("Error: Only some idrone timers found");
+    } else {
+      timer1_max = 0;
+      timer2_max = 0;
+      timer3_max = 0;
+      timer4_max = 0;
+      currentTimer = 0;
+      currentPhase = IDronePhase::START;
     }
   }
 }
