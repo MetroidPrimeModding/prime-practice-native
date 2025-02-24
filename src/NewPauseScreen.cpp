@@ -1,17 +1,12 @@
-#include <prime/CScriptDoor.hpp>
-#include <prime/CScriptCameraHint.hpp>
-#include <UI/PlayerMenu.hpp>
-#include <UI/InventoryMenu.hpp>
-#include <UI/MonitorWindow.hpp>
-#include <UI/SettingsMenu.hpp>
-#include <UI/BombJumping.hpp>
+#include "UI/PlayerMenu.hpp"
+#include "UI/InventoryMenu.hpp"
+#include "UI/MonitorWindow.hpp"
+#include "UI/SettingsMenu.hpp"
+#include "UI/BombJumping.hpp"
 #include "os.h"
 #include "NewPauseScreen.hpp"
 #include "prime/CGameState.hpp"
 #include "prime/CWorldState.hpp"
-#include "prime/CScriptRelay.hpp"
-#include "prime/CScriptDock.hpp"
-#include "prime/CGameGlobalObjects.hpp"
 #include "prime/CPlayer.hpp"
 #include "prime/CPlayerState.hpp"
 #include "prime/CPlayerGun.hpp"
@@ -22,12 +17,11 @@
 #include "duk_mem.h"
 #include "UI/WarpMenu.h"
 #include "settings.hpp"
-#include "font_atlas.hpp"
 #include "ImGuiEngine.hpp"
 #include "version.h"
-#include "UI/PlayerMenu.hpp"
 #include "UI/RoomMenu.hpp"
 #include "UI/QR.hpp"
+#include "UI/DumpMemoryUI.hpp"
 #include "utils.hpp"
 
 #define PAD_MAX_CONTROLLERS 4
@@ -39,7 +33,7 @@ NewPauseScreen::NewPauseScreen() {
 
   ImGuiEngine::ImGui_Init();
   ImGuiEngine::ImGui_Init_Style();
-  UI::initQR();
+  GUI::initQR();
   this->hide();
   inputs = new CFinalInput[4];
 
@@ -165,7 +159,7 @@ void NewPauseScreen::RenderMenu() {
   io.DeltaTime = 1.f / 60.f;
 
   ImGui::NewFrame();
-  UI::qrNewFrame();
+  GUI::qrNewFrame();
   bool render = this->pauseScreenActive && this->menuActive;
   if (render) {
     ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Always, ImVec2(0, 0));
@@ -194,11 +188,11 @@ void NewPauseScreen::RenderMenu() {
     if (ImGui::TreeNode("v%s", PRAC_MOD_VERSION)) {
       ImGui::Text("Links (QR codes):");
       if (ImGui::TreeNode("Releases")) {
-        UI::drawQRCode("https://github.com/MetroidPrimeModding/prime-practice-native/releases", 3.0f);
+        GUI::drawQRCode("https://github.com/MetroidPrimeModding/prime-practice-native/releases", 3.0f);
         ImGui::TreePop();
       }
       if (ImGui::TreeNode("Discord")) {
-        UI::drawQRCode("https://discord.gg/m4UreBdq9V", 3.0f);
+        GUI::drawQRCode("https://discord.gg/m4UreBdq9V", 3.0f);
         ImGui::TreePop();
       }
       ImGui::TreePop();
@@ -227,6 +221,8 @@ void NewPauseScreen::RenderMenu() {
     ImGui::Text("Press X to warp");
     ImGui::End();
   }
+
+  GUI::drawMemoryDump();
 
   ImGui::Render();
   ImDrawData *drawData = ImGui::GetDrawData();

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace UI {
+namespace GUI {
   enum class QR_ECC {
     LOW = 0,
     MEDIUM = 1,

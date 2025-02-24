@@ -1,12 +1,7 @@
-#ifndef PRIME_PRACTICE_NATIVE_SETTINGSMENU_HPP
-#define PRIME_PRACTICE_NATIVE_SETTINGSMENU_HPP
-
+#pragma once
 
 #include "utils.hpp"
 
 namespace GUI {
   void drawSettingsMenu();
 }
-
-
-#endif //PRIME_PRACTICE_NATIVE_SETTINGSMENU_HPP

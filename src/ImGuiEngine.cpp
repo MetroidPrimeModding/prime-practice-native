@@ -1,34 +1,15 @@
-//
-// Created by pwootage on 6/6/21.
-//
-
 #include "font_atlas.hpp"
-#include "settings.hpp"
-#include "UI/WarpMenu.h"
 #include "duk_mem.h"
 #include "imgui.h"
-#include "prime/CSfxManager.hpp"
-#include "prime/CMain.hpp"
 #include "prime/CWorld.hpp"
 #include "prime/CPlayerState.hpp"
-#include "prime/CPlayer.hpp"
-#include "prime/CGameGlobalObjects.hpp"
 #include "prime/CScriptDock.hpp"
-#include "prime/CScriptRelay.hpp"
-#include "prime/CWorldState.hpp"
-#include "prime/CGameState.hpp"
-#include "NewPauseScreen.hpp"
 #include "os.h"
-#include <UI/SettingsMenu.hpp>
-#include <UI/MonitorWindow.hpp>
-#include <UI/InventoryMenu.hpp>
-#include <UI/PlayerMenu.hpp>
-#include <prime/CScriptCameraHint.hpp>
-#include <prime/CScriptDoor.hpp>
 #include <imgui_internal.h>
 #include "ImGuiEngine.hpp"
 
 GXTexObj imguiFontTexture;
+IMGuiGXTexture imuiFontTextureImguiTexture = {};
 
 const ImWchar EMPTY_FONT_RANGE[] = {
     0 // end
@@ -126,7 +107,12 @@ void ImGuiEngine::ImGui_Render_GX(const ImDrawData *drawData) {
     // For each cmdlist
     for (int cmdBufferIdx = 0; cmdBufferIdx < cmdList->CmdBuffer.Size; cmdBufferIdx++) {
       const ImDrawCmd *cmd = &cmdList->CmdBuffer[cmdBufferIdx];
-      GXLoadTexObj((GXTexObj *)cmd->TextureId, GX_TEXMAP0);
+      IMGuiGXTexture *tex = (IMGuiGXTexture *) cmd->TextureId;
+      GXLoadTexObj(tex->obj, GX_TEXMAP0);
+      if (tex->tlut) {
+        GXLoadTlut(tex->tlut, tex->tlut_name);
+      }
+
       // (x0, y0, x1, y1) but also need to flip the two y coords
       int x0 = (int) cmd->ClipRect.x;
       int x1 = (int) cmd->ClipRect.z;
@@ -341,7 +327,8 @@ void ImGuiEngine::ImGui_Init() {
   }
   font->ContainerAtlas = io.Fonts;
   font->EllipsisChar = -1;
-  io.Fonts->SetTexID(&imguiFontTexture);
+  imuiFontTextureImguiTexture.obj = &imguiFontTexture;
+  io.Fonts->SetTexID(&imuiFontTextureImguiTexture);
   // send it off to GX
   GXInitTexObj(&imguiFontTexture, (void *) FontAtlas::ATLAS_DATA,
                FontAtlas::ATLAS_W, FontAtlas::ATLAS_H,

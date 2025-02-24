@@ -4,8 +4,9 @@
 #include "imgui_internal.h"
 #include "qrcode.h"
 #include "GX.hpp"
+#include "ImGuiEngine.hpp"
 
-namespace UI {
+namespace GUI {
   constexpr int TEX_COUNT = 2;
   constexpr int QR_WIDTH = LOCK_VERSION * 4 + 17;
   constexpr int MAX_WIDTH = 40;
@@ -15,6 +16,7 @@ namespace UI {
   alignas(32) static char qrTextureData[TEX_COUNT][TEX_SIZE];
   static ImGuiID texIds[TEX_COUNT];
   static GXTexObj gxTexObjs[TEX_COUNT];
+  static IMGuiGXTexture imGuiTextures[TEX_COUNT] = {};
 
   void initQR() {
     for (int i = 0; i < TEX_COUNT; i++) {
@@ -35,6 +37,7 @@ namespace UI {
                       GX_DISABLE,
                       GX_ANISO_1
       );
+      imGuiTextures[i].obj = &gxTexObjs[i];
     }
   }
 

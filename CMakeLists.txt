@@ -144,6 +144,11 @@ set(SOURCE_FILES
         src/UI/RoomMenu.hpp
         src/UI/QR.cpp
         src/UI/QR.hpp
+        src/UI/DumpMemoryUI.cpp
+        src/UI/DumpMemoryUI.hpp
+
+        src/utils/DataByteStream.hpp
+        src/utils/DataBitStream.cpp
 
         src/world/WorldRenderer.cpp
         src/world/WorldRenderer.hpp

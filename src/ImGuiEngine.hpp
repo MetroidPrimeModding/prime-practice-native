@@ -9,6 +9,12 @@
 
 #define USE_GX
 
+struct IMGuiGXTexture {
+  GXTexObj *obj = nullptr;
+  GXTlutObj *tlut = nullptr;
+  int tlut_name = GX_TLUT0;
+};
+
 class ImGuiEngine {
 public:
   static void ImGui_Init();

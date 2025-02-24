@@ -9,6 +9,7 @@
 #include "prime/CStateManager.hpp"
 #include "prime/CPlayer.hpp"
 #include "prime/CPlayerGun.hpp"
+#include "DumpMemoryUI.hpp"
 
 
 namespace GUI {
@@ -88,6 +89,10 @@ namespace GUI {
                          ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_AlwaysClamp);
 
         ImGui::TreePop();
+      }
+
+      if (ImGui::Button("Dump Ram")) {
+        startMemoryDump();
       }
 
       // End settings menu
