@@ -36,6 +36,7 @@ struct Settings {
 
   s32 LAG_loop_iterations{0};
   s32 LAG_tri_renders{0};
+  bool RNG_lockSeed{false};
 
   inline bool TRIGGER_anyOn() {
     return TRIGGER_renderUnknown

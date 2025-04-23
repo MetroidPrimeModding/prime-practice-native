@@ -3,6 +3,7 @@
 #include "PrimeAPI.h"
 
 class CRandom16 {
+public:
   s32 m_seed;
 
 public:

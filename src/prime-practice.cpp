@@ -1,8 +1,10 @@
 #include <PrimeAPI.h>
 #include <prime/CFontEndUI.hpp>
 #include <os.h>
+#include <settings.hpp>
 #include <world/WorldRenderer.hpp>
 #include <prime/CPlayerGun.hpp>
+#include <prime/CRandom16.hpp>
 #include "UI/BombJumping.hpp"
 #include "types.h"
 #include "prime/CMain.hpp"
@@ -47,12 +49,14 @@ bool IsMapped(void *, u32);
 bool IsWorldVisible(void *, u32);
 bool IsAreaVisible(void *, u32);
 bool IsAnythingSet(void *);
-bool GetIsVisibleToAutoMapper(void*, bool, bool);
+bool GetIsVisibleToAutoMapper(void *, bool, bool);
 void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr);
-void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager& mgr, const CTransform4f& xf, float alpha);
+void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager &mgr, const CTransform4f &xf, float alpha);
 #ifdef DEBUG
 void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue);
 #endif
+
+int Hook_CRandom16Next(CRandom16 *rng);
 
 extern "C" {
 #pragma clang attribute push (__attribute__((section(".boot"))), apply_to=function)
@@ -71,29 +75,29 @@ void operator delete(void *ptr) {
 void ApplyCodePatches();
 
 u32 safeBlocks[] = {
-    0x8056A7E4, 0x1610,
-//    0x8056D5E0, 0x138,
-//    0x8056F654, 0x104,
-//    0x8056F874, 0x20,
-    0x8056F8CC, 0x1080,
-//    0x80571ABC, 0xD4,
-//    0x80571CCC, 0x1A0,
-//    0x80572030, 0xC,
-//    0x80572054, 0xC,
-//    0x80572088, 0x50,
-//    0x805723EC, 0xC,
-//    0x80572414, 0x100,
-//    0x8057267C, 0xC,
-    0x80577BAC, 0x14000,
-//    0x8059FBB8, 0xC,
-//    0x8059FBE8, 0x90,
-    0x805A02F8, 0x2868,
-//    0x805A53D4, 0xC,
-    0x805A56E4, 0x78C,
-//    0x805A66AC, 0x48,
-//    0x805A676C, 0x18,
-//    0x805A67EC, 0x10,
-//    0x805A6B90, 0x10,
+  0x8056A7E4, 0x1610,
+  //    0x8056D5E0, 0x138,
+  //    0x8056F654, 0x104,
+  //    0x8056F874, 0x20,
+  0x8056F8CC, 0x1080,
+  //    0x80571ABC, 0xD4,
+  //    0x80571CCC, 0x1A0,
+  //    0x80572030, 0xC,
+  //    0x80572054, 0xC,
+  //    0x80572088, 0x50,
+  //    0x805723EC, 0xC,
+  //    0x80572414, 0x100,
+  //    0x8057267C, 0xC,
+  0x80577BAC, 0x14000,
+  //    0x8059FBB8, 0xC,
+  //    0x8059FBE8, 0x90,
+  0x805A02F8, 0x2868,
+  //    0x805A53D4, 0xC,
+  0x805A56E4, 0x78C,
+  //    0x805A66AC, 0x48,
+  //    0x805A676C, 0x18,
+  //    0x805A67EC, 0x10,
+  //    0x805A6B90, 0x10,
 };
 
 void memset_start_end(u32 dst, u32 end) {
@@ -115,21 +119,18 @@ void memset_start_end(u32 dst, u32 end) {
     // if the start is after the end, continue
     if (start > blockEnd) {
       continue;
-    } else
+    } else if (end < blockStart) {
       // if the end is before this block starts, then it's safe.
-    if (end < blockStart) {
       // finish the memset
       memset_start_end(start, end);
       start = end; // we're done
       break;
-    } else
+    } else if (end < blockEnd) {
       // if the end address is less than our end, finish
-    if (end < blockEnd) {
       start = end; // we're done
       break;
-    } else
+    } else {
       // otherwise, write until start of block and resume after
-    {
       memset_start_end(start, blockStart);
       start = blockEnd;
     }
@@ -160,6 +161,30 @@ void Relocate_Rel24(void *pRelocAddress, void *pSymbolAddress) {
             (AA == 0 ? ((uint32) pSymbolAddress - (uint32) pRelocAddress) : (uint32) pSymbolAddress);
 }
 
+template<typename FuncType>
+void ReplaceFunction(FuncType original, void *replacement) {
+  // void ReplaceFunction(void* original, void* replacement) {
+
+  union {
+    FuncType mfp;
+    void *addr;
+  } u;
+  u.mfp = original;
+
+  uint32_t *originalFunctionPtr = (uint32_t *) u.addr;
+  uint32_t *replacementFunctionPtr = (uint32_t *) replacement;
+  int32_t diff = (int32_t) replacementFunctionPtr - (int32_t) originalFunctionPtr;
+  // Make sure the offset fits in 24 bits (word aligned, signed)
+  int32_t li = (diff >> 2) & 0x00FFFFFF;
+  // Handle negative offsets (sign extension for PPC branch)
+  if (diff < 0) {
+    li |= 0x01000000; // Add sign bit for 24-bit
+  }
+  uint32_t instruction = (18 << 26) | (li << 2);
+  // aa = 0 (relative), lk = 0 (no link)
+  *originalFunctionPtr = instruction;
+}
+
 void ApplyCodePatches() {
   // CGraphics::EndScene
   Relocate_Rel24((void *) 0x80005734, reinterpret_cast<void *>(&RenderHook));
@@ -185,14 +210,14 @@ void ApplyCodePatches() {
   Relocate_Rel24((void *) 0x80044a04, reinterpret_cast<void *>(&SkipCutsceneHook));
   Relocate_Rel24((void *) 0x801521d4, reinterpret_cast<void *>(&SkipCutsceneHook));
   //CMapWorldInfo::IsDoorVisited
-//  Relocate_Rel24((void *) 0x80168d24, reinterpret_cast<void *>(&IsDoorVisited));
-//  Relocate_Rel24((void *) 0x800e9274, reinterpret_cast<void *>(&IsDoorVisited));
-//  Relocate_Rel24((void *) 0x800e8b10, reinterpret_cast<void *>(&IsDoorVisited));
+  //  Relocate_Rel24((void *) 0x80168d24, reinterpret_cast<void *>(&IsDoorVisited));
+  //  Relocate_Rel24((void *) 0x800e9274, reinterpret_cast<void *>(&IsDoorVisited));
+  //  Relocate_Rel24((void *) 0x800e8b10, reinterpret_cast<void *>(&IsDoorVisited));
   //CMapWorldInfo::IsAreaVisited
-//  Relocate_Rel24((void *) 0x80167d34, reinterpret_cast<void *>(&IsAreaVisited));
-//  Relocate_Rel24((void *) 0x8009fd1c, reinterpret_cast<void *>(&IsAreaVisited));
-//  Relocate_Rel24((void *) 0x80098a28, reinterpret_cast<void *>(&IsAreaVisited));
-//  Relocate_Rel24((void *) 0x8004c134, reinterpret_cast<void *>(&IsAreaVisited));
+  //  Relocate_Rel24((void *) 0x80167d34, reinterpret_cast<void *>(&IsAreaVisited));
+  //  Relocate_Rel24((void *) 0x8009fd1c, reinterpret_cast<void *>(&IsAreaVisited));
+  //  Relocate_Rel24((void *) 0x80098a28, reinterpret_cast<void *>(&IsAreaVisited));
+  //  Relocate_Rel24((void *) 0x8004c134, reinterpret_cast<void *>(&IsAreaVisited));
   //CMapWorldInfo:IsMapped
   Relocate_Rel24((void *) 0x8016846c, reinterpret_cast<void *>(&IsMapped));
   Relocate_Rel24((void *) 0x80167d50, reinterpret_cast<void *>(&IsMapped));
@@ -227,9 +252,13 @@ void ApplyCodePatches() {
   //CMainFlow::AdvanceGameState
   Relocate_Rel24((void *) 0x80023950, reinterpret_cast<void *>(&Hook_CMainFlow_AdvanceGameState));
 #endif
+
+  // crandom16 replace the whole function
+  ReplaceFunction(&CRandom16::Next, (void *) &Hook_CRandom16Next);
 }
 
 bool tweaksPatched = false;
+
 void TweakPatcher() {
   if (tweaksPatched) return;
   if (!g_TweakGame) return;
@@ -265,7 +294,7 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
 
 void RenderHook() {
   TweakPatcher();
-//  CGraphics::BeginScene();
+  //  CGraphics::BeginScene();
   if (!NewPauseScreen::instance) {
     NewPauseScreen::instance = new NewPauseScreen();
   }
@@ -303,7 +332,7 @@ void drawDebugStuff(CStateManager *mgr) {
     NewPauseScreen::instance = new NewPauseScreen();
   }
   WorldRenderer::RenderWorld();
-//    NewPauseScreen::instance->Render();
+  //    NewPauseScreen::instance->Render();
 }
 
 void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr) {
@@ -341,15 +370,16 @@ bool IsAnythingSet(void *) {
   return true;
 }
 
-bool GetIsVisibleToAutoMapper(void*, bool, bool){
+bool GetIsVisibleToAutoMapper(void *, bool, bool) {
   return true;
 }
 
-void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager& mgr, const CTransform4f& xf, float alpha) {
+void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager &mgr, const CTransform4f &xf, float alpha) {
   mapper->Draw(mgr, xf, alpha);
   EAutoMapperState state = mapper->state();
   EAutoMapperState nextState = mapper->nextState();
-  NewPauseScreen::instance->mapActive = state == EAutoMapperState::MapScreen && nextState == EAutoMapperState::MapScreen;
+  NewPauseScreen::instance->mapActive = state == EAutoMapperState::MapScreen && nextState ==
+                                        EAutoMapperState::MapScreen;
 }
 
 void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr) {
@@ -363,7 +393,7 @@ void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateMan
       TAreaId areaId = *mapper->curAreaId();
       IGameArea *area = world->IGetAreaAlways(areaId);
       u32 mrea = area->IGetAreaAssetId();
-//    OSReport("world %x %x %d vt %x\n", world, area, areaId, GetVtable(world));
+      //    OSReport("world %x %x %d vt %x\n", world, area, areaId, GetVtable(world));
       warp(worldid, mrea);
     }
   }
@@ -395,6 +425,14 @@ void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Q
 }
 
 #endif
+
+int Hook_CRandom16Next(CRandom16 *rng) {
+  if (!SETTINGS.RNG_lockSeed) {
+    rng->m_seed = (rng->m_seed * 0x41c64e6d) + 0x00003039;
+  }
+  return (rng->m_seed >> 16) & 0xffff;
+
+}
 
 //void resetLayerStates(const CStateManager &manager) {
 //  CMemoryCardSys *memorySystem = *(CMemoryCardSys **) 0x805A8C44;
