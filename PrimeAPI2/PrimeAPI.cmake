@@ -6,7 +6,7 @@ set(CMAKE_TOOLCHAIN_FILE "${PRIMEAPI2_PATH}/PrimeToolchain.cmake")
 set(DEVKITPRO "/opt/devkitpro")
 set(DEVKITPPC "/opt/devkitpro/devkitPPC")
 
-set(GCC_VERSION "14.2.0")
+set(GCC_VERSION "15.1.0")
 
 set(CMAKE_PRIME_C_FLAGS_LIST
         -target powerpc-unknown-eabi

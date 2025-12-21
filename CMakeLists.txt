@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 11)
@@ -13,17 +13,16 @@ include_directories(ext/QRCode/src)
 
 set(IMGUI_H_DEFINE [=[-DIMGUI_USER_CONFIG="\"pracc_imconfig.h\""]=])
 set(QR_DEFINE "-DLOCK_VERSION=4")
-#set(QR_DEFINE "")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IMGUI_H_DEFINE} ${QR_DEFINE}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${IMGUI_H_DEFINE} ${QR_DEFINE}")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEBUG")
-else()
+else ()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Os")
-endif()
+endif ()
 
 
 message(${CMAKE_CXX_FLAGS})
@@ -98,14 +97,14 @@ set(SOURCE_FILES
         src/include/GX.hpp
 
         ext/imgui/imgui.cpp
-#        ext/imgui/imgui_demo.cpp
+        #        ext/imgui/imgui_demo.cpp
         ext/imgui/imgui_draw.cpp
         ext/imgui/imgui_tables.cpp
         ext/imgui/imgui_widgets.cpp
-#        ext/imgui/imgui_demo.cpp
+        #        ext/imgui/imgui_demo.cpp
         ext/imgui/imgui.h
         ext/imgui/imgui_internal.h
-#        imgui/imgui_draw.cpp
+        #        imgui/imgui_draw.cpp
 
         ext/QRCode/src/qrcode.c
 
@@ -152,6 +151,6 @@ set(SOURCE_FILES
 
         src/world/WorldRenderer.cpp
         src/world/WorldRenderer.hpp
-        )
+)
 
 add_prime_binary(prime-practice src/prime-practice.lst default.dol ${SOURCE_FILES})
