@@ -10,7 +10,8 @@ This project can produce a release & patch a metroid prime iso to be the practic
 - Make sure you have python3 installed (it should come with most linux distros/macOS)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
 - Copy a metroid prime iso to 'prime.iso' in this directory
-- Run `patch.sh`
+- Run `patch.sh` from a terminal
+  - You can drag and drop the script into a terminal to get the full path
 
 ## Usage
 - Launch the iso in Dolphin
