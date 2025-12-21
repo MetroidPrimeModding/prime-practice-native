@@ -1,4 +1,4 @@
-FROM devkitpro/devkitppc:20251117
+FROM --platform=$BUILDPLATFORM devkitpro/devkitppc:20251117 as builder
 LABEL authors="pwootage"
 
 # Need to install llvm, as practice mod also requires it
