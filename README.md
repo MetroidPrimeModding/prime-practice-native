@@ -1,18 +1,15 @@
 # Metroid Prime Practice Mod
 This project can produce a release & patch a metroid prime iso to be the practice mod
 
-# NOTE: THESE INSTALL INSTRUCTIONS ARE OUT OF DATE
-For now, you need to have python 3.7+ installed. This should be easy to install on linux or macOS. I'll have a Windows solution soon.
 ## How to install (Windows)
-Youtube video: [https://www.youtube.com/watch?v=SpSQNYHwMjY](https://www.youtube.com/watch?v=SpSQNYHwMjY)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
-- Copy a metroid prime iso to 'prime.iso in this directory'
+- Copy a metroid prime iso to 'prime.iso' in this directory
 - Run `patch.bat`
 
 ## How to install (Non-windows)
-Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6855ffjg](https://www.youtube.com/watch?v=fyz6855ffjg)
+- Make sure you have python3 installed (it should come with most linux distros/macOS)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
-- Copy a metroid prime iso to 'prime.iso in this directory'
+- Copy a metroid prime iso to 'prime.iso' in this directory
 - Run `patch.sh`
 
 ## Usage
@@ -31,30 +28,40 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
 - `c-stick` - Scroll
 - `a` - Select item in menu
 - `b` - Go back a menu
+- `x` - (on map) warp to selected room
 
 ## Known Issues
-- Soft reset (`b + x + start`) crashes in Nintendont
-- Non-menu text is garbled
 - Rare crashes (so far, inconsistent)
 - Warps to a couple rooms will put you out of bounds
 
 ## Menus
-- Inventory
-  - Edit your item inventory
 - Player
   - Save/load position
   - Edit position
+  - Light Show/IS toggling
   - Toggle Floaty Jump
-  - Player state information (careful editing this!)
-- Warp
+- Inventory
+  - Edit your item inventory
+- Settings
+  - On screen display settings
+  - Bomb jump helper
+  - Trigger display settings
+  - RNG manipulation (be careful, this can crash the game)
+  - RAM Dump to screen (no decoder yet)
+- Warps
   - Warp to any room
-- Config
-  - Adjust which OSD elements appear & other settings
-
+  - You can also press 'x' on the map screen to warp
+- Rooms
+  - Modify room visibility
+  - Load/unload rooms
+- Version number
+  - QR code links to releases and the discord
+  
 ## OSD
 - Current IGT
 - Input Display
-- Player Speed
+- Player Information
+  - Current position (x, y, z)
   - Current speed (x, y, z, horizontal total)
   - Currrent rotational speed (x, y, z, total)
 - Room timers
@@ -62,10 +69,20 @@ Youtube video on macOS (Linux is similar): [https://www.youtube.com/watch?v=fyz6
   - Current room IGT, in frames
   - Previous room IGT, in seconds
   - Previous room IGT, in frames
-- FPS
-  - Game-measured FPS
+  - By default updates when you enter a new room
+  - Can be configured to update when a room begins loading
+- Frame time graph, as measured by the game
+- Memory usage graph
+- Current RNG value
+- Incinerator Drone fight details
 
 ## Changelog
+
+### 2.7.0
+- Add incinerator drone fight details to OSD
+- RNG value display and locking
+- Room timer can be set to update on room load instead of room transition
+- Experimental memory dumper to screen (no decoder yet)
 
 ### 2.6.0/2.6.1
 - Press 'x' to warp on map

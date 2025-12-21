@@ -34,6 +34,7 @@ namespace GUI {
         BITFIELD_CHECKBOX("Time", SETTINGS.OSD_showIGT);
         BITFIELD_CHECKBOX("Previous Room time", SETTINGS.OSD_showPreviousRoomTime);
         BITFIELD_CHECKBOX("Current Room time", SETTINGS.OSD_showCurrentRoomTime);
+        BITFIELD_CHECKBOX("Room time: Use Loads", SETTINGS.OSD_roomTimeIsBasedOnLoadStart);
         BITFIELD_CHECKBOX("Frame time", SETTINGS.OSD_showFrameTime);
         BITFIELD_CHECKBOX("Memory info", SETTINGS.OSD_showMemoryInfo);
         ImGui::SameLine();
@@ -108,8 +109,13 @@ namespace GUI {
         ImGui::TreePop();
       }
 
-      if (ImGui::Button("Dump Ram")) {
-        startMemoryDump();
+      if (ImGui::TreeNode("Dump Ram")) {
+        ImGui::TextColored(ImVec4(0.9, 0.1, 0.1, 1.0), "Warning! Full screen flashing lights!");
+        ImGui::Text("This dumps the entirety of RAM to the\nscreen for decoding from a video recording.\nThis will take several minutes.");
+        if (ImGui::Button("Dump Ram")) {
+          startMemoryDump();
+        }
+        ImGui::TreePop();
       }
 
       // End settings menu

@@ -38,6 +38,8 @@ namespace GUI {
                       GX_ANISO_1
       );
       imGuiTextures[i].obj = &gxTexObjs[i];
+      imGuiTextures[i].tlut = nullptr;
+      imGuiTextures[i].tlut_name = GX_TLUT0;
     }
   }
 
@@ -119,7 +121,7 @@ namespace GUI {
 //    ImDrawList *dl = ImGui::GetWindowDrawList();
 //    ImVec2 p = ImGui::GetCursorScreenPos() + ImVec2(sizeMultiplier, sizeMultiplier);
     ImGui::Image(
-        (ImTextureID) &gxTexObjs[qrNum],
+        (ImTextureID) &imGuiTextures[qrNum],
         ImVec2(MAX_WIDTH * sizeMultiplier, MAX_WIDTH * sizeMultiplier),
         ImVec2(0, 0),
         ImVec2((float) QR_WIDTH / (float) MAX_WIDTH, (float) QR_WIDTH / (float) MAX_WIDTH)

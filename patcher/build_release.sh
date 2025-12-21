@@ -2,14 +2,14 @@
 
 VERSION=$1
 
-pyinstaller --onefile main.py
+#pyinstaller --onefile main.py
 
 mkdir -p "release/${VERSION}"
 rm -rf "release/${VERSION}/prime-practice-${VERSION}"
 mkdir -p "release/${VERSION}/prime-practice-${VERSION}"
 
 cp -r \
-  ../cmake-build-release-llvm/prime-practice \
+  ../cmake-build-release-docker-prime-build/prime-practice \
   src main.py release/main.exe \
   pyelftools \
   opening_practice.bnr \

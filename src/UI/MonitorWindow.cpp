@@ -33,6 +33,8 @@ namespace GUI {
 
   void drawRoomTime();
 
+  void handleLoadBasedRoomTiming(double current_time);
+
   void drawLoads();
 
   void drawRng();
@@ -164,6 +166,8 @@ namespace GUI {
   double last_time = 0;
   double room_start_time = 0;
 
+  bool isLoading = false;
+
   void drawRoomTime() {
     CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
     CGameState *gameState = globals->getGameState();
@@ -171,13 +175,17 @@ namespace GUI {
     CWorld *world = stateManager->GetWorld();
 
     if (gameState && world) {
-      u32 current_room = world->IGetCurrentAreaId().id;
       double current_time = gameState->PlayTime();
 
-      if (current_room != last_room) {
-        last_time = current_time - room_start_time;
-        room_start_time = current_time;
-        last_room = current_room;
+      if (SETTINGS.OSD_roomTimeIsBasedOnLoadStart) {
+        handleLoadBasedRoomTiming(current_time);
+      } else {
+        u32 current_room = world->IGetCurrentAreaId().id;
+        if (current_room != last_room) {
+          last_time = current_time - room_start_time;
+          room_start_time = current_time;
+          last_room = current_room;
+        }
       }
       double current_room_time = current_time - room_start_time;
       if (SETTINGS.OSD_showPreviousRoomTime) {
@@ -197,6 +205,44 @@ namespace GUI {
         int hours = ((int) current_room_time / 60 / 60) % 60;
         ImGui::Text("C: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
+    }
+  }
+
+  void handleLoadBasedRoomTiming(double current_time) {
+    CStateManager *stateManager = CStateManager::instance();
+    CWorld *world = stateManager->GetWorld();
+    if (world == nullptr) {
+      return;
+    }
+    TAreaId areaId = world->IGetCurrentAreaId();
+    auto currentArea = world->areas()->get(areaId.id).ptr;
+    auto docks = currentArea->docks();
+
+    bool currentlyLoading = false;
+
+    for (int i = 0; i < docks->length(); i++) {
+      auto dock = &docks->get(i);
+      auto refs = dock->refs();
+      for (int j = 0; j < refs->length(); j++) {
+        auto ref = &refs->get(j);
+        auto connectedAreaId = ref->x0_area;
+        auto connectedArea = world->areas()->get(connectedAreaId.id).ptr;
+        // safety
+        if (connectedArea->curChain() == EChain::Loading) {
+          currentlyLoading = true;
+          break;
+        }
+      }
+    }
+
+    if (currentlyLoading && !isLoading) {
+      // started loading
+      last_time = current_time - room_start_time;
+      room_start_time = current_time;
+      isLoading = true;
+    } else if (!currentlyLoading && isLoading) {
+      // finished loading
+      isLoading = false;
     }
   }
 
