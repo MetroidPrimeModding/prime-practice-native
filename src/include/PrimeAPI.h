@@ -37,20 +37,17 @@ typedef double f64;
 // Allocation
 #ifdef __cplusplus
 void *operator new(size_t size);
+void *operator new[](size_t size);
 void *operator new(size_t size, void* ptr);
+void *operator new[](size_t size, void* ptr);
 
 void operator delete(void *);
+void operator delete[](void * ptr);
 
 #if __cplusplus >= 201402L
 
-inline void operator delete(void * ptr, size_t) {
-	::operator delete(ptr);
-}
-
-
-inline void operator delete[](void * ptr, size_t) {
-	::operator delete(ptr);
-}
+void operator delete(void * ptr, size_t);
+void operator delete[](void * ptr, size_t);
 
 #endif
 

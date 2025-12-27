@@ -172,8 +172,7 @@ namespace GUI {
     }
 
     // build a calibration/metadata row
-    char calibrationRow[tex_width];
-    memset(calibrationRow, 0, tex_width);
+    char calibrationRow[tex_width] = {};
     {
       int x = 0;
       // first a calibration pattern of black and white squares across the whole thing
@@ -216,7 +215,7 @@ namespace GUI {
     // TODO: better error correction code encoding here?
 
     convertTextureToBlocks(tempData);
-    delete tempData;
+    delete[] tempData;
   }
 
   void convertTextureToBlocks(char *input) {

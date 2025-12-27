@@ -4,7 +4,7 @@ LABEL authors="pwootage"
 # Need to install llvm, as practice mod also requires it
 
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends llvm-19 llvm-19-tools clang-19 lld-19 && \
+    apt-get install -y --no-install-recommends llvm-19 llvm-19-tools clang-19 lld-19 ninja-build && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     apt-get -y autoremove --purge && \
     apt-get -y clean

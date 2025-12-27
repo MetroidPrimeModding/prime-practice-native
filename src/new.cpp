@@ -14,3 +14,19 @@ void *operator new[](size_t size) {
 void *operator new(size_t size, void* ptr) {
   return ptr;
 }
+
+void *operator new[](size_t size, void* ptr) {
+  return ptr;
+}
+
+void operator delete[](void * ptr) {
+  ::operator delete(ptr);
+}
+
+void operator delete(void * ptr, size_t) {
+  ::operator delete(ptr);
+}
+
+void operator delete[](void * ptr, size_t) {
+  ::operator delete(ptr);
+}
