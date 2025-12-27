@@ -1,15 +1,27 @@
-#!/bin/bash
+#!/bin/bash -e
 
-VERSION=$1
+VERSION=$1jobs
+if [ -z "$VERSION" ]; then
+  VERSION_LINE=$(grep '#define PRAC_MOD_VERSION' src/version.h)
+  VERSION=$(echo "$VERSION_LINE" | sed -E 's/#define PRAC_MOD_VERSION "([^"]+)"/\1/')
+fi
+
+echo "Building release version: ${VERSION}"
+
+# Error if release already exists
+if [ -d "release/${VERSION}/prime-practice-${VERSION}" ]; then
+  echo "Release directory release/${VERSION}/prime-practice-${VERSION} already exists! Please remove it first."
+  exit 1
+fi
 
 #pyinstaller --onefile main.py
 
-mkdir -p "release/${VERSION}"
-rm -rf "release/${VERSION}/prime-practice-${VERSION}"
-mkdir -p "release/${VERSION}/prime-practice-${VERSION}"
+mkdir "release/${VERSION}"
+
+../build.sh Release
 
 cp -r \
-  ../cmake-build-release-docker-prime-build/prime-practice \
+  ../cmake-build-release-docker/prime-practice \
   src main.py release/main.exe \
   pyelftools \
   opening_practice.bnr \
