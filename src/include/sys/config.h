@@ -1,8 +1,7 @@
-#ifndef __SYS_CONFIG_H__
-#define __SYS_CONFIG_H__
+#pragma once
 
-#include <machine/ieeefp.h>  /* floating point macros */
-#include <sys/features.h>	/* POSIX defs */
+#include <machine/ieeefp.h> /* floating point macros */
+#include <sys/features.h>   /* POSIX defs */
 
 #ifdef __aarch64__
 #define MALLOC_ALIGNMENT 16
@@ -17,7 +16,8 @@
 #endif
 
 /* 16 bit integer machines */
-#if defined(__Z8001__) || defined(__Z8002__) || defined(__H8500__) || defined(__W65__) || defined (__mn10200__) || defined (__AVR__)
+#if defined(__Z8001__) || defined(__Z8002__) || defined(__H8500__) || defined(__W65__) || defined(__mn10200__) ||      \
+    defined(__AVR__)
 
 #undef INT_MAX
 #undef UINT_MAX
@@ -25,7 +25,7 @@
 #define UINT_MAX 65535
 #endif
 
-#if defined (__H8300__) || defined (__H8300H__) || defined(__H8300S__) || defined (__H8300SX__)
+#if defined(__H8300__) || defined(__H8300H__) || defined(__H8300S__) || defined(__H8300SX__)
 #define __SMALL_BITFIELDS
 #define H8300 1
 #undef INT_MAX
@@ -34,7 +34,7 @@
 #define UINT_MAX (__INT_MAX__ * 2U + 1)
 #endif
 
-#if (defined(__CR16__) || defined(__CR16C__) ||defined(__CR16CP__))
+#if (defined(__CR16__) || defined(__CR16C__) || defined(__CR16CP__))
 #ifndef __INT32__
 #define __SMALL_BITFIELDS
 #undef INT_MAX
@@ -50,7 +50,7 @@
 
 #endif /* CR16C */
 
-#if defined (__xc16x__) || defined (__xc16xL__) || defined (__xc16xS__)
+#if defined(__xc16x__) || defined(__xc16xL__) || defined(__xc16xS__)
 #define __SMALL_BITFIELDS
 #endif
 
@@ -114,19 +114,19 @@
 
 /* For the PowerPC eabi, force the _impure_ptr to be in .sdata */
 #if defined(__PPC__)
-//#if defined(_CALL_SYSV)
+// #if defined(_CALL_SYSV)
 
 // MODIFICATION: don't .sdata... sigh :'(
-//#define __ATTRIBUTE_IMPURE_PTR__ __attribute__((__section__(".sdata")))
-//#endif
-//#ifdef __SPE__
+// #define __ATTRIBUTE_IMPURE_PTR__ __attribute__((__section__(".sdata")))
+// #endif
+// #ifdef __SPE__
 #define _LONG_DOUBLE double
 #define _HAVE_LONG_DOUBLE
-//#endif
+// #endif
 #endif
 
 /* Configure small REENT structure for Xilinx MicroBlaze platforms */
-#if defined (__MICROBLAZE__)
+#if defined(__MICROBLAZE__)
 #ifndef _REENT_SMALL
 #define _REENT_SMALL
 #endif
@@ -197,24 +197,23 @@
    the correct widths when deciding how to define __int32_t and
    __int64_t.  */
 #ifndef __INT_MAX__
-# ifdef INT_MAX
-#  define __INT_MAX__ INT_MAX
-# else
-#  define __INT_MAX__ 2147483647
-# endif
+#ifdef INT_MAX
+#define __INT_MAX__ INT_MAX
+#else
+#define __INT_MAX__ 2147483647
+#endif
 #endif
 
 #ifndef __LONG_MAX__
-# ifdef LONG_MAX
-#  define __LONG_MAX__ LONG_MAX
-# else
-#  if defined (__alpha__) || (defined (__sparc__) && defined(__arch64__)) \
-      || defined (__sparcv9)
-#   define __LONG_MAX__ 9223372036854775807L
-#  else
-#   define __LONG_MAX__ 2147483647L
-#  endif /* __alpha__ || sparc64 */
-# endif
+#ifdef LONG_MAX
+#define __LONG_MAX__ LONG_MAX
+#else
+#if defined(__alpha__) || (defined(__sparc__) && defined(__arch64__)) || defined(__sparcv9)
+#define __LONG_MAX__ 9223372036854775807L
+#else
+#define __LONG_MAX__ 2147483647L
+#endif /* __alpha__ || sparc64 */
+#endif
 #endif
 /* End of block that should be kept in sync with GCC's limits.h.  */
 
@@ -265,7 +264,7 @@
 #endif
 
 #ifndef __WCHAR_MAX__
-#if __INT_MAX__ == 32767 || defined (_WIN32)
+#if __INT_MAX__ == 32767 || defined(_WIN32)
 #define __WCHAR_MAX__ 0xffffu
 #endif
 #endif
@@ -285,5 +284,3 @@
 #define _MB_EXTENDED_CHARSETS_ISO 1
 #define _MB_EXTENDED_CHARSETS_WINDOWS 1
 #endif
-
-#endif /* __SYS_CONFIG_H__ */

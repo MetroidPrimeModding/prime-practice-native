@@ -16,7 +16,7 @@ typedef unsigned short uint16;
 typedef unsigned long uint32;
 typedef unsigned long long uint64;
 typedef unsigned long ulong;
-//typedef unsigned long size_t;
+// typedef unsigned long size_t;
 typedef float f32;
 typedef double f64;
 
@@ -28,29 +28,29 @@ typedef double f64;
 #define nullptr NULL
 #endif
 
-#define PADDING(Amt) char padding##Amt[ ( Amt ) ]
+#define PADDING(Amt) char padding##Amt[(Amt)]
 
 #define VALID_PTR(p) ((u32)p >= 0x80000000 && (u32)p <= 0x81800000)
 
-#define PACKED __attribute__ ((__packed__))
+#define PACKED __attribute__((__packed__))
 
 // Allocation
 #ifdef __cplusplus
 void *operator new(size_t size);
 void *operator new[](size_t size);
-void *operator new(size_t size, void* ptr);
-void *operator new[](size_t size, void* ptr);
+void *operator new(size_t size, void *ptr);
+void *operator new[](size_t size, void *ptr);
 
 void operator delete(void *);
-void operator delete[](void * ptr);
+void operator delete[](void *ptr);
 
 #if __cplusplus >= 201402L
 
-void operator delete(void * ptr, size_t);
-void operator delete[](void * ptr, size_t);
+void operator delete(void *ptr, size_t);
+void operator delete[](void *ptr, size_t);
 
 #endif
 
-//#define new new("", "")
+// #define new new("", "")
 
 #endif

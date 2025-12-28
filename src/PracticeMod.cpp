@@ -1,41 +1,41 @@
-#include "UI/PlayerMenu.hpp"
+#include "PracticeMod.hpp"
+#include "UI/BombJumping.hpp"
+#include "UI/DumpMemoryUI.hpp"
 #include "UI/InventoryMenu.hpp"
 #include "UI/MonitorWindow.hpp"
-#include "UI/SettingsMenu.hpp"
-#include "UI/BombJumping.hpp"
-#include "os.h"
-#include "NewPauseScreen.hpp"
-#include "prime/CGameState.hpp"
-#include "prime/CWorldState.hpp"
-#include "prime/CPlayer.hpp"
-#include "prime/CPlayerState.hpp"
-#include "prime/CPlayerGun.hpp"
-#include "prime/CWorld.hpp"
-#include "prime/CMain.hpp"
-#include "prime/CSfxManager.hpp"
-#include "imgui.h"
-#include "duk_mem.h"
-#include "UI/WarpMenu.h"
-#include "settings.hpp"
-#include "ImGuiEngine.hpp"
-#include "version.h"
+#include "UI/PlayerMenu.hpp"
+#include "UI/QR.hpp"
 #include "UI/RoomMenu.hpp"
 #include "UI/ScanMenu.hpp"
-#include "UI/QR.hpp"
-#include "UI/DumpMemoryUI.hpp"
+#include "UI/SettingsMenu.hpp"
+#include "UI/WarpMenu.h"
+#include "imgui.h"
+#include "os.h"
+#include "prime/CGameState.hpp"
+#include "prime/CMain.hpp"
+#include "prime/CPlayer.hpp"
+#include "prime/CPlayerGun.hpp"
+#include "prime/CPlayerState.hpp"
+#include "prime/CSfxManager.hpp"
+#include "prime/CWorld.hpp"
+#include "prime/CWorldState.hpp"
+#include "settings.hpp"
+#include "system/ImGuiEngine.hpp"
+#include "system/malloc_wrappers.h"
 #include "utils.hpp"
+#include "version.h"
 
 #define PAD_MAX_CONTROLLERS 4
 
-NewPauseScreen *NewPauseScreen::instance = nullptr;
+PracticeMod *PracticeMod::instance = nullptr;
 
-NewPauseScreen::NewPauseScreen() {
+PracticeMod::PracticeMod() {
   OSReport("Hello, Dolphin\n");
 
   ImGuiEngine::ImGui_Init();
   ImGuiEngine::ImGui_Init_Style();
   GUI::initQR();
-  this->hide();
+  this->pauseScreenClosed();
   inputs = new CFinalInput[4];
 
   // Patch CScriptTrigger so we can attach a value to it
@@ -87,19 +87,19 @@ NewPauseScreen::NewPauseScreen() {
 #endif
 }
 
-void NewPauseScreen::Render() {
-  NewPauseScreen::RenderMenu();
+void PracticeMod::render() {
+  this->renderMenu();
 }
 
-void NewPauseScreen::hide() {
+void PracticeMod::pauseScreenClosed() {
   pauseScreenActive = false;
 }
 
-void NewPauseScreen::show() {
+void PracticeMod::pauseScreenOpened() {
   this->pauseScreenActive = true;
 }
 
-void NewPauseScreen::HandleInputs() {
+void PracticeMod::HandleInputs() {
   if (this->pauseScreenActive && this->menuActive) {
     ImGuiIO *io = &ImGui::GetIO();
     io->NavInputs[ImGuiNavInput_Activate] = inputs[0].DA();
@@ -154,7 +154,7 @@ void NewPauseScreen::HandleInputs() {
   }
 }
 
-void NewPauseScreen::RenderMenu() {
+void PracticeMod::renderMenu() {
   ImGuiIO &io = ImGui::GetIO();
   io.DisplaySize = ImVec2(SVIEWPORT_GLOBAL->x8_width, SVIEWPORT_GLOBAL->xc_height);
   io.DeltaTime = 1.f / 60.f;
@@ -261,10 +261,9 @@ void NewPauseScreen::RenderMenu() {
   }
 }
 
-
 float bombTime = 0;
 
-void NewPauseScreen::update(float dt) const {
+void PracticeMod::update(float dt) const {
   // Lagger (loops)
   if (!this->pauseScreenActive) {
     if (SETTINGS.LAG_loop_iterations > 0) {
@@ -340,40 +339,5 @@ void warp(uint32_t world, uint32_t area) {
 
   mgr->SetShouldQuitGame(true);
 
-  NewPauseScreen::instance->hide();
+  PracticeMod::instance->pauseScreenClosed();
 }
-
-// entities
-/*duk_ret_t script_getEntities(duk_context *ctx) {
-  CStateManager *mgr = CStateManager::instance();
-  CObjectList *list = mgr->GetAllObjs();
-  if (list == nullptr) {
-    duk_push_undefined(ctx);
-    return 1;
-  }
-  duk_uarridx_t visited = 0;
-  int id = list->first;
-
-  duk_push_array(ctx);
-  while (id != 0xFFFF && visited < list->count) {
-    SObjectListEntry entry = list->entries[id & 0x3FF];
-    if (!VALID_PTR(entry.entity)) {
-      break;
-    }
-    CEntity *entity = entry.entity;
-
-    duk_push_object(ctx);
-    {
-      duk_push_int(ctx, entity->getVtablePtr());
-      duk_put_prop_string(ctx, -2, "vtable");
-
-      duk_push_int(ctx, (duk_int32_t) entity);
-      duk_put_prop_string(ctx, -2, "address");
-    }
-    duk_put_prop_index(ctx, -2, visited);
-
-    visited++;
-    id = entry.next;
-  }
-  return 1;
-}*/

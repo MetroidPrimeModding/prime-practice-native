@@ -1,5 +1,4 @@
-#ifndef PRIME_PRACTICE_NATIVE_CENTITY_HPP
-#define PRIME_PRACTICE_NATIVE_CENTITY_HPP
+#pragma once
 
 #include "GetField.hpp"
 #include "PrimeAPI.h"
@@ -10,9 +9,9 @@ struct PACKED VTableInfo {
   u32 vtable;
   const char *name;
   // instead of dealing with inheritance, mark what I care about
-  bool isActor:1{false};
-  bool isPhysicsActor:1{false};
-  bool isPatterned:1{false};
+  bool isActor : 1 {false};
+  bool isPhysicsActor : 1 {false};
+  bool isPatterned : 1 {false};
 };
 constexpr u32 VTABLE_COUNT = 139;
 extern VTableInfo MP1_VTABLES[VTABLE_COUNT];
@@ -272,5 +271,3 @@ public:
 
   rstl::vector_type_2<SConnection> *getConnections() { return GetField<rstl::vector_type_2<SConnection>>(this, 0x20); }
 };
-
-#endif // PRIME_PRACTICE_NATIVE_CENTITY_HPP

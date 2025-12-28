@@ -1,9 +1,6 @@
-#ifndef PRIME_PRACTICE_CCALLSTACK_HPP
-#define PRIME_PRACTICE_CCALLSTACK_HPP
+#pragma once
 
 class CCallstack {
 public:
-    CCallStack(unsigned int, char const *, char const *);
+  CCallStack(unsigned int, char const *, char const *);
 };
-
-#endif //PRIME_PRACTICE_CCALLSTACK_HPP

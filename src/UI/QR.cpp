@@ -1,10 +1,10 @@
-#include "os.h"
 #include "QR.hpp"
+#include "../system/ImGuiEngine.hpp"
+#include "GX.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "os.h"
 #include "qrcode.h"
-#include "GX.hpp"
-#include "ImGuiEngine.hpp"
 
 namespace GUI {
   constexpr int TEX_COUNT = 2;

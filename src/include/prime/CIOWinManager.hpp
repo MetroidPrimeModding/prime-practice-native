@@ -2,6 +2,5 @@
 
 class CIOWinManager {
 public:
-    void Draw() const;
+  void Draw() const;
 };
-

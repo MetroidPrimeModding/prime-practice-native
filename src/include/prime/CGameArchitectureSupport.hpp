@@ -4,5 +4,4 @@
 
 class CGameArchitectureSupport {
 public:
-
 };

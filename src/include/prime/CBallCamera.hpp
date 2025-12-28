@@ -14,4 +14,3 @@ public:
   float x358_unobscureMag() { return *GetField<float>(this, 0x358); }
   bool x3e4_pendingFailsafe() { return *GetField<u8>(this, 0x3e4); }
 };
-

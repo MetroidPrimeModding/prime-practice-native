@@ -92,8 +92,7 @@ set(SOURCE_FILES
         src/include/prime/CRandom16.hpp
         src/include/prime/CAi.hpp
         src/include/prime/CPatterned.hpp
-        src/include/STriggerRenderConfig.hpp
-        src/include/NewPauseScreen.hpp
+        src/PracticeMod.hpp
         src/include/GetField.hpp
         src/include/settings.hpp
         src/include/ImHelpers.hpp
@@ -112,24 +111,24 @@ set(SOURCE_FILES
         ext/QRCode/src/qrcode.c
 
         src/include/pracc_imconfig.h
-        src/CrashAssert.h
-        src/CrashAssert.cpp
-        src/libc/printf.h
-        src/libc/printf.c
-        src/libc/sscanf.c
+        src/system/CrashAssert.h
+        src/system/CrashAssert.cpp
+        src/system/printf.h
+        src/system/printf.c
+        src/system/sscanf.c
 
         src/version.h
-        src/new.cpp
-        src/NewPauseScreen.cpp
-        src/duk_mem.h
-        src/duk_mem.cpp
+        src/system/new.cpp
+        src/PracticeMod.cpp
+        src/system/malloc_wrappers.h
+        src/system/malloc_wrappers.cpp
         src/prime-practice.cpp
-        src/settings.cpp
-        src/font_atlas.hpp
-        src/ImGuiEngine.cpp
-        src/ImGuiEngine.hpp
-        src/CEntity.cpp
-        src/libc/libc.c
+        src/utils/settings.cpp
+        src/system/font_atlas.hpp
+        src/system/ImGuiEngine.cpp
+        src/system/ImGuiEngine.hpp
+        src/utils/CEntity.cpp
+        src/system/libc.c
 
         src/UI/WarpMenu.h
         src/UI/WarpMenu.cpp

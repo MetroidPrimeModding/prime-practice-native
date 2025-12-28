@@ -1,5 +1,4 @@
-#ifndef PRIME_PRACTICE_NATIVE_IMGUIENGINE_HPP
-#define PRIME_PRACTICE_NATIVE_IMGUIENGINE_HPP
+#pragma once
 
 
 #include <prime/CScriptTrigger.hpp>
@@ -26,6 +25,3 @@ public:
   static void ImGui_Render_Stream(const ImDrawData *drawData);
 #endif
 };
-
-
-#endif //PRIME_PRACTICE_NATIVE_IMGUIENGINE_HPP

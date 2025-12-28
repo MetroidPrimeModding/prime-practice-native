@@ -3,5 +3,4 @@
 
 class CPatterned : public CAi {
 public:
-
 };

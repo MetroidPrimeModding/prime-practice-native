@@ -1,11 +1,7 @@
-#include "duk_mem.h"
+#include "malloc_wrappers.h"
 #include "PrimeAPI.h"
-#include "CMemory.h"
-#include "types.h"
-#include "prime/CGameAllocator.hpp"
-#include <string.h>
 #include "os.h"
-
+#include <string.h>
 
 void *prime_calloc(size_t nmemb, size_t size, void *user) {
   void *res = prime_malloc(nmemb * size, user);

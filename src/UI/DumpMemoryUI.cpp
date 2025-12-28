@@ -1,9 +1,9 @@
-#include "os.h"
 #include "DumpMemoryUI.hpp"
+#include "../system/ImGuiEngine.hpp"
+#include "GX.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "GX.hpp"
-#include "ImGuiEngine.hpp"
+#include "os.h"
 #include "utils/DataByteStream.hpp"
 
 namespace GUI {

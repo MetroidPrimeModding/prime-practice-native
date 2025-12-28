@@ -1,10 +1,6 @@
-
-#ifndef DUK_MEM_H
-#define DUK_MEM_H
+#pragma once
 
 #include <stdlib.h>
-
-//Defines stuff to make duktape work
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +13,4 @@ void *prime_realloc(void *ptr, size_t size, void *user);
 
 #ifdef __cplusplus
 };
-#endif
-
 #endif

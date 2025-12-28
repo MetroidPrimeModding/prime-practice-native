@@ -1,295 +1,294 @@
-#ifndef PRIME_PRACTICE_GX_HPP
-#define PRIME_PRACTICE_GX_HPP
+#pragma once
 
 #include "types.h"
 
-#define GX_TF_I4      0x0
-#define GX_TF_I8      0x1
-#define GX_TF_IA4      0x2
-#define GX_TF_IA8      0x3
-#define GX_TF_RGB565    0x4
-#define GX_TF_RGB5A3    0x5
-#define GX_TF_RGBA8      0x6
-#define GX_TF_CI4      0x8
-#define GX_TF_CI8      0x9
-#define GX_TF_CI14      0xa
-#define GX_TF_CMPR      0xE
+#define GX_TF_I4 0x0
+#define GX_TF_I8 0x1
+#define GX_TF_IA4 0x2
+#define GX_TF_IA8 0x3
+#define GX_TF_RGB565 0x4
+#define GX_TF_RGB5A3 0x5
+#define GX_TF_RGBA8 0x6
+#define GX_TF_CI4 0x8
+#define GX_TF_CI8 0x9
+#define GX_TF_CI14 0xa
+#define GX_TF_CMPR 0xE
 
-#define GX_CLAMP      0
-#define GX_REPEAT      1
-#define GX_MIRROR      2
+#define GX_CLAMP 0
+#define GX_REPEAT 1
+#define GX_MIRROR 2
 
-#define GX_FALSE      0
-#define GX_TRUE        1
-#define GX_DISABLE      0
-#define GX_ENABLE      1
+#define GX_FALSE 0
+#define GX_TRUE 1
+#define GX_DISABLE 0
+#define GX_ENABLE 1
 
-#define GX_POINTS        0xB8
-#define GX_LINES        0xA8
-#define GX_LINESTRIP      0xB0
-#define GX_TRIANGLES      0x90
-#define GX_TRIANGLESTRIP    0x98
-#define GX_TRIANGLEFAN      0xA0
-#define GX_QUADS        0x80
+#define GX_POINTS 0xB8
+#define GX_LINES 0xA8
+#define GX_LINESTRIP 0xB0
+#define GX_TRIANGLES 0x90
+#define GX_TRIANGLESTRIP 0x98
+#define GX_TRIANGLEFAN 0xA0
+#define GX_QUADS 0x80
 
-#define GX_BL_ZERO      0
-#define GX_BL_ONE      1
-#define GX_BL_SRCCLR    2
-#define GX_BL_INVSRCCLR    3
-#define GX_BL_SRCALPHA    4
-#define GX_BL_INVSRCALPHA  5
-#define GX_BL_DSTALPHA    6
-#define GX_BL_INVDSTALPHA  7
-#define GX_BL_DSTCLR    GX_BL_SRCCLR
-#define GX_BL_INVDSTCLR    GX_BL_INVSRCCLR
+#define GX_BL_ZERO 0
+#define GX_BL_ONE 1
+#define GX_BL_SRCCLR 2
+#define GX_BL_INVSRCCLR 3
+#define GX_BL_SRCALPHA 4
+#define GX_BL_INVSRCALPHA 5
+#define GX_BL_DSTALPHA 6
+#define GX_BL_INVDSTALPHA 7
+#define GX_BL_DSTCLR GX_BL_SRCCLR
+#define GX_BL_INVDSTCLR GX_BL_INVSRCCLR
 
-#define GX_BM_NONE      0
-#define GX_BM_BLEND      1
-#define GX_BM_LOGIC      2
-#define GX_BM_SUBTRACT    3
-#define GX_MAX_BLENDMODE  4
+#define GX_BM_NONE 0
+#define GX_BM_BLEND 1
+#define GX_BM_LOGIC 2
+#define GX_BM_SUBTRACT 3
+#define GX_MAX_BLENDMODE 4
 
-#define GX_LO_CLEAR      0
-#define GX_LO_AND      1
-#define GX_LO_REVAND    2
-#define GX_LO_COPY      3
-#define GX_LO_INVAND    4
-#define GX_LO_NOOP      5
-#define GX_LO_XOR      6
-#define GX_LO_OR      7
-#define GX_LO_NOR      8
-#define GX_LO_EQUIV      9
-#define GX_LO_INV      10
-#define GX_LO_REVOR      11
-#define GX_LO_INVCOPY    12
-#define GX_LO_INVOR      13
-#define GX_LO_NAND      14
-#define GX_LO_SET      15
+#define GX_LO_CLEAR 0
+#define GX_LO_AND 1
+#define GX_LO_REVAND 2
+#define GX_LO_COPY 3
+#define GX_LO_INVAND 4
+#define GX_LO_NOOP 5
+#define GX_LO_XOR 6
+#define GX_LO_OR 7
+#define GX_LO_NOR 8
+#define GX_LO_EQUIV 9
+#define GX_LO_INV 10
+#define GX_LO_REVOR 11
+#define GX_LO_INVCOPY 12
+#define GX_LO_INVOR 13
+#define GX_LO_NAND 14
+#define GX_LO_SET 15
 
-#define GX_NEVER      0
-#define GX_LESS        1
-#define GX_EQUAL      2
-#define GX_LEQUAL      3
-#define GX_GREATER      4
-#define GX_NEQUAL      5
-#define GX_GEQUAL      6
-#define GX_ALWAYS      7
+#define GX_NEVER 0
+#define GX_LESS 1
+#define GX_EQUAL 2
+#define GX_LEQUAL 3
+#define GX_GREATER 4
+#define GX_NEQUAL 5
+#define GX_GEQUAL 6
+#define GX_ALWAYS 7
 
-#define GX_VTXFMT0      0
-#define GX_VTXFMT1      1
-#define GX_VTXFMT2      2
-#define GX_VTXFMT3      3
-#define GX_VTXFMT4      4
-#define GX_VTXFMT5      5
-#define GX_VTXFMT6      6
-#define GX_VTXFMT7      7
-#define GX_MAXVTXFMT    8
+#define GX_VTXFMT0 0
+#define GX_VTXFMT1 1
+#define GX_VTXFMT2 2
+#define GX_VTXFMT3 3
+#define GX_VTXFMT4 4
+#define GX_VTXFMT5 5
+#define GX_VTXFMT6 6
+#define GX_VTXFMT7 7
+#define GX_MAXVTXFMT 8
 
-#define GX_VA_PTNMTXIDX      0
-#define GX_VA_TEX0MTXIDX    1
-#define GX_VA_TEX1MTXIDX    2
-#define GX_VA_TEX2MTXIDX    3
-#define GX_VA_TEX3MTXIDX    4
-#define GX_VA_TEX4MTXIDX    5
-#define GX_VA_TEX5MTXIDX    6
-#define GX_VA_TEX6MTXIDX    7
-#define GX_VA_TEX7MTXIDX    8
-#define GX_VA_POS        9
-#define GX_VA_NRM        10
-#define GX_VA_CLR0        11
-#define GX_VA_CLR1        12
-#define GX_VA_TEX0        13
-#define GX_VA_TEX1        14
-#define GX_VA_TEX2        15
-#define GX_VA_TEX3        16
-#define GX_VA_TEX4        17
-#define GX_VA_TEX5        18
-#define GX_VA_TEX6        19
-#define GX_VA_TEX7        20
-#define GX_POSMTXARRAY      21
-#define GX_NRMMTXARRAY      22
-#define GX_TEXMTXARRAY      23
-#define GX_LIGHTARRAY      24
-#define GX_VA_NBT        25
-#define GX_VA_MAXATTR      26
-#define GX_VA_NULL        0xff
+#define GX_VA_PTNMTXIDX 0
+#define GX_VA_TEX0MTXIDX 1
+#define GX_VA_TEX1MTXIDX 2
+#define GX_VA_TEX2MTXIDX 3
+#define GX_VA_TEX3MTXIDX 4
+#define GX_VA_TEX4MTXIDX 5
+#define GX_VA_TEX5MTXIDX 6
+#define GX_VA_TEX6MTXIDX 7
+#define GX_VA_TEX7MTXIDX 8
+#define GX_VA_POS 9
+#define GX_VA_NRM 10
+#define GX_VA_CLR0 11
+#define GX_VA_CLR1 12
+#define GX_VA_TEX0 13
+#define GX_VA_TEX1 14
+#define GX_VA_TEX2 15
+#define GX_VA_TEX3 16
+#define GX_VA_TEX4 17
+#define GX_VA_TEX5 18
+#define GX_VA_TEX6 19
+#define GX_VA_TEX7 20
+#define GX_POSMTXARRAY 21
+#define GX_NRMMTXARRAY 22
+#define GX_TEXMTXARRAY 23
+#define GX_LIGHTARRAY 24
+#define GX_VA_NBT 25
+#define GX_VA_MAXATTR 26
+#define GX_VA_NULL 0xff
 
-#define GX_NONE        0
-#define GX_DIRECT      1
-#define GX_INDEX8      2
-#define GX_INDEX16      3
+#define GX_NONE 0
+#define GX_DIRECT 1
+#define GX_INDEX8 2
+#define GX_INDEX16 3
 
-#define GX_POS_XY      0
-#define GX_POS_XYZ      1
-#define GX_NRM_XYZ      0
-#define GX_NRM_NBT      1
-#define GX_NRM_NBT3      2
-#define GX_CLR_RGB      0
-#define GX_CLR_RGBA      1
-#define GX_TEX_S      0
-#define GX_TEX_ST      1
+#define GX_POS_XY 0
+#define GX_POS_XYZ 1
+#define GX_NRM_XYZ 0
+#define GX_NRM_NBT 1
+#define GX_NRM_NBT3 2
+#define GX_CLR_RGB 0
+#define GX_CLR_RGBA 1
+#define GX_TEX_S 0
+#define GX_TEX_ST 1
 
-#define GX_U8        0
-#define GX_S8        1
-#define GX_U16        2
-#define GX_S16        3
-#define GX_F32        4
-#define GX_RGB565      0
-#define GX_RGB8        1
-#define GX_RGBX8      2
-#define GX_RGBA4      3
-#define GX_RGBA6      4
-#define GX_RGBA8      5
+#define GX_U8 0
+#define GX_S8 1
+#define GX_U16 2
+#define GX_S16 3
+#define GX_F32 4
+#define GX_RGB565 0
+#define GX_RGB8 1
+#define GX_RGBX8 2
+#define GX_RGBA4 3
+#define GX_RGBA6 4
+#define GX_RGBA8 5
 
-#define  GX_CULL_ALL   3
-#define  GX_CULL_BACK   2
-#define  GX_CULL_FRONT   1
-#define  GX_CULL_NONE   0
+#define GX_CULL_ALL 3
+#define GX_CULL_BACK 2
+#define GX_CULL_FRONT 1
+#define GX_CULL_NONE 0
 
-#define GX_TEXMAP0        0
-#define GX_TEXMAP1        1
-#define GX_TEXMAP2        2
-#define GX_TEXMAP3        3
-#define GX_TEXMAP4        4
-#define GX_TEXMAP5        5
-#define GX_TEXMAP6        6
-#define GX_TEXMAP7        7
-#define GX_MAX_TEXMAP      8
-#define GX_TEXMAP_NULL      0xff
-#define GX_TEXMAP_DISABLE    0x100
+#define GX_TEXMAP0 0
+#define GX_TEXMAP1 1
+#define GX_TEXMAP2 2
+#define GX_TEXMAP3 3
+#define GX_TEXMAP4 4
+#define GX_TEXMAP5 5
+#define GX_TEXMAP6 6
+#define GX_TEXMAP7 7
+#define GX_MAX_TEXMAP 8
+#define GX_TEXMAP_NULL 0xff
+#define GX_TEXMAP_DISABLE 0x100
 
-#define GX_TEVSTAGE0    0
-#define GX_TEVSTAGE1    1
-#define GX_TEVSTAGE2    2
-#define GX_TEVSTAGE3    3
-#define GX_TEVSTAGE4    4
-#define GX_TEVSTAGE5    5
-#define GX_TEVSTAGE6    6
-#define GX_TEVSTAGE7    7
-#define GX_TEVSTAGE8    8
-#define GX_TEVSTAGE9    9
-#define GX_TEVSTAGE10    10
-#define GX_TEVSTAGE11    11
-#define GX_TEVSTAGE12    12
-#define GX_TEVSTAGE13    13
-#define GX_TEVSTAGE14    14
-#define GX_TEVSTAGE15    15
-#define GX_MAX_TEVSTAGE    16
+#define GX_TEVSTAGE0 0
+#define GX_TEVSTAGE1 1
+#define GX_TEVSTAGE2 2
+#define GX_TEVSTAGE3 3
+#define GX_TEVSTAGE4 4
+#define GX_TEVSTAGE5 5
+#define GX_TEVSTAGE6 6
+#define GX_TEVSTAGE7 7
+#define GX_TEVSTAGE8 8
+#define GX_TEVSTAGE9 9
+#define GX_TEVSTAGE10 10
+#define GX_TEVSTAGE11 11
+#define GX_TEVSTAGE12 12
+#define GX_TEVSTAGE13 13
+#define GX_TEVSTAGE14 14
+#define GX_TEVSTAGE15 15
+#define GX_MAX_TEVSTAGE 16
 
-#define GX_TEXCOORD0    0x0
-#define GX_TEXCOORD1    0x1
-#define GX_TEXCOORD2    0x2
-#define GX_TEXCOORD3    0x3
-#define GX_TEXCOORD4    0x4
-#define GX_TEXCOORD5    0x5
-#define GX_TEXCOORD6    0x6
-#define GX_TEXCOORD7    0x7
-#define GX_MAXCOORD      0x8
-#define GX_TEXCOORDNULL    0xff
+#define GX_TEXCOORD0 0x0
+#define GX_TEXCOORD1 0x1
+#define GX_TEXCOORD2 0x2
+#define GX_TEXCOORD3 0x3
+#define GX_TEXCOORD4 0x4
+#define GX_TEXCOORD5 0x5
+#define GX_TEXCOORD6 0x6
+#define GX_TEXCOORD7 0x7
+#define GX_MAXCOORD 0x8
+#define GX_TEXCOORDNULL 0xff
 
-#define GX_COLOR0      0
-#define GX_COLOR1      1
-#define GX_ALPHA0      2
-#define GX_ALPHA1      3
-#define GX_COLOR0A0      4
-#define GX_COLOR1A1      5
-#define GX_COLORZERO    6
-#define GX_ALPHA_BUMP    7
-#define GX_ALPHA_BUMPN    8
-#define GX_COLORNULL    0xff
+#define GX_COLOR0 0
+#define GX_COLOR1 1
+#define GX_ALPHA0 2
+#define GX_ALPHA1 3
+#define GX_COLOR0A0 4
+#define GX_COLOR1A1 5
+#define GX_COLORZERO 6
+#define GX_ALPHA_BUMP 7
+#define GX_ALPHA_BUMPN 8
+#define GX_COLORNULL 0xff
 
-#define GX_MODULATE      0
-#define GX_DECAL      1
-#define GX_BLEND      2
-#define GX_REPLACE      3
-#define GX_PASSCLR      4
+#define GX_MODULATE 0
+#define GX_DECAL 1
+#define GX_BLEND 2
+#define GX_REPLACE 3
+#define GX_PASSCLR 4
 
-#define GX_CC_CPREV      0
-#define GX_CC_APREV      1
-#define GX_CC_C0      2
-#define GX_CC_A0      3
-#define GX_CC_C1      4
-#define GX_CC_A1      5
-#define GX_CC_C2      6
-#define GX_CC_A2      7
-#define GX_CC_TEXC      8
-#define GX_CC_TEXA      9
-#define GX_CC_RASC      10
-#define GX_CC_RASA      11
-#define GX_CC_ONE      12
-#define GX_CC_HALF      13
-#define GX_CC_KONST      14
-#define GX_CC_ZERO      15
+#define GX_CC_CPREV 0
+#define GX_CC_APREV 1
+#define GX_CC_C0 2
+#define GX_CC_A0 3
+#define GX_CC_C1 4
+#define GX_CC_A1 5
+#define GX_CC_C2 6
+#define GX_CC_A2 7
+#define GX_CC_TEXC 8
+#define GX_CC_TEXA 9
+#define GX_CC_RASC 10
+#define GX_CC_RASA 11
+#define GX_CC_ONE 12
+#define GX_CC_HALF 13
+#define GX_CC_KONST 14
+#define GX_CC_ZERO 15
 
-#define GX_CA_APREV      0
-#define GX_CA_A0      1
-#define GX_CA_A1      2
-#define GX_CA_A2      3
-#define GX_CA_TEXA      4
-#define GX_CA_RASA      5
-#define GX_CA_KONST      6
-#define GX_CA_ZERO      7
+#define GX_CA_APREV 0
+#define GX_CA_A0 1
+#define GX_CA_A1 2
+#define GX_CA_A2 3
+#define GX_CA_TEXA 4
+#define GX_CA_RASA 5
+#define GX_CA_KONST 6
+#define GX_CA_ZERO 7
 
-#define GX_TEV_ADD        0
-#define GX_TEV_SUB        1
-#define GX_TEV_COMP_R8_GT    8
-#define GX_TEV_COMP_R8_EQ    9
-#define GX_TEV_COMP_GR16_GT    10
-#define GX_TEV_COMP_GR16_EQ    11
-#define GX_TEV_COMP_BGR24_GT  12
-#define GX_TEV_COMP_BGR24_EQ  13
-#define GX_TEV_COMP_RGB8_GT    14
-#define GX_TEV_COMP_RGB8_EQ    15
-#define GX_TEV_COMP_A8_GT    GX_TEV_COMP_RGB8_GT
-#define GX_TEV_COMP_A8_EQ    GX_TEV_COMP_RGB8_EQ
+#define GX_TEV_ADD 0
+#define GX_TEV_SUB 1
+#define GX_TEV_COMP_R8_GT 8
+#define GX_TEV_COMP_R8_EQ 9
+#define GX_TEV_COMP_GR16_GT 10
+#define GX_TEV_COMP_GR16_EQ 11
+#define GX_TEV_COMP_BGR24_GT 12
+#define GX_TEV_COMP_BGR24_EQ 13
+#define GX_TEV_COMP_RGB8_GT 14
+#define GX_TEV_COMP_RGB8_EQ 15
+#define GX_TEV_COMP_A8_GT GX_TEV_COMP_RGB8_GT
+#define GX_TEV_COMP_A8_EQ GX_TEV_COMP_RGB8_EQ
 
-#define GX_TB_ZERO        0
-#define GX_TB_ADDHALF      1
-#define GX_TB_SUBHALF      2
-#define GX_MAX_TEVBIAS      3
+#define GX_TB_ZERO 0
+#define GX_TB_ADDHALF 1
+#define GX_TB_SUBHALF 2
+#define GX_MAX_TEVBIAS 3
 
-#define GX_CS_SCALE_1      0
-#define GX_CS_SCALE_2      1
-#define GX_CS_SCALE_4      2
-#define GX_CS_DIVIDE_2      3
-#define GX_MAX_TEVSCALE      4
+#define GX_CS_SCALE_1 0
+#define GX_CS_SCALE_2 1
+#define GX_CS_SCALE_4 2
+#define GX_CS_DIVIDE_2 3
+#define GX_MAX_TEVSCALE 4
 
-#define GX_TEVPREV        0
-#define GX_TEVREG0        1
-#define GX_TEVREG1        2
-#define GX_TEVREG2        3
-#define GX_MAX_TEVREG      4
+#define GX_TEVPREV 0
+#define GX_TEVREG0 1
+#define GX_TEVREG1 2
+#define GX_TEVREG2 3
+#define GX_MAX_TEVREG 4
 
-#define GX_NEAR              0
-#define GX_LINEAR            1
-#define GX_NEAR_MIP_NEAR        2
-#define GX_LIN_MIP_NEAR          3
-#define GX_NEAR_MIP_LIN          4
-#define GX_LIN_MIP_LIN          5
+#define GX_NEAR 0
+#define GX_LINEAR 1
+#define GX_NEAR_MIP_NEAR 2
+#define GX_LIN_MIP_NEAR 3
+#define GX_NEAR_MIP_LIN 4
+#define GX_LIN_MIP_LIN 5
 
-#define GX_ANISO_1            0
-#define GX_ANISO_2            1
-#define GX_ANISO_4            2
-#define GX_MAX_ANISOTROPY        3
+#define GX_ANISO_1 0
+#define GX_ANISO_2 1
+#define GX_ANISO_4 2
+#define GX_MAX_ANISOTROPY 3
 
-//typedef struct _gx_texobj {
-//    u32 val[8];
-//} GXTexObj;
+// typedef struct _gx_texobj {
+//     u32 val[8];
+// } GXTexObj;
 
-//typedef struct {
-//    u32 attr;
-//    u32 type;
-//} GXVtxDesc;
+// typedef struct {
+//     u32 attr;
+//     u32 type;
+// } GXVtxDesc;
 //
-//typedef union _wgpipe {
-//    u8 U8;
-//    s8 S8;
-//    u16 U16;
-//    s16 S16;
-//    u32 U32;
-//    s32 S32;
-//    f32 F32;
-//} WGPipe;
+// typedef union _wgpipe {
+//     u8 U8;
+//     s8 S8;
+//     u16 U16;
+//     s16 S16;
+//     u32 U32;
+//     s32 S32;
+//     f32 F32;
+// } WGPipe;
 
 typedef enum _GXTevStageID {
   GXTevStage0 = GX_TEVSTAGE0,
@@ -310,7 +309,6 @@ typedef enum _GXTevStageID {
   GXTevStage15 = GX_TEVSTAGE15
 } _GXTevStageID;
 
-
 typedef enum _GXTexCoordID {
   GXTexCoord0 = GX_TEXCOORD0,
   GXTexCoord1 = GX_TEXCOORD1,
@@ -322,7 +320,6 @@ typedef enum _GXTexCoordID {
   GXTexCoord7 = GX_TEXCOORD7,
   GXTexCoordNull = GX_TEXCOORDNULL
 } _GXTexCoordID;
-
 
 typedef enum _GXTexMapID {
   GXTexMap0 = GX_TEXMAP0,
@@ -336,7 +333,6 @@ typedef enum _GXTexMapID {
   GXTexMapNull = GX_TEXMAP_NULL
 
 } _GXTexMapID;
-
 
 typedef enum _GXChannelID {
 
@@ -474,17 +470,10 @@ struct _GXVtxDescList {
 
 extern "C" {
 
-void GXInitTexObj(GXTexObj *obj, void *img_ptr,
-                  u16 wd, u16 ht,
-                  u8 fmt,
-                  u8 wrap_s, u8 wrap_t, u8 mipmap
-);
+void GXInitTexObj(GXTexObj *obj, void *img_ptr, u16 wd, u16 ht, u8 fmt, u8 wrap_s, u8 wrap_t, u8 mipmap);
 
-void GXInitTexObjCI(GXTexObj *obj, void *img_ptr,
-                     u16 wd, u16 ht,
-                     u8 fmt,
-                     u8 wrap_s, u8 wrap_t, u8 mipmap,
-                     u32 tlut_name);
+void GXInitTexObjCI(GXTexObj *obj, void *img_ptr, u16 wd, u16 ht, u8 fmt, u8 wrap_s, u8 wrap_t, u8 mipmap,
+                    u32 tlut_name);
 void GXLoadTexObj(GXTexObj *obj, u8 mapid);
 void GXInitTlutObj(GXTlutObj *obj, void *lut, u8 fmt, u16 entries);
 void GXLoadTlut(GXTlutObj *obj, u32 tlut_name);
@@ -507,16 +496,10 @@ void GXSetNumTexGens(u32 nr);
 void GXSetNumTevStages(u8 num);
 void GXSetTevOrder(u8 tevstage, u8 texcoord, u32 texmap, u8 color);
 void GXSetTevOp(u8 tevstage, u8 mode);
-void GXInitTexObjLOD(GXTexObj *obj,
-                     u8 minfilt, u8 magfilt,
-                     f32 minlod, f32 maxlod,
-                     f32 lodbias, u8 biasclamp,
+void GXInitTexObjLOD(GXTexObj *obj, u8 minfilt, u8 magfilt, f32 minlod, f32 maxlod, f32 lodbias, u8 biasclamp,
                      u8 edgelod, u8 maxaniso);
 
 void GXSetProjection(Mtx44 mt, u8 type);
 
 // Push values
-
 }
-
-#endif //PRIME_PRACTICE_GX_HPP

@@ -1,6 +1,6 @@
-#ifndef PRIME_PRACTICE_CMAINFLOW_HPP
-#define PRIME_PRACTICE_CMAINFLOW_HPP
+#pragma once
 
+#include "CArchitectureQueue.hpp"
 #include "prime/CIOWin.hpp"
 
 enum EClientFlowStates {
@@ -20,5 +20,3 @@ public:
   void SetGameState(EClientFlowStates state, CArchitectureQueue &queue);
   void AdvanceGameState(CArchitectureQueue &queue);
 };
-
-#endif //PRIME_PRACTICE_CMAINFLOW_HPP

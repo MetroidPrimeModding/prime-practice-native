@@ -1,11 +1,10 @@
 #pragma once
 
-
 class CTweakGame {
 public:
   inline bool *splashScreenDisabled() { return GetField<bool>(this, 0x2b); }
-//  inline CSimplePool *getMainPool() { return GetField<CSimplePool>(this, 0xCC); }
-//  inline CGameState *getGameState() { return *GetField<CGameState*>(this, 0x134); }
+  //  inline CSimplePool *getMainPool() { return GetField<CSimplePool>(this, 0xCC); }
+  //  inline CGameState *getGameState() { return *GetField<CGameState*>(this, 0x134); }
 };
 extern CTweakGame *g_TweakGame;
 

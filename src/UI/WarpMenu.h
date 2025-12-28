@@ -1,7 +1,6 @@
-#ifndef PRIME_PRACTICE_NATIVE_WARPMENU_H
-#define PRIME_PRACTICE_NATIVE_WARPMENU_H
+#pragma once
 
-#include "NewPauseScreen.hpp"
+#include "../PracticeMod.hpp"
 
 struct WarpArea {
   const char* name;
@@ -30,5 +29,3 @@ const char* getNameForAreaAsset(u32 world, u32 area);
 namespace GUI {
   void drawWarpMenu();
 }
-
-#endif //PRIME_PRACTICE_NATIVE_WARPMENU_H

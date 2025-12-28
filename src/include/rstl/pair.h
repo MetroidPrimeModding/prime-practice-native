@@ -4,8 +4,7 @@
 
 RSTL_BEGIN
 
-template<typename A, typename B>
-class PACKED pair {
+template <typename A, typename B> class PACKED pair {
 public:
   A a;
   B b;

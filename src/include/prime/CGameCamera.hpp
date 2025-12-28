@@ -4,5 +4,4 @@
 
 class CGameCamera : public CActor {
 public:
-
 };

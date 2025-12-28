@@ -1,32 +1,24 @@
-#include <PrimeAPI.h>
-#include <prime/CFontEndUI.hpp>
-#include <os.h>
-#include <settings.hpp>
-#include <world/WorldRenderer.hpp>
-#include <prime/CPlayerGun.hpp>
-#include <prime/CRandom16.hpp>
+#include "PracticeMod.hpp"
 #include "UI/BombJumping.hpp"
-#include "types.h"
-#include "prime/CMain.hpp"
-#include "prime/CStateManager.hpp"
-#include "prime/CPlayerState.hpp"
-#include "prime/CGameState.hpp"
-#include "prime/CWorldState.hpp"
-#include "prime/CHealthInfo.hpp"
-#include "prime/CMemory.hpp"
-#include "prime/CSimplePool.hpp"
 #include "prime/CFinalInput.hpp"
+#include "prime/CGameState.hpp"
+#include "prime/CGraphics.hpp"
+#include "prime/CMFGame.hpp"
+#include "prime/CMainFlow.hpp"
+#include "prime/CMemory.hpp"
 #include "prime/CPauseScreen.hpp"
 #include "prime/CSfxManager.hpp"
-#include "prime/CColor.hpp"
-#include "prime/CTextGui.hpp"
-#include "prime/CGraphics.hpp"
-#include "prime/CMemoryCardSys.hpp"
-#include "prime/CMFGame.hpp"
-#include "prime/CIOWinManager.hpp"
-#include "prime/CMainFlow.hpp"
-#include "NewPauseScreen.hpp"
+#include "prime/CStateManager.hpp"
 #include "prime/CTweaks.hpp"
+#include "prime/CWorldState.hpp"
+#include "types.h"
+#include <PrimeAPI.h>
+#include <os.h>
+#include <prime/CFontEndUI.hpp>
+#include <prime/CPlayerGun.hpp>
+#include <prime/CRandom16.hpp>
+#include <settings.hpp>
+#include <world/WorldRenderer.hpp>
 
 // Forward decls
 class CPlayer;
@@ -141,7 +133,7 @@ void memset_start_end(u32 dst, u32 end) {
 
 void _prolog() {
   // null out prac mod instance; this is called from reset()
-  NewPauseScreen::instance = nullptr;
+  PracticeMod::instance = nullptr;
   ApplyCodePatches();
   char buffer[32];
   sprintf(buffer, "_prolog= %8x\n", (int) (&_prolog));
@@ -276,18 +268,18 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
   if (pause->x8_curSubscreen == CPauseScreen::ESubScreen_ToGame) { return; }
 
   if (pause->InputEnabled()) {
-    NewPauseScreen::instance->show();
+    PracticeMod::instance->pauseScreenOpened();
     if (input.PStart()) {
-      NewPauseScreen::instance->hide();
+      PracticeMod::instance->pauseScreenClosed();
 
       //Play some noises too
       CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId.id);
       pause->StartTransition(0.5f, mgr, CPauseScreen::ESubScreen_ToGame, 2);
     } else if (input.PZ()) {
-      NewPauseScreen::instance->menuActive = !NewPauseScreen::instance->menuActive;
+      PracticeMod::instance->menuActive = !PracticeMod::instance->menuActive;
     }
   }
-  if (!NewPauseScreen::instance->menuActive) {
+  if (!PracticeMod::instance->menuActive) {
     pause->ProcessControllerInput(mgr, input);
   }
 }
@@ -295,32 +287,32 @@ void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const 
 void RenderHook() {
   TweakPatcher();
   //  CGraphics::BeginScene();
-  if (!NewPauseScreen::instance) {
-    NewPauseScreen::instance = new NewPauseScreen();
+  if (!PracticeMod::instance) {
+    PracticeMod::instance = new PracticeMod();
   }
-  NewPauseScreen::instance->Render();
+  PracticeMod::instance->render();
   CGraphics::EndScene();
 }
 
 void CStateManager_UpdateHook(CStateManager *self, float dt) {
-  if (NewPauseScreen::instance) {
-    NewPauseScreen::instance->update(dt);
+  if (PracticeMod::instance) {
+    PracticeMod::instance->update(dt);
   }
   self->Update(dt);
 }
 
 CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue) {
   if (msg.x4_type == EArchMsgType_UserInput) {
-    if (!NewPauseScreen::instance) {
-      NewPauseScreen::instance = new NewPauseScreen();
+    if (!PracticeMod::instance) {
+      PracticeMod::instance = new PracticeMod();
     }
     CArchMsgParmUserInput *status = (CArchMsgParmUserInput *) msg.x8_parm.RawPointer();
     // The mod 4 is just for safety
-    NewPauseScreen::instance->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
+    PracticeMod::instance->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
     if (status->x4_parm.ControllerIdx() == 0) {
-      NewPauseScreen::instance->HandleInputs();
+      PracticeMod::instance->HandleInputs();
       // TODO: move this to hook in Game::Update or something
-      NewPauseScreen::instance->update(0);
+      PracticeMod::instance->update(0);
     }
   }
 
@@ -328,8 +320,8 @@ CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMess
 }
 
 void drawDebugStuff(CStateManager *mgr) {
-  if (!NewPauseScreen::instance) {
-    NewPauseScreen::instance = new NewPauseScreen();
+  if (!PracticeMod::instance) {
+    PracticeMod::instance = new PracticeMod();
   }
   WorldRenderer::RenderWorld();
   //    NewPauseScreen::instance->Render();
@@ -378,7 +370,7 @@ void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager &mgr, const CTra
   mapper->Draw(mgr, xf, alpha);
   EAutoMapperState state = mapper->state();
   EAutoMapperState nextState = mapper->nextState();
-  NewPauseScreen::instance->mapActive = state == EAutoMapperState::MapScreen && nextState ==
+  PracticeMod::instance->mapActive = state == EAutoMapperState::MapScreen && nextState ==
                                         EAutoMapperState::MapScreen;
 }
 

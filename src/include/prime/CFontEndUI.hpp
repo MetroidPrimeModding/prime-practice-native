@@ -1,17 +1,14 @@
-#ifndef PRIME_PRACTICE_NATIVE_CFONTENDUI_HPP
-#define PRIME_PRACTICE_NATIVE_CFONTENDUI_HPP
+#pragma once
 
-#include <gctypes.h>
-#include <GetField.hpp>
 #include "prime/CArchitectureQueue.hpp"
+#include <GetField.hpp>
+#include <gctypes.h>
 
 class CFrontEndUI {
 public:
-    u8 filler[256];
+  u8 filler[256];
 
-    CFrontEndUI(CArchitectureQueue &queue);
+  CFrontEndUI(CArchitectureQueue &queue);
 
-    u32 *getPhase() { return GetField<u32>(this, 0x14); }
+  u32 *getPhase() { return GetField<u32>(this, 0x14); }
 };
-
-#endif //PRIME_PRACTICE_NATIVE_CFONTENDUI_HPP

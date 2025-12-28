@@ -1,11 +1,10 @@
-#ifndef CPLAYERSTATE_H
-#define CPLAYERSTATE_H
+#pragma once
 
+#include "GetField.hpp"
+#include "rstl/vector.h"
+#include "types.h"
 #include <PrimeAPI.h>
 #include <prime/CHealthInfo.hpp>
-#include "GetField.hpp"
-#include "types.h"
-#include "rstl/vector.h"
 
 class CInputStream;
 
@@ -160,5 +159,3 @@ public:
 
 // Max inventory capacity values, indexed by EItemType
 extern const uint32 gkPowerUpMaxValues[(int)CPlayerState::EItemType::Max];
-
-#endif

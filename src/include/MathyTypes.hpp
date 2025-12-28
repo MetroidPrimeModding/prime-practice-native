@@ -1,5 +1,4 @@
-#ifndef PRIME_PRACTICE_CMATRIX3F_HPP
-#define PRIME_PRACTICE_CMATRIX3F_HPP
+#pragma once
 
 #include "types.h"
 
@@ -45,12 +44,7 @@ public:
 
   static constexpr inline CTransform4f Identity() {
     CTransform4f res;
-    float mat[16] = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-    };
+    float mat[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 
     res.matrix[0] = mat[0];
     res.matrix[1] = mat[1];
@@ -101,5 +95,3 @@ public:
     return *this;
   }
 };
-
-#endif //PRIME_PRACTICE_CMATRIX3F_HPP

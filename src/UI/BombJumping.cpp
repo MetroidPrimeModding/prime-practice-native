@@ -1,12 +1,12 @@
-#include <settings.hpp>
+#include "BombJumping.hpp"
+#include <../PracticeMod.hpp>
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <prime/CStateManager.hpp>
+#include <os.h>
 #include <prime/CPlayer.hpp>
 #include <prime/CPlayerGun.hpp>
-#include <os.h>
-#include <NewPauseScreen.hpp>
-#include "BombJumping.hpp"
+#include <prime/CStateManager.hpp>
+#include <settings.hpp>
 
 constexpr float FPS = 60;
 constexpr float BombChargeTime = 3;
@@ -156,7 +156,7 @@ void GUI::drawBombJumpingInterface() {
   }
   init();
 
-  auto *inputs = NewPauseScreen::instance->inputs;
+  auto *inputs = PracticeMod::instance->inputs;
 
   if (inputs[1].PA() && state->autoJump == nullptr) {
     state->reset();

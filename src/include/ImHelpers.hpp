@@ -1,5 +1,4 @@
-#ifndef PRIME_PRACTICE_NATIVE_IMHELPERS_HPP
-#define PRIME_PRACTICE_NATIVE_IMHELPERS_HPP
+#pragma once
 
 #include "imgui.h"
 
@@ -11,5 +10,3 @@
       __VA_ARGS__                                                                                                      \
     }                                                                                                                  \
   }
-
-#endif //PRIME_PRACTICE_NATIVE_IMHELPERS_HPP
