@@ -20,6 +20,7 @@
 #include "ImGuiEngine.hpp"
 #include "version.h"
 #include "UI/RoomMenu.hpp"
+#include "UI/ScanMenu.hpp"
 #include "UI/QR.hpp"
 #include "UI/DumpMemoryUI.hpp"
 #include "utils.hpp"
@@ -185,6 +186,7 @@ void NewPauseScreen::RenderMenu() {
     GUI::drawSettingsMenu();
     GUI::drawWarpMenu();
     GUI::drawRoomMenu();
+    GUI::drawScanMenu();
     if (ImGui::TreeNode("v%s", PRAC_MOD_VERSION)) {
       ImGui::Text("Links (QR codes):");
       if (ImGui::TreeNode("Releases")) {
@@ -291,6 +293,33 @@ void NewPauseScreen::update(float dt) const {
   }
   bombjump_done:;
 
+  if (SETTINGS.SCAN_infiniteScanTime) {
+    CStateManager *stateManager = CStateManager::instance();
+    CPlayer *player = stateManager->Player();
+    if (player == nullptr) return;
+
+    bool important = false;
+    TUniqueId scanId = player->getScanningObjectId();
+    if (scanId > 0) {
+      CEntity *entity = CStateManager::instance()->ObjectById(scanId);
+      if (entity) {
+        u32 vtable = entity->getVtablePtr();
+        auto vtableInfo = GetVtableInfo(vtable);
+        if (vtableInfo.isActor) {
+          CActor *actor = reinterpret_cast<CActor *>(entity);
+          const CScannableObjectInfo *scanInfo = actor->GetScannableObjectInfo();
+          if (scanInfo) {
+            important = scanInfo->x10_important;
+          }
+        }
+      }
+    }
+
+    if (!important || SETTINGS.SCAN_infiniteScanTimeOnImportantScans) {
+      *player->getScanningTime() = 0.1f;
+      *player->getCurScanTime() = 0.1f;
+    }
+  }
 }
 
 void warp(uint32_t world, uint32_t area) {

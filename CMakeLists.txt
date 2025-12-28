@@ -34,6 +34,7 @@ set(SOURCE_FILES
         src/include/rstl/vector.h
         src/include/rstl/auto_ptr.h
         src/include/rstl/list.h
+        src/include/rstl/pair.h
         src/include/dvd.h
         src/include/types.h
         src/include/os.h
@@ -89,6 +90,8 @@ set(SOURCE_FILES
         src/include/prime/CInGameGuiManager.hpp
         src/include/prime/CGameArchitectureSupport.hpp
         src/include/prime/CRandom16.hpp
+        src/include/prime/CAi.hpp
+        src/include/prime/CPatterned.hpp
         src/include/STriggerRenderConfig.hpp
         src/include/NewPauseScreen.hpp
         src/include/GetField.hpp
@@ -125,6 +128,7 @@ set(SOURCE_FILES
         src/font_atlas.hpp
         src/ImGuiEngine.cpp
         src/ImGuiEngine.hpp
+        src/CEntity.cpp
         src/libc/libc.c
 
         src/UI/WarpMenu.h
@@ -141,6 +145,8 @@ set(SOURCE_FILES
         src/UI/BombJumping.cpp
         src/UI/RoomMenu.cpp
         src/UI/RoomMenu.hpp
+        src/UI/ScanMenu.cpp
+        src/UI/ScanMenu.hpp
         src/UI/QR.cpp
         src/UI/QR.hpp
         src/UI/DumpMemoryUI.cpp

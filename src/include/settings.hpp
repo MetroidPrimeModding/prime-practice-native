@@ -25,6 +25,7 @@ struct Settings {
   bool OSD_showLoads: 1{DEBUG_TRUE};
   bool OSD_showRng: 1{false};
   bool OSD_showIDrone: 1{true};
+  bool OSD_showTargetInfo: 1{false};
 
   bool BOMBJUMP_enable: 1{false};
   bool BOMBJUMP_infiniteBombs: 1{false};
@@ -38,6 +39,8 @@ struct Settings {
   s32 LAG_loop_iterations{0};
   s32 LAG_tri_renders{0};
   bool RNG_lockSeed{false};
+  bool SCAN_infiniteScanTime{false};
+  bool SCAN_infiniteScanTimeOnImportantScans{false};
 
   inline bool TRIGGER_anyOn() {
     return TRIGGER_renderUnknown

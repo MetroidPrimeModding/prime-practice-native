@@ -3,6 +3,9 @@
 
 #include <PrimeAPI.h>
 #include <prime/CHealthInfo.hpp>
+#include "GetField.hpp"
+#include "types.h"
+#include "rstl/vector.h"
 
 class CInputStream;
 
@@ -11,8 +14,13 @@ class COutputStream;
 class CStateManager;
 
 constexpr int PowerUpMaxValues[] = {
-    1, 1, 1, 1, 250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 14, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 14, 1,   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+};
+
+struct ScanState {
+  CAssetId asset;
+  float time;
 };
 
 class CPlayerState {
@@ -108,7 +116,9 @@ public:
   /* 0x018 */ EPlayerVisor transitionVisor;
   /* 0x01C */ float visorTransitionFactor;
   /* 0x020 */ EPlayerSuit currentSuit;
-  /* 0x024 */ CPowerUp powerUps[(int)CPlayerState::EItemType::Max];
+  /* 0x024 */ CPowerUp powerUps[(int)EItemType::Max];
+  /* 0x16C */ u32 unknown1;
+  /* 0x170 */ rstl::vector_type_2<ScanState> scanStates;
 
   CPlayerState();
   CPlayerState(CInputStream &);

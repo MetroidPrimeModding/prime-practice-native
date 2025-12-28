@@ -1,20 +1,21 @@
+#include "MonitorWindow.hpp"
 #include "os.h"
-#include <stdio.h>
+#include "settings.hpp"
 #include <imgui.h>
 #include <prime/CGameAllocator.hpp>
-#include <prime/CStateManager.hpp>
-#include <prime/CPlayer.hpp>
 #include <prime/CGameGlobalObjects.hpp>
 #include <prime/CGameState.hpp>
-#include <prime/CWorld.hpp>
+#include <prime/CPlayer.hpp>
 #include <prime/CRandom16.hpp>
 #include <prime/CScriptTimer.hpp>
-#include "MonitorWindow.hpp"
-#include "settings.hpp"
+#include <prime/CStateManager.hpp>
+#include <prime/CWorld.hpp>
+#include <stdio.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "imgui_internal.h"
+#include "prime/CPatterned.hpp"
 
 namespace GUI {
   void drawFrameTime();
@@ -41,26 +42,21 @@ namespace GUI {
 
   void drawIDrone();
 
+  void drawTarget();
+
   void drawMonitorWindow(CFinalInput *inputs) {
     if (!SETTINGS.OSD_show) {
       return;
     }
     {
       ImGui::SetNextWindowPos(ImVec2(630, 10), ImGuiCond_None, ImVec2(1, 0));
-      ImGui::Begin(
-          "Monitor", nullptr,
-          ImGuiWindowFlags_NoResize |
-          ImGuiWindowFlags_AlwaysAutoResize |
-          ImGuiWindowFlags_NoTitleBar |
-          ImGuiWindowFlags_NoInputs |
-          ImGuiWindowFlags_NoNavInputs |
-          ImGuiWindowFlags_NoNavFocus |
-          ImGuiWindowFlags_NoNav |
-          ImGuiWindowFlags_NoFocusOnAppearing |
-          ImGuiWindowFlags_NoMove |
-          ImGuiWindowFlags_NoDecoration |
-          //        ImGuiWindowFlags_NoBackground |
-          ImGuiFocusedFlags_None // just for conveneint commenting in/out
+      ImGui::Begin("Monitor", nullptr,
+                   ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+                       ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus |
+                       ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove |
+                       ImGuiWindowFlags_NoDecoration |
+                       //        ImGuiWindowFlags_NoBackground |
+                       ImGuiFocusedFlags_None // just for conveneint commenting in/out
       );
       if (SETTINGS.OSD_showIGT) {
         drawIGT();
@@ -87,6 +83,9 @@ namespace GUI {
       if (SETTINGS.OSD_showMemoryGraph || SETTINGS.OSD_showMemoryInfo) {
         drawMemoryUsage();
       }
+      if (SETTINGS.OSD_showTargetInfo) {
+        drawTarget();
+      }
 
       ImGui::End();
     }
@@ -101,7 +100,7 @@ namespace GUI {
   }
 
   void drawLoads() {
-    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
+    CGameGlobalObjects *globals = ((CGameGlobalObjects *)0x80457798);
     CResFactory *resFactory = globals->getResFactory();
     auto list = resFactory->getLoadList();
 
@@ -109,20 +108,13 @@ namespace GUI {
     if (count > 0) {
       // actually draw
       ImGui::SetNextWindowPos(ImVec2(10, 450), ImGuiCond_None, ImVec2(0, 1));
-      ImGui::Begin(
-          "Loads", nullptr,
-          ImGuiWindowFlags_NoResize |
-          ImGuiWindowFlags_AlwaysAutoResize |
-          ImGuiWindowFlags_NoTitleBar |
-          ImGuiWindowFlags_NoInputs |
-          ImGuiWindowFlags_NoNavInputs |
-          ImGuiWindowFlags_NoNavFocus |
-          ImGuiWindowFlags_NoNav |
-          ImGuiWindowFlags_NoFocusOnAppearing |
-          ImGuiWindowFlags_NoMove |
-          ImGuiWindowFlags_NoDecoration |
-          //        ImGuiWindowFlags_NoBackground |
-          ImGuiFocusedFlags_None // just for conveneint commenting in/out
+      ImGui::Begin("Loads", nullptr,
+                   ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+                       ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus |
+                       ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove |
+                       ImGuiWindowFlags_NoDecoration |
+                       //        ImGuiWindowFlags_NoBackground |
+                       ImGuiFocusedFlags_None // just for conveneint commenting in/out
       );
 
       char sObjTagBuff[14];
@@ -146,18 +138,17 @@ namespace GUI {
 
       ImGui::End();
     }
-
   }
 
   void drawIGT() {
-    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
+    CGameGlobalObjects *globals = ((CGameGlobalObjects *)0x80457798);
     CGameState *gameState = globals->getGameState();
     if (gameState) {
       double time = gameState->PlayTime();
-      int ms = (int) (time * 1000.0) % 1000;
-      int seconds = (int) time % 60;
-      int minutes = ((int) time / 60) % 60;
-      int hours = ((int) time / 60 / 60) % 60;
+      int ms = (int)(time * 1000.0) % 1000;
+      int seconds = (int)time % 60;
+      int minutes = ((int)time / 60) % 60;
+      int hours = ((int)time / 60 / 60) % 60;
       ImGui::Text("%02d:%02d:%02d.%03d", hours, minutes, seconds, ms);
     }
   }
@@ -169,7 +160,7 @@ namespace GUI {
   bool isLoading = false;
 
   void drawRoomTime() {
-    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
+    CGameGlobalObjects *globals = ((CGameGlobalObjects *)0x80457798);
     CGameState *gameState = globals->getGameState();
     CStateManager *stateManager = CStateManager::instance();
     CWorld *world = stateManager->GetWorld();
@@ -189,20 +180,21 @@ namespace GUI {
       }
       double current_room_time = current_time - room_start_time;
       if (SETTINGS.OSD_showPreviousRoomTime) {
-        int frames = (int) (last_time / (1.0 / 60.0));
-        int ms = (int) (last_time * 1000.0) % 1000;
-        int seconds = (int) last_time % 60;
-        int minutes = ((int) last_time / 60) % 60;
-        int hours = ((int) last_time / 60 / 60) % 60;
+        int frames = (int)(last_time / (1.0 / 60.0));
+        int ms = (int)(last_time * 1000.0) % 1000;
+        int seconds = (int)last_time % 60;
+        int minutes = ((int)last_time / 60) % 60;
+        int hours = ((int)last_time / 60 / 60) % 60;
         ImGui::Text("P: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
       if (SETTINGS.OSD_showCurrentRoomTime) {
-        if (SETTINGS.OSD_showPreviousRoomTime) ImGui::SameLine();
-        int frames = (int) (current_room_time / (1.0 / 60.0));
-        int ms = (int) (current_room_time * 1000.0) % 1000;
-        int seconds = (int) current_room_time % 60;
-        int minutes = ((int) current_room_time / 60) % 60;
-        int hours = ((int) current_room_time / 60 / 60) % 60;
+        if (SETTINGS.OSD_showPreviousRoomTime)
+          ImGui::SameLine();
+        int frames = (int)(current_room_time / (1.0 / 60.0));
+        int ms = (int)(current_room_time * 1000.0) % 1000;
+        int seconds = (int)current_room_time % 60;
+        int minutes = ((int)current_room_time / 60) % 60;
+        int hours = ((int)current_room_time / 60 / 60) % 60;
         ImGui::Text("C: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
       }
     }
@@ -303,13 +295,7 @@ namespace GUI {
 
     char title[32];
     snprintf(title, sizeof(title), "Frame time: %02.2f", ms);
-    ImGui::PlotLines(
-        "",
-        frames, GRAPH_LENGTH, 0,
-        title,
-        0.f, 32.f,
-        ImVec2(0, 40.0f)
-    );
+    ImGui::PlotLines("", frames, GRAPH_LENGTH, 0, title, 0.f, 32.f, ImVec2(0, 40.0f));
   }
 
   float memoryUsage[GRAPH_LENGTH];
@@ -325,7 +311,6 @@ namespace GUI {
     u32 freeSize = 0;
     u32 usedCount = 0;
     u32 usedSize = 0;
-
 
     for (CMemoryBlock *block = allocator->first(); block != nullptr; block = block->next) {
       if (freeCount + usedCount > 10000 || !VALID_PTR(block)) {
@@ -354,7 +339,6 @@ namespace GUI {
     u32 freePrecent = freeSize * 100 / totalHeapSize;
     u32 usedPercent = 100 - freePrecent;
 
-
     if (freeSize < minFree) {
       minFree = freeSize;
     }
@@ -372,35 +356,20 @@ namespace GUI {
     if (SETTINGS.OSD_showMemoryGraph) {
       char title[32];
       snprintf(title, sizeof(title), "%d%% used, %d%% free", usedPercent, freePrecent);
-      ImGui::PlotLines(
-          "",
-          memoryUsage, GRAPH_LENGTH, 0,
-          title,
-          0.f, totalHeapSize,
-          ImVec2(0, 40.0f)
-      );
+      ImGui::PlotLines("", memoryUsage, GRAPH_LENGTH, 0, title, 0.f, totalHeapSize, ImVec2(0, 40.0f));
     }
   }
-
 
   void drawInput(CFinalInput *inputs) {
     CFinalInput *p1 = &inputs[0];
 
     ImGui::SetNextWindowPos(ImVec2(630, 450), ImGuiCond_None, ImVec2(1, 1));
-    ImGui::Begin(
-        "Input", nullptr,
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_AlwaysAutoResize |
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoInputs |
-        ImGuiWindowFlags_NoNavInputs |
-        ImGuiWindowFlags_NoNavFocus |
-        ImGuiWindowFlags_NoNav |
-        ImGuiWindowFlags_NoFocusOnAppearing |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoDecoration |
-        ImGuiWindowFlags_NoBackground |
-        ImGuiFocusedFlags_None // just for conveneint commenting in/out
+    ImGui::Begin("Input", nullptr,
+                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus |
+                     ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove |
+                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground |
+                     ImGuiFocusedFlags_None // just for conveneint commenting in/out
     );
 
     ImDrawList *dl = ImGui::GetWindowDrawList();
@@ -428,7 +397,6 @@ namespace GUI {
     ImVec2 lCenter = leftStickCenter + ImVec2(0, -25);
     ImVec2 rCenter = ImVec2(aButtonCenter.x, lCenter.y);
 
-
     constexpr ImU32 stickGray = IM_COL32(150, 150, 150, 255);
     constexpr ImU32 darkGray = IM_COL32(60, 60, 60, 255);
     constexpr ImU32 red = IM_COL32(255, 0, 0, 255);
@@ -436,120 +404,66 @@ namespace GUI {
 
     // left stick
     {
-      dl->AddCircleFilled(
-          leftStickCenter, leftStickRadius,
-          stickGray,
-          8
-      );
+      dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
       float x = p1->ALeftX();
       float y = p1->ALeftY();
-      dl->AddLine(
-          leftStickCenter,
-          leftStickCenter + ImVec2(x * leftStickRadius, y * leftStickRadius),
-          red
-      );
+      dl->AddLine(leftStickCenter, leftStickCenter + ImVec2(x * leftStickRadius, y * leftStickRadius), red);
     }
 
     // right stick
     {
-      dl->AddCircleFilled(
-          rightStickCenter, rightStickRadius,
-          stickGray,
-          8
-      );
+      dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
       float x = p1->ARightX();
       float y = p1->ARightY();
-      dl->AddLine(
-          rightStickCenter,
-          rightStickCenter + ImVec2(x * rightStickRadius, y * rightStickRadius),
-          red
-      );
+      dl->AddLine(rightStickCenter, rightStickCenter + ImVec2(x * rightStickRadius, y * rightStickRadius), red);
     }
 
     // dpad
     {
       constexpr float halfWidth = dpadWidth / 2;
-      dl->AddRectFilled(
-          dpadCenter + ImVec2(-halfWidth, -dpadRadius),
-          dpadCenter + ImVec2(halfWidth, dpadRadius),
-          stickGray
-      );
+      dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, -dpadRadius), dpadCenter + ImVec2(halfWidth, dpadRadius),
+                        stickGray);
 
-      dl->AddRectFilled(
-          dpadCenter + ImVec2(-dpadRadius, -halfWidth),
-          dpadCenter + ImVec2(dpadRadius, halfWidth),
-          stickGray
-      );
+      dl->AddRectFilled(dpadCenter + ImVec2(-dpadRadius, -halfWidth), dpadCenter + ImVec2(dpadRadius, halfWidth),
+                        stickGray);
 
       if (p1->DDPUp()) {
-        dl->AddRectFilled(
-            dpadCenter + ImVec2(-halfWidth, -dpadRadius),
-            dpadCenter + ImVec2(halfWidth, -dpadRadius / 2),
-            red
-        );
+        dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, -dpadRadius), dpadCenter + ImVec2(halfWidth, -dpadRadius / 2),
+                          red);
       }
 
       if (p1->DDPDown()) {
-        dl->AddRectFilled(
-            dpadCenter + ImVec2(-halfWidth, dpadRadius),
-            dpadCenter + ImVec2(halfWidth, dpadRadius / 2),
-            red
-        );
+        dl->AddRectFilled(dpadCenter + ImVec2(-halfWidth, dpadRadius), dpadCenter + ImVec2(halfWidth, dpadRadius / 2),
+                          red);
       }
 
       if (p1->DDPLeft()) {
-        dl->AddRectFilled(
-            dpadCenter + ImVec2(-dpadRadius, -halfWidth),
-            dpadCenter + ImVec2(-dpadRadius / 2, halfWidth),
-            red
-        );
+        dl->AddRectFilled(dpadCenter + ImVec2(-dpadRadius, -halfWidth), dpadCenter + ImVec2(-dpadRadius / 2, halfWidth),
+                          red);
       }
 
       if (p1->DDPRight()) {
-        dl->AddRectFilled(
-            dpadCenter + ImVec2(dpadRadius, -halfWidth),
-            dpadCenter + ImVec2(dpadRadius / 2, halfWidth),
-            red
-        );
+        dl->AddRectFilled(dpadCenter + ImVec2(dpadRadius, -halfWidth), dpadCenter + ImVec2(dpadRadius / 2, halfWidth),
+                          red);
       }
     }
 
     // buttons
     {
       // start
-      dl->AddCircleFilled(
-          startButtonCenter, startButtonRadius,
-          p1->DStart() ? red : stickGray,
-          16
-      );
+      dl->AddCircleFilled(startButtonCenter, startButtonRadius, p1->DStart() ? red : stickGray, 16);
 
       // a
-      dl->AddCircleFilled(
-          aButtonCenter, aButtonRadius,
-          p1->DA() ? green : stickGray,
-          16
-      );
+      dl->AddCircleFilled(aButtonCenter, aButtonRadius, p1->DA() ? green : stickGray, 16);
 
-      //b
-      dl->AddCircleFilled(
-          bButtonCenter, bButtonRadius,
-          p1->DB() ? red : stickGray,
-          16
-      );
+      // b
+      dl->AddCircleFilled(bButtonCenter, bButtonRadius, p1->DB() ? red : stickGray, 16);
 
-      //x
-      dl->AddCircleFilled(
-          xButtonCenter, xButtonRadius,
-          p1->DX() ? red : stickGray,
-          16
-      );
+      // x
+      dl->AddCircleFilled(xButtonCenter, xButtonRadius, p1->DX() ? red : stickGray, 16);
 
-      //y
-      dl->AddCircleFilled(
-          yButtonCenter, yButtonRadius,
-          p1->DY() ? red : stickGray,
-          16
-      );
+      // y
+      dl->AddCircleFilled(yButtonCenter, yButtonRadius, p1->DY() ? red : stickGray, 16);
     }
 
     // triggers
@@ -559,27 +473,15 @@ namespace GUI {
       ImVec2 lEnd = lCenter + ImVec2(halfTriggerWidth, triggerHeight);
       float lValue = triggerWidth * p1->ALTrigger();
 
-      dl->AddRectFilled(
-          lStart, lStart + ImVec2(lValue, triggerHeight),
-          p1->DL() ? red : stickGray
-      );
-      dl->AddRectFilled(
-          lStart + ImVec2(lValue, 0), lEnd,
-          darkGray
-      );
+      dl->AddRectFilled(lStart, lStart + ImVec2(lValue, triggerHeight), p1->DL() ? red : stickGray);
+      dl->AddRectFilled(lStart + ImVec2(lValue, 0), lEnd, darkGray);
 
       ImVec2 rStart = rCenter - ImVec2(halfTriggerWidth, 0);
       ImVec2 rEnd = rCenter + ImVec2(halfTriggerWidth, triggerHeight);
       float rValue = triggerWidth * p1->ARTrigger();
 
-      dl->AddRectFilled(
-          rEnd - ImVec2(rValue, triggerHeight), rEnd,
-          p1->DR() ? red : stickGray
-      );
-      dl->AddRectFilled(
-          rStart, rEnd - ImVec2(rValue, 0),
-          darkGray
-      );
+      dl->AddRectFilled(rEnd - ImVec2(rValue, triggerHeight), rEnd, p1->DR() ? red : stickGray);
+      dl->AddRectFilled(rStart, rEnd - ImVec2(rValue, 0), darkGray);
     }
 
     ImGui::Dummy(ImVec2(130, 80));
@@ -598,26 +500,14 @@ namespace GUI {
   float timer4_max = 0;
   float currentTimer = 0;
 
-  enum class IDronePhase {
-    START,
-    PHASE1,
-    BETWEEN12,
-    PHASE2,
-    BETWEEN23,
-    PHASE3,
-    BETWEEN34,
-    PHASE4,
-    END
-  };
+  enum class IDronePhase { START, PHASE1, BETWEEN12, PHASE2, BETWEEN23, PHASE3, BETWEEN34, PHASE4, END };
   IDronePhase currentPhase = IDronePhase::START;
 
-  inline u32 timerFrames(float time) {
-    return CMath::CeilingF(time / (1.0 / 60.0));
-  }
+  inline u32 timerFrames(float time) { return CMath::CeilingF(time / (1.0 / 60.0)); }
 
   void drawIDrone() {
     CStateManager *mgr = CStateManager::instance();
-    CWorld* world = mgr->GetWorld();
+    CWorld *world = mgr->GetWorld();
     if (!world) {
       return;
     }
@@ -662,79 +552,79 @@ namespace GUI {
     if (timerShort && timerLong) {
       // check the phase
       switch (currentPhase) {
-        case IDronePhase::START:
-          if (timerShort->getIsTiming()) {
-            currentPhase = IDronePhase::PHASE1;
-            currentTimer = timerShort->getTime();
-            timer1_max = timerShort->getTime();
-          }
-          break;
-        case IDronePhase::PHASE1:
+      case IDronePhase::START:
+        if (timerShort->getIsTiming()) {
+          currentPhase = IDronePhase::PHASE1;
           currentTimer = timerShort->getTime();
-          if (!timerShort->getIsTiming()) {
-            currentPhase = IDronePhase::BETWEEN12;
-          }
-          break;
-        case IDronePhase::BETWEEN12:
-          if (timerLong->getIsTiming()) {
-            currentPhase = IDronePhase::PHASE2;
-            currentTimer = timerLong->getTime();
-            timer2_max = timerLong->getTime();
-          }
-          break;
-        case IDronePhase::PHASE2:
+          timer1_max = timerShort->getTime();
+        }
+        break;
+      case IDronePhase::PHASE1:
+        currentTimer = timerShort->getTime();
+        if (!timerShort->getIsTiming()) {
+          currentPhase = IDronePhase::BETWEEN12;
+        }
+        break;
+      case IDronePhase::BETWEEN12:
+        if (timerLong->getIsTiming()) {
+          currentPhase = IDronePhase::PHASE2;
           currentTimer = timerLong->getTime();
-          if (!timerLong->getIsTiming()) {
-            currentPhase = IDronePhase::BETWEEN23;
-          }
-          break;
-        case IDronePhase::BETWEEN23:
-          if (timerLong->getIsTiming()) {
-            currentPhase = IDronePhase::PHASE3;
-            currentTimer = timerLong->getTime();
-            timer3_max = timerLong->getTime();
-          }
-          break;
-        case IDronePhase::PHASE3:
+          timer2_max = timerLong->getTime();
+        }
+        break;
+      case IDronePhase::PHASE2:
+        currentTimer = timerLong->getTime();
+        if (!timerLong->getIsTiming()) {
+          currentPhase = IDronePhase::BETWEEN23;
+        }
+        break;
+      case IDronePhase::BETWEEN23:
+        if (timerLong->getIsTiming()) {
+          currentPhase = IDronePhase::PHASE3;
           currentTimer = timerLong->getTime();
-          if (!timerLong->getIsTiming()) {
-            currentPhase = IDronePhase::BETWEEN34;
-          }
-          break;
-        case IDronePhase::BETWEEN34:
-          if (timerLong->getIsTiming()) {
-            currentPhase = IDronePhase::PHASE4;
-            currentTimer = timerLong->getTime();
-            timer4_max = timerLong->getTime();
-          }
-          break;
-        case IDronePhase::PHASE4:
+          timer3_max = timerLong->getTime();
+        }
+        break;
+      case IDronePhase::PHASE3:
+        currentTimer = timerLong->getTime();
+        if (!timerLong->getIsTiming()) {
+          currentPhase = IDronePhase::BETWEEN34;
+        }
+        break;
+      case IDronePhase::BETWEEN34:
+        if (timerLong->getIsTiming()) {
+          currentPhase = IDronePhase::PHASE4;
           currentTimer = timerLong->getTime();
-          if (!timerLong->getIsTiming()) {
-            currentPhase = IDronePhase::END;
-          }
-          break;
-        case IDronePhase::END:
-          break;
+          timer4_max = timerLong->getTime();
+        }
+        break;
+      case IDronePhase::PHASE4:
+        currentTimer = timerLong->getTime();
+        if (!timerLong->getIsTiming()) {
+          currentPhase = IDronePhase::END;
+        }
+        break;
+      case IDronePhase::END:
+        break;
       }
       ImGui::Text("IDrone:");
 
       ImGui::SameLine();
       ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
       switch (currentPhase) {
-        case IDronePhase::PHASE1:
-        case IDronePhase::PHASE2:
-        case IDronePhase::PHASE3:
-        case IDronePhase::PHASE4:
-          ImGui::Text("%3d", timerFrames(currentTimer));
-          break;
-        case IDronePhase::START:
-        case IDronePhase::BETWEEN12:
-        case IDronePhase::BETWEEN23:
-        case IDronePhase::BETWEEN34:
-        case IDronePhase::END:
-          ImGui::Text("...");
-          break;
+      case IDronePhase::PHASE1:
+      case IDronePhase::PHASE2:
+      case IDronePhase::PHASE3:
+      case IDronePhase::PHASE4:
+        ImGui::Text("%3d", timerFrames(currentTimer));
+        break;
+      case IDronePhase::START:
+      case IDronePhase::BETWEEN12:
+      case IDronePhase::BETWEEN23:
+      case IDronePhase::BETWEEN34:
+      case IDronePhase::END:
+        ImGui::Text("...");
+        break;
       }
       ImGui::PopStyleColor();
 
@@ -769,33 +659,33 @@ namespace GUI {
 
       ImGui::SameLine();
       switch (currentPhase) {
-        case IDronePhase::START:
-          ImGui::Text("Wakeup");
-          break;
-        case IDronePhase::PHASE1:
-          ImGui::Text("Phase 1");
-          break;
-        case IDronePhase::BETWEEN12:
-          ImGui::Text("1->2");
-          break;
-        case IDronePhase::PHASE2:
-          ImGui::Text("Phase 2");
-          break;
-        case IDronePhase::BETWEEN23:
-          ImGui::Text("2->3");
-          break;
-        case IDronePhase::PHASE3:
-          ImGui::Text("Phase 3");
-          break;
-        case IDronePhase::BETWEEN34:
-          ImGui::Text("3->4");
-          break;
-        case IDronePhase::PHASE4:
-          ImGui::Text("Phase 4");
-          break;
-        case IDronePhase::END:
-          ImGui::Text("Done");
-          break;
+      case IDronePhase::START:
+        ImGui::Text("Wakeup");
+        break;
+      case IDronePhase::PHASE1:
+        ImGui::Text("Phase 1");
+        break;
+      case IDronePhase::BETWEEN12:
+        ImGui::Text("1->2");
+        break;
+      case IDronePhase::PHASE2:
+        ImGui::Text("Phase 2");
+        break;
+      case IDronePhase::BETWEEN23:
+        ImGui::Text("2->3");
+        break;
+      case IDronePhase::PHASE3:
+        ImGui::Text("Phase 3");
+        break;
+      case IDronePhase::BETWEEN34:
+        ImGui::Text("3->4");
+        break;
+      case IDronePhase::PHASE4:
+        ImGui::Text("Phase 4");
+        break;
+      case IDronePhase::END:
+        ImGui::Text("Done");
+        break;
       }
 
       ImGui::PopStyleColor();
@@ -810,4 +700,53 @@ namespace GUI {
       currentPhase = IDronePhase::START;
     }
   }
-}
+
+  void drawTarget() {
+    CPlayer *player = CStateManager::instance()->Player();
+    if (!player)
+      return;
+
+    TUniqueId orbitId = player->getOrbitTargetId();
+    if (orbitId > 0) {
+      CEntity *entity = CStateManager::instance()->ObjectById(orbitId);
+      if (entity) {
+        u32 vtable = entity->getVtablePtr();
+        auto vtableInfo = GetVtableInfo(vtable);
+        ImGui::Text("%s", vtableInfo.name);
+        ImGui::Text("ID: %08x", entity->getEditorID());
+        if (vtableInfo.isActor) {
+          // for the moment, nothign to render
+        }
+        if (vtableInfo.isPhysicsActor) {
+          // for the moment, nothing to render
+        }
+        if (vtableInfo.isPatterned) {
+          CPatterned *patterned = reinterpret_cast<CPatterned *>(entity);
+          CHealthInfo *healthInfo = patterned->GetHealthInfo();
+          ImGui::Text("HP: %.2f", healthInfo->GetHealth());
+        }
+      }
+    }
+
+    TUniqueId scanId = player->getScanningObjectId();
+    if (scanId > 0) {
+      CEntity *entity = CStateManager::instance()->ObjectById(scanId);
+      if (entity) {
+        u32 vtable = entity->getVtablePtr();
+        auto vtableInfo = GetVtableInfo(vtable);
+        if (vtableInfo.isActor) {
+          CActor *actor = reinterpret_cast<CActor *>(entity);
+          const CScannableObjectInfo *scanInfo = actor->GetScannableObjectInfo();
+          if (scanInfo) {
+            u32 category = scanInfo->xc_category;
+            bool important = scanInfo->x10_important;
+            ImGui::Text("Category: %d", category);
+            if (important) {
+              ImGui::TextColored(ImVec4(0.8, 0.2, 0.2, 1.0), "Important!");
+            }
+          }
+        }
+      }
+    }
+  }
+} // namespace GUI

@@ -15,6 +15,10 @@ public:
   CCameraBobber *getCameraBobber() { return *GetField<CCameraBobber*>(this, 0x76C); }
   CPlayerGun *getPlayerGun() { return *GetField<CPlayerGun*>(this, 0x490); }
   float *getDepthUnderWater() { return GetField<float>(this, 0x828); }
+  TUniqueId getOrbitTargetId() { return *GetField<TUniqueId>(this, 0x310); }
+  TUniqueId getScanningObjectId() { return *GetField<TUniqueId>(this, 0x3B4); }
+  float *getScanningTime() { return GetField<float>(this, 0x3AC); }
+  float *getCurScanTime() { return GetField<float>(this, 0x3B0); }
 };
 
 #endif //PRIME_PRACTICE_CPLAYER_HPP

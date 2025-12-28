@@ -57,6 +57,7 @@ public:
     CWorldTransManager *WorldTransManager() const { return GetField<CWorldTransManager>(this, 0x8c4); }
     CPlayer *Player() const { return *GetField<CPlayer *>(this, 0x84C); };
     CObjectList *GetAllObjs() { return *GetField<CObjectList *>(this, 0x810); };
+    CEntity* ObjectById(TUniqueId uid) { return GetAllObjs()->GetObjectById(uid); }
     inline CCameraManager *x870_cameraManager() { return *GetField<CCameraManager*>(this, 0x870); };
 
     void SetShouldQuitGame(bool should) { GetField<StateManagerFlags>(this, 0xf94)->xf94_25_quitGame = should; }

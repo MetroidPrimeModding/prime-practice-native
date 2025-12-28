@@ -79,6 +79,11 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 2.8.0
+- Add option to show targeted object info (including hp, asset id, etc)
+- Add option for infinite scans
+- Add option to complete/reset all scans
+
 ### 2.7.0
 - Add incinerator drone fight details to OSD
 - RNG value display and locking

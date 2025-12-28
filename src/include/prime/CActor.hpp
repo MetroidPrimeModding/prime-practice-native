@@ -3,6 +3,15 @@
 #include "PrimeAPI.h"
 #include "prime/CEntity.hpp"
 
+class CScannableObjectInfo {
+public:
+  CAssetId x0_scannableObjectId;
+  CAssetId x4_stringId;
+  float x8_totalDownloadTime = 0.f;
+  u32 xc_category = 0;
+  bool x10_important = false;
+};
+
 class CActor : public CEntity {
 public:
     CTransform4f *getTransform() { return GetField<CTransform4f>(this, 0x34); };
@@ -12,5 +21,7 @@ public:
       u32 mask = ~(0b11 << 14);
       *f = (*f & mask) | ((count & 0b11) << 14);
     }
+
+  const CScannableObjectInfo* GetScannableObjectInfo() const;
 
 };
