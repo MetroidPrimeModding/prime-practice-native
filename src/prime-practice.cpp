@@ -12,6 +12,8 @@
 #include "prime/CTweaks.hpp"
 #include "prime/CWorldState.hpp"
 #include "types.h"
+#include "utils/Hook.hpp"
+
 #include <PrimeAPI.h>
 #include <os.h>
 #include <prime/CFontEndUI.hpp>
@@ -24,14 +26,9 @@
 class CPlayer;
 
 void debug();
-void RenderHook();
-void PauseScreenDrawReplacement(CPauseScreen *);
 void CStateManager_UpdateHook(CStateManager *self, float dt);
-void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const CFinalInput &input);
-CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue);
 void drawDebugStuff(CStateManager *);
 CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue);
-void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr);
 bool SkipCutsceneHook(void *, void *);
 
 // Automapper hooks
@@ -131,7 +128,16 @@ void memset_start_end(u32 dst, u32 end) {
   memset_start_end(start, end);
 }
 
+bool initialized{false};
 void _prolog() {
+  // call global constructors
+  // TODO: maybe load this from the .elf somehow, but this works for now
+  if (initialized) {
+    OSReport("Already called prolog once");
+    return;
+  }
+  initialized = true;
+  asm volatile("bl _GLOBAL__sub_I_prime_practice.cpp\n\t");
   // null out prac mod instance; this is called from reset()
   PracticeMod::instance = nullptr;
   ApplyCodePatches();
@@ -177,24 +183,84 @@ void ReplaceFunction(FuncType original, void *replacement) {
   *originalFunctionPtr = instruction;
 }
 
+//CPlayerGun::DropBomb
+DEFINE_HOOK(0x8003fc44, CPlayerGun_DropBomb) {
+  // void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr) {
+  // CPlayerGun *thiz = regs->GetCallArg<CPlayerGun*>(0);
+  EBWeapon weapon = regs->GetCallArg<EBWeapon>(1);
+  // CStateManager *mgr = regs->GetCallArg<CStateManager*>(2);
+  if (weapon == EBWeapon::Bomb) {
+    GUI::bombDropped();
+  }
+}
+
+bool tweaksPatched = false;
+void TweakPatcher() {
+  if (tweaksPatched) return;
+  if (!g_TweakGame) return;
+  *g_TweakAutoMappers->maxCamDist() *= 2;
+  tweaksPatched = true;
+}
+
+// CGraphics::EndScene
+DEFINE_HOOK(0x8030BAC0, RenderHook) {
+  TweakPatcher();
+  if (!PracticeMod::instance) {
+    PracticeMod::instance = new PracticeMod();
+  }
+  PracticeMod::instance->render();
+}
+
+// CPauseScreen::ProcessControllerInput
+DEFINE_HOOK(0x80072BB4, PauseControllerInputHandler) {
+  CPauseScreen *pause = regs->GetCallArg<CPauseScreen *>(0);
+  CStateManager *mgr = regs->GetCallArg<CStateManager *>(1);
+  const CFinalInput *input = regs->GetCallArg<const CFinalInput *>(2);
+
+  if (!pause->IsLoaded()) { return; }
+  if (pause->x8_curSubscreen == CPauseScreen::ESubScreen_ToGame) { return; }
+
+  if (pause->InputEnabled()) {
+    PracticeMod::instance->pauseScreenOpened();
+    if (input->PStart()) {
+      PracticeMod::instance->pauseScreenClosed();
+
+      //Play some noises too
+      CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId.id);
+      pause->StartTransition(0.5f, *mgr, CPauseScreen::ESubScreen_ToGame, 2);
+    } else if (input->PZ()) {
+      PracticeMod::instance->menuActive = !PracticeMod::instance->menuActive;
+    }
+  }
+  if (PracticeMod::instance->menuActive) {
+    regs->earlyReturn = true;
+  }
+}
+
+// CMainFlow::OnMessage
+DEFINE_HOOK(0x80023908, IOWinMessageHook) {
+  // CMainFlow *thiz = regs->GetThis<CMainFlow *>();
+  const CArchitectureMessage *msg = regs->GetCallArg<const CArchitectureMessage *>(1);
+  // CArchitectureQueue *queue = regs->GetCallArg<CArchitectureQueue *>(2);
+
+  if (msg->x4_type == EArchMsgType_UserInput) {
+    if (!PracticeMod::instance) {
+      PracticeMod::instance = new PracticeMod();
+    }
+    CArchMsgParmUserInput *status = (CArchMsgParmUserInput *) msg->x8_parm.RawPointer();
+    // The mod 4 is just for safety
+    PracticeMod::instance->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
+    if (status->x4_parm.ControllerIdx() == 0) {
+      PracticeMod::instance->HandleInputs();
+      // TODO: move this to hook in Game::Update or something
+      PracticeMod::instance->update(0);
+    }
+  }
+}
+
 void ApplyCodePatches() {
-  // CGraphics::EndScene
-  Relocate_Rel24((void *) 0x80005734, reinterpret_cast<void *>(&RenderHook));
-  Relocate_Rel24((void *) 0x800061F4, reinterpret_cast<void *>(&RenderHook));
-  Relocate_Rel24((void *) 0x802BDC5C, reinterpret_cast<void *>(&RenderHook));
-  // CPauseScreen::Draw
-  Relocate_Rel24((void *) 0x80108DB4, reinterpret_cast<void *>(&PauseScreenDrawReplacement));
-  // CPauseScreen::ProcessControllerInput
-  Relocate_Rel24((void *) 0x80107A28, reinterpret_cast<void *>(&PauseControllerInputHandler));
-  // CMainFlow::OnMessage
-  Relocate_Addr32((void *) 0x803D9934, reinterpret_cast<void *>(&IOWinMessageHook));
   //CStateManager::DrawDebugStuff
   Relocate_Rel24((void *) 0x80046B88, reinterpret_cast<void *>(&drawDebugStuff));
-  //CPlayerGun::DropBomb
-  Relocate_Rel24((void *) 0x8003dc74, reinterpret_cast<void *>(&DropBombHook));
-  Relocate_Rel24((void *) 0x8003dd40, reinterpret_cast<void *>(&DropBombHook));
-  Relocate_Rel24((void *) 0x80152510, reinterpret_cast<void *>(&DropBombHook));
-  Relocate_Rel24((void *) 0x80152528, reinterpret_cast<void *>(&DropBombHook));
   //CStateManager::Update
   Relocate_Rel24((void *) 0x80024854, reinterpret_cast<void *>(&CStateManager_UpdateHook));
   Relocate_Rel24((void *) 0x80024a0c, reinterpret_cast<void *>(&CStateManager_UpdateHook));
@@ -249,74 +315,11 @@ void ApplyCodePatches() {
   ReplaceFunction(&CRandom16::Next, (void *) &Hook_CRandom16Next);
 }
 
-bool tweaksPatched = false;
-
-void TweakPatcher() {
-  if (tweaksPatched) return;
-  if (!g_TweakGame) return;
-  *g_TweakAutoMappers->maxCamDist() *= 2;
-  tweaksPatched = true;
-}
-
-void PauseScreenDrawReplacement(CPauseScreen *pause) {
-  if (!pause->IsLoaded()) { return; }
-  pause->Draw();
-}
-
-void PauseControllerInputHandler(CPauseScreen *pause, CStateManager &mgr, const CFinalInput &input) {
-  if (!pause->IsLoaded()) { return; }
-  if (pause->x8_curSubscreen == CPauseScreen::ESubScreen_ToGame) { return; }
-
-  if (pause->InputEnabled()) {
-    PracticeMod::instance->pauseScreenOpened();
-    if (input.PStart()) {
-      PracticeMod::instance->pauseScreenClosed();
-
-      //Play some noises too
-      CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId.id);
-      pause->StartTransition(0.5f, mgr, CPauseScreen::ESubScreen_ToGame, 2);
-    } else if (input.PZ()) {
-      PracticeMod::instance->menuActive = !PracticeMod::instance->menuActive;
-    }
-  }
-  if (!PracticeMod::instance->menuActive) {
-    pause->ProcessControllerInput(mgr, input);
-  }
-}
-
-void RenderHook() {
-  TweakPatcher();
-  //  CGraphics::BeginScene();
-  if (!PracticeMod::instance) {
-    PracticeMod::instance = new PracticeMod();
-  }
-  PracticeMod::instance->render();
-  CGraphics::EndScene();
-}
-
 void CStateManager_UpdateHook(CStateManager *self, float dt) {
   if (PracticeMod::instance) {
     PracticeMod::instance->update(dt);
   }
   self->Update(dt);
-}
-
-CIOWin::EMessageReturn IOWinMessageHook(CMainFlow *thiz, const CArchitectureMessage &msg, CArchitectureQueue &queue) {
-  if (msg.x4_type == EArchMsgType_UserInput) {
-    if (!PracticeMod::instance) {
-      PracticeMod::instance = new PracticeMod();
-    }
-    CArchMsgParmUserInput *status = (CArchMsgParmUserInput *) msg.x8_parm.RawPointer();
-    // The mod 4 is just for safety
-    PracticeMod::instance->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
-    if (status->x4_parm.ControllerIdx() == 0) {
-      PracticeMod::instance->HandleInputs();
-      // TODO: move this to hook in Game::Update or something
-      PracticeMod::instance->update(0);
-    }
-  }
-
-  return thiz->OnMessage(msg, queue);
 }
 
 void drawDebugStuff(CStateManager *mgr) {
@@ -325,13 +328,6 @@ void drawDebugStuff(CStateManager *mgr) {
   }
   WorldRenderer::RenderWorld();
   //    NewPauseScreen::instance->Render();
-}
-
-void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr) {
-  if (weapon == EBWeapon::Bomb) {
-    GUI::bombDropped();
-  }
-  thiz->DropBomb(weapon, mgr);
 }
 
 bool SkipCutsceneHook(void *, void *) {

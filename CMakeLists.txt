@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 11)
 include("PrimeAPI2/PrimeAPI.cmake")
-project(prime-practice-native C CXX)
+project(prime-practice-native C CXX ASM)
 
 #include_directories(PrimeAPI/include)
 include_directories(src/include)
@@ -128,6 +128,10 @@ set(SOURCE_FILES
         src/system/ImGuiEngine.cpp
         src/system/ImGuiEngine.hpp
         src/utils/CEntity.cpp
+        src/utils/Hook.hpp
+        src/utils/Hook.cpp
+        src/utils/HookStub.S
+        src/utils/HookStubConstants.h
         src/system/libc.c
 
         src/UI/WarpMenu.h
