@@ -42,6 +42,7 @@ namespace GUI {
         BITFIELD_CHECKBOX("Loads", SETTINGS.OSD_showLoads);
         BITFIELD_CHECKBOX("RNG value", SETTINGS.OSD_showRng);
         BITFIELD_CHECKBOX("Incinerator Drone", SETTINGS.OSD_showIDrone);
+        BITFIELD_CHECKBOX("Target Info", SETTINGS.OSD_showTargetInfo);
 
         // end in-game display
         ImGui::TreePop();
