@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-VERSION=$1jobs
+VERSION=$1
 if [ -z "$VERSION" ]; then
   VERSION_LINE=$(grep '#define PRAC_MOD_VERSION' src/version.h)
   VERSION=$(echo "$VERSION_LINE" | sed -E 's/#define PRAC_MOD_VERSION "([^"]+)"/\1/')
