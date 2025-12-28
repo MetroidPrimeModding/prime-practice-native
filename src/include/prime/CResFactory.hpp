@@ -2,6 +2,7 @@
 
 #include "CSimplePool.hpp"
 #include "rstl/list.h"
+#include "GetField.hpp"
 
 struct SLoadingData {
   SObjectTag *getTag() { return GetField<SObjectTag>(this, 0x0); };

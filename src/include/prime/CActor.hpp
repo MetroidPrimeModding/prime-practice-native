@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PrimeAPI.h"
+#include "MathyTypes.hpp"
 #include "prime/CEntity.hpp"
 
 class CScannableObjectInfo {
