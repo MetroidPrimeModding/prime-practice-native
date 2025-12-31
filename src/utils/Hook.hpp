@@ -17,6 +17,8 @@ extern "C" void HookStub();
 // - restore all registers
 // - jump to the trampoline to execute the overwritten bytes and continue execution
 struct Hook {
+  struct HookContext;
+  /** this is initialized in assembly: HookStub.S */
   struct Registers {
     u32 gpr[32];
     u32 lr;
@@ -25,7 +27,8 @@ struct Hook {
     u32 xer;
     u32 pad;
     double fpr[32];
-    bool earlyReturn{false};
+    bool earlyReturn;
+    HookContext* ctx;
 
     template <typename T>
     T GetCallArg(int index) const {
@@ -56,32 +59,20 @@ struct Hook {
     }
   } __attribute__((aligned(8)));
 
-  static constexpr size_t kTrampolineInstructionCount = 2;
-  static constexpr size_t kTrampolineSize = sizeof(u32) * kTrampolineInstructionCount;
-
   static constexpr size_t kFrameHeaderSize = 8;
   static constexpr size_t kRegistersOffset = kFrameHeaderSize;
   static constexpr size_t kFrameSize = ((kFrameHeaderSize + sizeof(Registers) + 15) / 16) * 16;
-  static constexpr size_t kEntryInstructionCount = 3;
-  static constexpr size_t kEntrySize = kEntryInstructionCount * sizeof(u32);
-
-  static constexpr size_t kRegsGprOffset = offsetof(Registers, gpr);
-  static constexpr size_t kRegsLrOffset = offsetof(Registers, lr);
-  static constexpr size_t kRegsCrOffset = offsetof(Registers, cr);
-  static constexpr size_t kRegsCtrOffset = offsetof(Registers, ctr);
-  static constexpr size_t kRegsXerOffset = offsetof(Registers, xer);
-  static constexpr size_t kRegsFprOffset = offsetof(Registers, fpr);
-  static constexpr size_t earlyReturnOffset = offsetof(Registers, earlyReturn);
 
   static_assert(kRegistersOffset == HOOK_REGS_OFFSET, "HookStub constants must match stack layout.");
   static_assert(kFrameSize == HOOK_FRAME_SIZE, "HookStub constants must match frame size.");
-  static_assert(kRegsGprOffset == HOOK_REG_GPR_OFFSET, "HookStub constants must match Registers layout.");
-  static_assert(kRegsLrOffset == HOOK_REG_LR_OFFSET, "HookStub constants must match Registers layout.");
-  static_assert(kRegsCrOffset == HOOK_REG_CR_OFFSET, "HookStub constants must match Registers layout.");
-  static_assert(kRegsCtrOffset == HOOK_REG_CTR_OFFSET, "HookStub constants must match Registers layout.");
-  static_assert(kRegsXerOffset == HOOK_REG_XER_OFFSET, "HookStub constants must match Registers layout.");
-  static_assert(kRegsFprOffset == HOOK_REG_FPR_OFFSET, "HookStub constants must match Registers layout.");
-  static_assert(earlyReturnOffset == HOOK_REG_EARLY_RET_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, gpr) == HOOK_REG_GPR_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, lr) == HOOK_REG_LR_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, cr) == HOOK_REG_CR_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, ctr) == HOOK_REG_CTR_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, xer) == HOOK_REG_XER_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, fpr) == HOOK_REG_FPR_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, earlyReturn) == HOOK_REG_EARLY_RET_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, ctx) == HOOK_REG_CONTEXT_OFFSET, "HookStub constants must match Registers layout.");
 
   using HookFn = void (*)(Registers *regs, void *trampoline);
 
@@ -102,8 +93,8 @@ struct Hook {
 private:
   bool Install();
 
-  alignas(4) u32 entry[kEntryInstructionCount]{0xFFFFFFFF};
-  alignas(4) u32 trampoline[kTrampolineInstructionCount]{0xFFFFFFFF};
+  alignas(4) u32 entry[6]{0xFFFFFFFF};
+  alignas(4) u32 trampoline[2]{0xFFFFFFFF};
   HookContext context;
   const char* name;
   void *target = nullptr;

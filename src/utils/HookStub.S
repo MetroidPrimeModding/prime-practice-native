@@ -62,7 +62,7 @@ HookStub:
   stfd %f31, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 248(%r1)
 
   // Call hook
-  mr %r31, %r12
+  lwz %r31, HOOK_REGS_OFFSET + HOOK_REG_CONTEXT_OFFSET(%r1)
   addi %r3, %r1, HOOK_REGS_OFFSET
   lwz %r4, HOOK_CTX_TRAMP_OFFSET(%r31)
   lwz %r0, HOOK_CTX_HOOK_OFFSET(%r31)
