@@ -31,8 +31,8 @@ struct Hook {
     HookContext* ctx;
 
     template <typename T>
-    T GetCallArg(int index) const {
-      if constexpr (sizeof(T) == 4) {
+    T getCallArg(int index) const {
+      if constexpr (sizeof(T) <= 4) {
         return (T)(gpr[3 + index]);
       } else if constexpr (sizeof(T) == 8) {
         return (T)((static_cast<u64>(gpr[3 + index]) << 32) | gpr[3 + index + 1]);
@@ -42,13 +42,13 @@ struct Hook {
     }
 
     template <typename T>
-    T GetThis() {
-      return GetCallArg<T>(0);
+    T getThis() {
+      return getCallArg<T>(0);
     }
 
     template <typename T>
-    void SetReturnValue(T value) {
-      if constexpr (sizeof(T) == 4) {
+    void setReturnValue(T value) {
+      if constexpr (sizeof(T) <= 4) {
         gpr[3] = static_cast<u32>(value);
       } else if constexpr (sizeof(T) == 8) {
         gpr[3] = static_cast<u32>((static_cast<u64>(value) >> 32) & 0xFFFFFFFF);

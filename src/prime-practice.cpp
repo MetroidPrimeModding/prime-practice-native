@@ -25,43 +25,14 @@
 // Forward decls
 class CPlayer;
 
-void debug();
-void CStateManager_UpdateHook(CStateManager *self, float dt);
-void drawDebugStuff(CStateManager *);
-CFrontEndUI *CFrontEndConstructorPatch(CFrontEndUI *thiz, CArchitectureQueue &queue);
-bool SkipCutsceneHook(void *, void *);
-
-// Automapper hooks
-//bool IsDoorVisited(void *, u32);
-//bool IsAreaVisited(void *, u32);
-bool IsMapped(void *, u32);
-bool IsWorldVisible(void *, u32);
-bool IsAreaVisible(void *, u32);
-bool IsAnythingSet(void *);
-bool GetIsVisibleToAutoMapper(void *, bool, bool);
-void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr);
-void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager &mgr, const CTransform4f &xf, float alpha);
-#ifdef DEBUG
-void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue);
-#endif
-
-int Hook_CRandom16Next(CRandom16 *rng);
-
 extern "C" {
 #pragma clang attribute push (__attribute__((section(".boot"))), apply_to=function)
-
 __attribute__((visibility("default"))) extern void _prolog();
 [[maybe_unused]] __attribute__((visibility("default"))) extern void _earlyboot_memset(void *dst, char val, u32 size);
 #pragma clang attribute pop
 
 void *memcpy(void *dest, const void *src, size_t count);
 }
-
-void operator delete(void *ptr) {
-  CMemory::Free(ptr);
-}
-
-void ApplyCodePatches();
 
 u32 safeBlocks[] = {
   0x8056A7E4, 0x1610,
@@ -130,64 +101,23 @@ void memset_start_end(u32 dst, u32 end) {
 
 bool initialized{false};
 void _prolog() {
-  // call global constructors
-  // TODO: maybe load this from the .elf somehow, but this works for now
   if (initialized) {
     OSReport("Already called prolog once");
     return;
   }
   initialized = true;
+  // call static initializers
+  // TODO: maybe load this from the .elf somehow, but this works for now
   asm volatile("bl _GLOBAL__sub_I_prime_practice.cpp\n\t");
   // null out prac mod instance; this is called from reset()
   PracticeMod::instance = nullptr;
-  ApplyCodePatches();
-  char buffer[32];
-  sprintf(buffer, "_prolog= %8x\n", (int) (&_prolog));
-  OSReport(buffer);
-}
-
-void Relocate_Addr32(void *pRelocAddress, void *pSymbolAddress) {
-  uint32 *pReloc = (uint32 *) pRelocAddress;
-  *pReloc = (uint32) pSymbolAddress;
-}
-
-void Relocate_Rel24(void *pRelocAddress, void *pSymbolAddress) {
-  uint32 *pReloc = (uint32 *) pRelocAddress;
-  uint32 instruction = *pReloc;
-  uint32 AA = (instruction >> 1) & 0x1;
-  *pReloc = (instruction & ~0x3FFFFFC) |
-            (AA == 0 ? ((uint32) pSymbolAddress - (uint32) pRelocAddress) : (uint32) pSymbolAddress);
-}
-
-template<typename FuncType>
-void ReplaceFunction(FuncType original, void *replacement) {
-  // void ReplaceFunction(void* original, void* replacement) {
-
-  union {
-    FuncType mfp;
-    void *addr;
-  } u;
-  u.mfp = original;
-
-  uint32_t *originalFunctionPtr = (uint32_t *) u.addr;
-  uint32_t *replacementFunctionPtr = (uint32_t *) replacement;
-  int32_t diff = (int32_t) replacementFunctionPtr - (int32_t) originalFunctionPtr;
-  // Make sure the offset fits in 24 bits (word aligned, signed)
-  int32_t li = (diff >> 2) & 0x00FFFFFF;
-  // Handle negative offsets (sign extension for PPC branch)
-  if (diff < 0) {
-    li |= 0x01000000; // Add sign bit for 24-bit
-  }
-  uint32_t instruction = (18 << 26) | (li << 2);
-  // aa = 0 (relative), lk = 0 (no link)
-  *originalFunctionPtr = instruction;
 }
 
 //CPlayerGun::DropBomb
 DEFINE_HOOK(0x8003fc44, CPlayerGun_DropBomb) {
   // void DropBombHook(CPlayerGun *thiz, EBWeapon weapon, CStateManager &mgr) {
   // CPlayerGun *thiz = regs->GetCallArg<CPlayerGun*>(0);
-  EBWeapon weapon = regs->GetCallArg<EBWeapon>(1);
+  auto weapon = regs->getCallArg<EBWeapon>(1);
   // CStateManager *mgr = regs->GetCallArg<CStateManager*>(2);
   if (weapon == EBWeapon::Bomb) {
     GUI::bombDropped();
@@ -203,7 +133,7 @@ void TweakPatcher() {
 }
 
 // CGraphics::EndScene
-DEFINE_HOOK(0x8030BAC0, RenderHook) {
+DEFINE_HOOK(0x8030BAC0, CGraphics_EndScene) {
   TweakPatcher();
   if (!PracticeMod::instance) {
     PracticeMod::instance = new PracticeMod();
@@ -212,22 +142,22 @@ DEFINE_HOOK(0x8030BAC0, RenderHook) {
 }
 
 // CPauseScreen::ProcessControllerInput
-DEFINE_HOOK(0x80072BB4, PauseControllerInputHandler) {
-  CPauseScreen *pause = regs->GetCallArg<CPauseScreen *>(0);
-  CStateManager *mgr = regs->GetCallArg<CStateManager *>(1);
-  const CFinalInput *input = regs->GetCallArg<const CFinalInput *>(2);
+DEFINE_HOOK(0x80072BB4, CPauseScreen_ProcessControllerInput) {
+  auto *self = regs->getCallArg<CPauseScreen *>(0);
+  auto *mgr = regs->getCallArg<CStateManager *>(1);
+  auto *input = regs->getCallArg<CFinalInput *>(2);
 
-  if (!pause->IsLoaded()) { return; }
-  if (pause->x8_curSubscreen == CPauseScreen::ESubScreen_ToGame) { return; }
+  if (!self->IsLoaded()) { return; }
+  if (self->x8_curSubscreen == CPauseScreen::ESubScreen_ToGame) { return; }
 
-  if (pause->InputEnabled()) {
+  if (self->InputEnabled()) {
     PracticeMod::instance->pauseScreenOpened();
     if (input->PStart()) {
       PracticeMod::instance->pauseScreenClosed();
 
       //Play some noises too
       CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId.id);
-      pause->StartTransition(0.5f, *mgr, CPauseScreen::ESubScreen_ToGame, 2);
+      self->StartTransition(0.5f, *mgr, CPauseScreen::ESubScreen_ToGame, 2);
     } else if (input->PZ()) {
       PracticeMod::instance->menuActive = !PracticeMod::instance->menuActive;
     }
@@ -238,10 +168,10 @@ DEFINE_HOOK(0x80072BB4, PauseControllerInputHandler) {
 }
 
 // CMainFlow::OnMessage
-DEFINE_HOOK(0x80023908, IOWinMessageHook) {
-  // CMainFlow *thiz = regs->GetThis<CMainFlow *>();
-  const CArchitectureMessage *msg = regs->GetCallArg<const CArchitectureMessage *>(1);
-  // CArchitectureQueue *queue = regs->GetCallArg<CArchitectureQueue *>(2);
+DEFINE_HOOK(0x80023908, CMainFlow_OnMessage) {
+  // auto *self = regs->GetThis<CMainFlow *>();
+  auto *msg = regs->getCallArg<CArchitectureMessage *>(1);
+  // auto *queue = regs->GetCallArg<CArchitectureQueue *>(2);
 
   if (msg->x4_type == EArchMsgType_UserInput) {
     if (!PracticeMod::instance) {
@@ -258,71 +188,9 @@ DEFINE_HOOK(0x80023908, IOWinMessageHook) {
   }
 }
 
-void ApplyCodePatches() {
-  //CStateManager::DrawDebugStuff
-  Relocate_Rel24((void *) 0x80046B88, reinterpret_cast<void *>(&drawDebugStuff));
-  //CStateManager::Update
-  Relocate_Rel24((void *) 0x80024854, reinterpret_cast<void *>(&CStateManager_UpdateHook));
-  Relocate_Rel24((void *) 0x80024a0c, reinterpret_cast<void *>(&CStateManager_UpdateHook));
-  //CScriptSpecialFunction::ShouldSkipCinematic
-  Relocate_Rel24((void *) 0x80044a04, reinterpret_cast<void *>(&SkipCutsceneHook));
-  Relocate_Rel24((void *) 0x801521d4, reinterpret_cast<void *>(&SkipCutsceneHook));
-  //CMapWorldInfo::IsDoorVisited
-  //  Relocate_Rel24((void *) 0x80168d24, reinterpret_cast<void *>(&IsDoorVisited));
-  //  Relocate_Rel24((void *) 0x800e9274, reinterpret_cast<void *>(&IsDoorVisited));
-  //  Relocate_Rel24((void *) 0x800e8b10, reinterpret_cast<void *>(&IsDoorVisited));
-  //CMapWorldInfo::IsAreaVisited
-  //  Relocate_Rel24((void *) 0x80167d34, reinterpret_cast<void *>(&IsAreaVisited));
-  //  Relocate_Rel24((void *) 0x8009fd1c, reinterpret_cast<void *>(&IsAreaVisited));
-  //  Relocate_Rel24((void *) 0x80098a28, reinterpret_cast<void *>(&IsAreaVisited));
-  //  Relocate_Rel24((void *) 0x8004c134, reinterpret_cast<void *>(&IsAreaVisited));
-  //CMapWorldInfo:IsMapped
-  Relocate_Rel24((void *) 0x8016846c, reinterpret_cast<void *>(&IsMapped));
-  Relocate_Rel24((void *) 0x80167d50, reinterpret_cast<void *>(&IsMapped));
-  Relocate_Rel24((void *) 0x80098a08, reinterpret_cast<void *>(&IsMapped));
-  //CMapWorldInfo::IsWorldVisible
-  Relocate_Rel24((void *) 0x800a0ea0, reinterpret_cast<void *>(&IsWorldVisible));
-  Relocate_Rel24((void *) 0x800a0088, reinterpret_cast<void *>(&IsWorldVisible));
-  Relocate_Rel24((void *) 0x8009fc6c, reinterpret_cast<void *>(&IsWorldVisible));
-  Relocate_Rel24((void *) 0x8009f90c, reinterpret_cast<void *>(&IsWorldVisible));
-  Relocate_Rel24((void *) 0x80095f14, reinterpret_cast<void *>(&IsWorldVisible));
-  //CMapWorldInfo::IsAreaVisible
-  Relocate_Rel24((void *) 0x800e8a80, reinterpret_cast<void *>(&IsAreaVisible));
-  Relocate_Rel24((void *) 0x800a0e90, reinterpret_cast<void *>(&IsAreaVisible));
-  Relocate_Rel24((void *) 0x800a00d8, reinterpret_cast<void *>(&IsAreaVisible));
-  Relocate_Rel24((void *) 0x8009fc5c, reinterpret_cast<void *>(&IsAreaVisible));
-  Relocate_Rel24((void *) 0x8009f8fc, reinterpret_cast<void *>(&IsAreaVisible));
-  Relocate_Rel24((void *) 0x80095f04, reinterpret_cast<void *>(&IsAreaVisible));
-  //CMapWorldInfo::IsAnythingSet
-  Relocate_Rel24((void *) 0x80096414, reinterpret_cast<void *>(&IsAnythingSet));
-  Relocate_Rel24((void *) 0x80202448, reinterpret_cast<void *>(&IsAnythingSet));
-  //CAutoMapper::Draw
-  Relocate_Rel24((void *) 0x80108d1c, reinterpret_cast<void *>(&MapScreenDrawHook));
-  //CAutoMapper::ProcessMapScreenInput
-  Relocate_Rel24((void *) 0x8009af68, reinterpret_cast<void *>(&MapScreenInputHook));
-  //CMapArea::GetIsVisibleToAutoMapper
-  Relocate_Rel24((void *) 0x80095f24, reinterpret_cast<void *>(&GetIsVisibleToAutoMapper));
-  Relocate_Rel24((void *) 0x8009f91c, reinterpret_cast<void *>(&GetIsVisibleToAutoMapper));
-  Relocate_Rel24((void *) 0x8009fc7c, reinterpret_cast<void *>(&GetIsVisibleToAutoMapper));
-  Relocate_Rel24((void *) 0x800a0eb0, reinterpret_cast<void *>(&GetIsVisibleToAutoMapper));
-
-#ifdef DEBUG
-  //CMainFlow::AdvanceGameState
-  Relocate_Rel24((void *) 0x80023950, reinterpret_cast<void *>(&Hook_CMainFlow_AdvanceGameState));
-#endif
-
-  // crandom16 replace the whole function
-  ReplaceFunction(&CRandom16::Next, (void *) &Hook_CRandom16Next);
-}
-
-void CStateManager_UpdateHook(CStateManager *self, float dt) {
-  if (PracticeMod::instance) {
-    PracticeMod::instance->update(dt);
-  }
-  self->Update(dt);
-}
-
-void drawDebugStuff(CStateManager *mgr) {
+//CStateManager::DrawDebugStuff
+DEFINE_HOOK(0x80045BA0, CStateManager_DrawDebugStuff) {
+  // auto *mgr = regs->GetThis<CStateManager *>();
   if (!PracticeMod::instance) {
     PracticeMod::instance = new PracticeMod();
   }
@@ -330,55 +198,65 @@ void drawDebugStuff(CStateManager *mgr) {
   //    NewPauseScreen::instance->Render();
 }
 
-bool SkipCutsceneHook(void *, void *) {
-  return true;
+//CStateManager::Update
+DEFINE_HOOK(0x8004A7CC, CStateManager_Update) {
+  // auto *self = regs->getThis<CStateManager *>();
+  auto dt = regs->getCallArg<float>(1);
+  if (PracticeMod::instance) {
+    PracticeMod::instance->update(dt);
+  }
 }
 
-//bool IsDoorVisited(void *, u32) {
-//  return true;
-//}
-//
-//bool IsAreaVisited(void *, u32) {
-//  return true;
-//}
-
-bool IsMapped(void *, u32) {
-  return true;
+//CScriptSpecialFunction::ShouldSkipCinematic
+DEFINE_HOOK(0x80151868, CScriptSpecialFunction_ShouldSkipCinematic) {
+  regs->earlyReturn = true;
+  regs->setReturnValue(true);
 }
 
-bool IsWorldVisible(void *, u32) {
-  return true;
+//CMapWorldInfo::IsMapped
+DEFINE_HOOK(0x80168324, CMapWorldInfo__IsMapped) {
+  regs->earlyReturn = true;
+  regs->setReturnValue(true);
 }
 
-bool IsAreaVisible(void *, u32) {
-  return true;
+//CMapWorldInfo::IsWorldVisible
+DEFINE_HOOK(0x80168440, CMapWorldInfo_IsWorldVisible) {
+  regs->earlyReturn = true;
+  regs->setReturnValue(true);
 }
 
-bool IsAnythingSet(void *) {
-  return true;
+//CMapWorldInfo::IsAreaVisible
+DEFINE_HOOK(0x80167D04, CMapWorldInfo__IsAreaVisible) {
+  regs->earlyReturn = true;
+  regs->setReturnValue(true);
 }
 
-bool GetIsVisibleToAutoMapper(void *, bool, bool) {
-  return true;
+//CMapArea::GetIsVisibleToAutoMapper
+DEFINE_HOOK(0x80080D2C, CMapArea_GetIsVisibleToAutoMapper) {
+  regs->earlyReturn = true;
+  regs->setReturnValue(true);
 }
 
-void MapScreenDrawHook(CAutoMapper *mapper, const CStateManager &mgr, const CTransform4f &xf, float alpha) {
-  mapper->Draw(mgr, xf, alpha);
-  EAutoMapperState state = mapper->state();
-  EAutoMapperState nextState = mapper->nextState();
+//CAutoMapper::Draw
+DEFINE_HOOK(0x80099004, CAutoMapper__Draw) {
+  auto *self = regs->getThis<CAutoMapper *>();
+  EAutoMapperState state = self->state();
+  EAutoMapperState nextState = self->nextState();
   PracticeMod::instance->mapActive = state == EAutoMapperState::MapScreen && nextState ==
                                         EAutoMapperState::MapScreen;
 }
 
-void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateManager &mgr) {
-  mapper->ProcessMapScreenInput(input, mgr);
-  EAutoMapperState state = mapper->state();
-  EAutoMapperState nextState = mapper->nextState();
+//CAutoMapper::ProcessMapScreenInput
+DEFINE_HOOK(0x8009AC7C, CAutoMapper_ProcessMapScreenInput) {
+  auto *self = regs->getThis<CAutoMapper *>();
+  auto *input = regs->getCallArg<CFinalInput *>(1);
+  EAutoMapperState state = self->state();
+  EAutoMapperState nextState = self->nextState();
   if (state == EAutoMapperState::MapScreen && nextState == EAutoMapperState::MapScreen) {
-    if (input.PX()) {
-      IWorld *world = mapper->world();
+    if (input->PX()) {
+      IWorld *world = self->world();
       u32 worldid = world->IGetWorldAssetId();
-      TAreaId areaId = *mapper->curAreaId();
+      TAreaId areaId = *self->curAreaId();
       IGameArea *area = world->IGetAreaAlways(areaId);
       u32 mrea = area->IGetAreaAssetId();
       //    OSReport("world %x %x %d vt %x\n", world, area, areaId, GetVtable(world));
@@ -388,8 +266,10 @@ void MapScreenInputHook(CAutoMapper *mapper, const CFinalInput &input, CStateMan
 }
 
 #ifdef DEBUG
-
-void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Queue) {
+//CMainFlow::AdvanceGameState
+DEFINE_HOOK(0x80023854, CMainFlow_AdvanceGameState) {
+  auto *self = regs->getThis<CMainFlow *>();
+  auto queue = regs->getCallArg<CArchitectureQueue *>(1);
   OSReport("Hooked advance game state\n");
   // This hook is only compiled in if mode == Debug
 
@@ -400,26 +280,25 @@ void Hook_CMainFlow_AdvanceGameState(CMainFlow *pMainFlow, CArchitectureQueue &Q
   static bool sHasDoneInitialBoot = false;
 
   // Make sure the patch does not run twice if the player quits out to main menu
-  if (!sHasDoneInitialBoot && pMainFlow->GetGameState() == 7) {
+  if (!sHasDoneInitialBoot && self->GetGameState() == 7) {
     sHasDoneInitialBoot = true;
     CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
     gameState->SetCurrentWorldId(0x83F6FF6F); // chozo ruins
     gameState->CurrentWorldState().SetDesiredAreaAssetId(0x47E73BC5); // gathering hall
-    pMainFlow->SetGameState(kCFS_Game, Queue);
-    return;
-  } else {
-    pMainFlow->AdvanceGameState(Queue);
+    self->SetGameState(kCFS_Game, *queue);
+    regs->earlyReturn = true;
   }
 }
-
 #endif
 
-int Hook_CRandom16Next(CRandom16 *rng) {
+// CRandom16::Next
+DEFINE_HOOK(0x80312520, CRandom16_Next) {
+  CRandom16 *self = regs->getThis<CRandom16 *>();
   if (!SETTINGS.RNG_lockSeed) {
-    rng->m_seed = (rng->m_seed * 0x41c64e6d) + 0x00003039;
+    self->m_seed = (self->m_seed * 0x41c64e6d) + 0x00003039;
   }
-  return (rng->m_seed >> 16) & 0xffff;
-
+  regs->setReturnValue((self->m_seed >> 16) & 0xffff);
+  regs->earlyReturn = true;
 }
 
 //void resetLayerStates(const CStateManager &manager) {

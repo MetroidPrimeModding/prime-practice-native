@@ -8,8 +8,10 @@ HookStub:
   stwu %r1, -HOOK_FRAME_SIZE(%r1)
   // Save GPR0
   stw %r0, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET(%r1)
+  // Save GPR1
   lwz %r0, 0(%r1)
   stw %r0, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 4(%r1)
+
   //set HOOK_REG_EARLY_RET_OFFSET to 0
   li %r0, 0
   stw %r0, HOOK_REGS_OFFSET + HOOK_REG_EARLY_RET_OFFSET(%r1)
@@ -107,8 +109,10 @@ HookStub:
   lfd %f30, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 240(%r1)
   lfd %f31, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 248(%r1)
 
+  // Restore GPRs
   lmw %r2, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 8(%r1)
 
+  // Restore LR, CR, XER
   lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_LR_OFFSET(%r1)
   mtlr %r0
   lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_CR_OFFSET(%r1)
@@ -123,6 +127,9 @@ HookStub:
   // Early return requested, swap lr into ctr to return to original caller
   mflr %r0
   mtctr %r0
+  lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET(%r1)
+  lwz %r1, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 4(%r1)
+  blr
 1:
   // No early return, load GPR0 and GPR1 for trampoline call
   lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET(%r1)
