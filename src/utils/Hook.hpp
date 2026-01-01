@@ -1,5 +1,6 @@
-
 #pragma once
+
+#error "This file doesn't work
 
 #include "HookStubConstants.h"
 #include "types.h"

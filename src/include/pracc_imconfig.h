@@ -58,8 +58,8 @@
                                                   // with ImmGetContext/ImmSetCompositionWindow. (imm32.lib/.a)
 #define IMGUI_DISABLE_WIN32_FUNCTIONS // [Win32] Won't use and link with any Win32 function (clipboard, ime).
 // #define IMGUI_ENABLE_OSX_DEFAULT_CLIPBOARD_FUNCTIONS      // [OSX] Implement default OSX clipboard handler (need to
-// link with '-framework ApplicationServices', this is why this is not the default). #define
-// IMGUI_DISABLE_DEFAULT_FORMAT_FUNCTIONS            // Don't implement ImFormatString/ImFormatStringV so you can
+// link with '-framework ApplicationServices', this is why this is not the default).
+// #define IMGUI_DISABLE_DEFAULT_FORMAT_FUNCTIONS            // Don't implement ImFormatString/ImFormatStringV so you can
 // implement them yourself (e.g. if you don't want to link with vsnprintf)
 #define IMGUI_DISABLE_DEFAULT_MATH_FUNCTIONS // Don't implement ImFabs/ImSqrt/ImPow/ImFmod/ImCos/ImSin/ImAcos/ImAtan2 so
                                              // you can implement them yourself.
@@ -91,8 +91,8 @@
 //---- Use stb_printf's faster implementation of vsnprintf instead of the one from libc (unless
 //IMGUI_DISABLE_DEFAULT_FORMAT_FUNCTIONS is defined)
 // Requires 'stb_sprintf.h' to be available in the include path. Compatibility checks of arguments and formats done by
-// clang and GCC will be disabled in order to support the extra formats provided by STB sprintf. #define
-// IMGUI_USE_STB_SPRINTF
+// clang and GCC will be disabled in order to support the extra formats provided by STB sprintf.
+#define IMGUI_USE_STB_SPRINTF
 
 //---- Use FreeType to build and rasterize the font atlas (instead of stb_truetype which is embedded by default in Dear
 //ImGui)

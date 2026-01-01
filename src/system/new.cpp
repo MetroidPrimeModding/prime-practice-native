@@ -12,11 +12,11 @@ void *operator new[](size_t size) {
   return operator new(size, "", "");
 }
 
-void *operator new(size_t size, void* ptr) {
+void *operator new(size_t size, void* ptr) noexcept {
   return ptr;
 }
 
-void *operator new[](size_t size, void* ptr) {
+void *operator new[](size_t size, void* ptr) noexcept {
   return ptr;
 }
 

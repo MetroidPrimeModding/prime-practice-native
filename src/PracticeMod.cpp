@@ -24,10 +24,9 @@
 #include "system/malloc_wrappers.h"
 #include "utils.hpp"
 #include "version.h"
+#include "stb_sprintf.h"
 
 #define PAD_MAX_CONTROLLERS 4
-
-PracticeMod *PracticeMod::instance = nullptr;
 
 PracticeMod::PracticeMod() {
   OSReport("Hello, Dolphin\n");
@@ -36,7 +35,6 @@ PracticeMod::PracticeMod() {
   ImGuiEngine::ImGui_Init_Style();
   GUI::initQR();
   this->pauseScreenClosed();
-  inputs = new CFinalInput[4];
 
   // Patch CScriptTrigger so we can attach a value to it
   // CScriptTrigger::CScriptTrigger
@@ -275,7 +273,7 @@ void PracticeMod::update(float dt) const {
       }
       ImDrawList *dl = ImGui::GetForegroundDrawList();
       char text[64];
-      int l = snprintf(text, sizeof(text), "lag value: %d", c);
+      int l = stbsp_snprintf(text, sizeof(text), "lag value: %d", c);
       dl->AddText(ImVec2(20, 20), IM_COL32(255, 255, 255, 255),
                   text, text + l);
     }
@@ -339,5 +337,19 @@ void warp(uint32_t world, uint32_t area) {
 
   mgr->SetShouldQuitGame(true);
 
-  PracticeMod::instance->pauseScreenClosed();
+  PracticeMod::GetInstance()->pauseScreenClosed();
+}
+
+PracticeMod *pracModInstance = nullptr;
+PracticeMod *PracticeMod::GetInstance() {
+  if (!pracModInstance) {
+    pracModInstance = new PracticeMod();
+  }
+  return pracModInstance;
+}
+void PracticeMod::ClearInstance() {
+  if (pracModInstance) {
+    // delete pracModInstance;
+    pracModInstance = nullptr;
+  }
 }

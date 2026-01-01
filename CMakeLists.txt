@@ -92,6 +92,9 @@ set(SOURCE_FILES
         src/include/prime/CRandom16.hpp
         src/include/prime/CAi.hpp
         src/include/prime/CPatterned.hpp
+        src/include/prime/CMapWorldInfo.hpp
+        src/include/prime/CScriptSpecialFunction.hpp
+        src/include/prime/CMapArea.hpp
         src/PracticeMod.hpp
         src/include/GetField.hpp
         src/include/settings.hpp
@@ -111,28 +114,28 @@ set(SOURCE_FILES
         ext/QRCode/src/qrcode.c
 
         src/include/pracc_imconfig.h
+
         src/system/CrashAssert.h
         src/system/CrashAssert.cpp
-        src/system/printf.h
-        src/system/printf.c
         src/system/sscanf.c
-
-        src/version.h
         src/system/new.cpp
-        src/PracticeMod.cpp
         src/system/malloc_wrappers.h
         src/system/malloc_wrappers.cpp
-        src/prime-practice.cpp
-        src/utils/settings.cpp
         src/system/font_atlas.hpp
         src/system/ImGuiEngine.cpp
         src/system/ImGuiEngine.hpp
-        src/utils/CEntity.cpp
-        src/utils/Hook.hpp
-        src/utils/Hook.cpp
-        src/utils/HookStub.S
-        src/utils/HookStubConstants.h
         src/system/libc.c
+
+        src/utils/settings.cpp
+        src/utils/CEntity.cpp
+#        src/utils/Hook.hpp
+#        src/utils/Hook.cpp
+#        src/utils/HookStub.S
+#        src/utils/HookStubConstants.h
+        src/utils/ReplaceFunction.hpp
+        src/utils/ReplaceFunction.cpp
+        src/utils/DataByteStream.hpp
+        src/utils/DataBitStream.cpp
 
         src/UI/WarpMenu.h
         src/UI/WarpMenu.cpp
@@ -155,11 +158,13 @@ set(SOURCE_FILES
         src/UI/DumpMemoryUI.cpp
         src/UI/DumpMemoryUI.hpp
 
-        src/utils/DataByteStream.hpp
-        src/utils/DataBitStream.cpp
-
         src/world/WorldRenderer.cpp
         src/world/WorldRenderer.hpp
+
+        src/version.h
+        src/PracticeMod.cpp
+        src/prime-practice.cpp
+        src/hooks.cpp
 )
 
 add_prime_binary(prime-practice src/prime-practice.lst default.dol ${SOURCE_FILES})

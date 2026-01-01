@@ -17,3 +17,6 @@ UseTab: Never
 TabWidth: 2
 ColumnLimit: 120
 NamespaceIndentation: All
+BreakTemplateDeclarations: Yes
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: WithoutElse

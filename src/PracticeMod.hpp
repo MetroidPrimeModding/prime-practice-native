@@ -10,12 +10,13 @@ void warp(uint32_t world, uint32_t area);
 
 class PracticeMod {
 public:
-  static PracticeMod *instance;
+  static PracticeMod *GetInstance();
+  static void ClearInstance();
   bool menuActive{false};
 
   bool pauseScreenActive{false};
   bool mapActive{false};
-  CFinalInput *inputs;
+  CFinalInput inputs[4];
 
   PracticeMod();
 

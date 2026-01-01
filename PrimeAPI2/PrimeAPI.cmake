@@ -17,6 +17,9 @@ set(CMAKE_PRIME_C_FLAGS_LIST
         -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/include"
         -isystem "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/include-fixed"
         -isystem "${DEVKITPPC}/powerpc-eabi/include"
+        # be very careful with this one, it can be dangerous. But I want metaprogramming!
+        -isystem "${DEVKITPPC}/powerpc-eabi/include/c++/${GCC_VERSION}"
+        -isystem "${DEVKITPPC}/powerpc-eabi/include/c++/${GCC_VERSION}/powerpc-eabi"
         -fno-function-sections
         -fno-data-sections
         -fno-exceptions

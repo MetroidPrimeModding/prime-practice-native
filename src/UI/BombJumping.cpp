@@ -7,6 +7,7 @@
 #include <prime/CPlayerGun.hpp>
 #include <prime/CStateManager.hpp>
 #include <settings.hpp>
+#include <stb_sprintf.h>
 
 constexpr float FPS = 60;
 constexpr float BombChargeTime = 3;
@@ -156,7 +157,7 @@ void GUI::drawBombJumpingInterface() {
   }
   init();
 
-  auto *inputs = PracticeMod::instance->inputs;
+  auto *inputs = PracticeMod::GetInstance()->inputs;
 
   if (inputs[1].PA() && state->autoJump == nullptr) {
     state->reset();
@@ -219,7 +220,7 @@ void GUI::drawBombJumpingInterface() {
       if (rechargePercent < 0) rechargePercent = 0;
       if (recharge < 0) recharge = 0;
       char buf[32];
-      snprintf(buf, sizeof(buf), "%0.2f", recharge);
+      stbsp_snprintf(buf, sizeof(buf), "%0.2f", recharge);
       ImVec2 p = ImGui::GetCursorScreenPos();
       ImGui::ProgressBar(rechargePercent, ImVec2(-1.0f, 8.0f), "");
       dl->AddText(p + ImVec2(graphWidth / 2 - 15, 0), IM_COL32(255, 255, 255, 255), buf);
@@ -322,8 +323,8 @@ void GUI::drawCustomBombJumpConfigMenu() {
     if (i > 0) {
       last = TIMINGS_CUSTOM.timings[i - 1];
     }
-    snprintf(label, sizeof(fmt), "%d", i);
-    snprintf(fmt, sizeof(fmt), "%d/%+d", TIMINGS_CUSTOM.timings[i], TIMINGS_CUSTOM.timings[i] - last);
+    stbsp_snprintf(label, sizeof(fmt), "%d", i);
+    stbsp_snprintf(fmt, sizeof(fmt), "%d/%+d", TIMINGS_CUSTOM.timings[i], TIMINGS_CUSTOM.timings[i] - last);
     ImGui::DragInt(label, &TIMINGS_CUSTOM.timings[i], 1.0f, 0, 10000, fmt);
   }
 }

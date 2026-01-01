@@ -1,5 +1,4 @@
 #include "malloc_wrappers.h"
-#include "stdio.h"
 
 // char *
 //_findenv_r(struct _reent *reent_ptr,

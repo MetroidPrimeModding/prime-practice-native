@@ -10,12 +10,12 @@
 #include <prime/CScriptTimer.hpp>
 #include <prime/CStateManager.hpp>
 #include <prime/CWorld.hpp>
-#include <stdio.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "imgui_internal.h"
 #include "prime/CPatterned.hpp"
+#include "stb_sprintf.h"
 
 namespace GUI {
   void drawFrameTime();
@@ -294,7 +294,7 @@ namespace GUI {
     frames[GRAPH_LENGTH - 1] = ms;
 
     char title[32];
-    snprintf(title, sizeof(title), "Frame time: %02.2f", ms);
+    stbsp_snprintf(title, sizeof(title), "Frame time: %02.2f", ms);
     ImGui::PlotLines("", frames, GRAPH_LENGTH, 0, title, 0.f, 32.f, ImVec2(0, 40.0f));
   }
 
@@ -355,7 +355,7 @@ namespace GUI {
 
     if (SETTINGS.OSD_showMemoryGraph) {
       char title[32];
-      snprintf(title, sizeof(title), "%d%% used, %d%% free", usedPercent, freePrecent);
+      stbsp_snprintf(title, sizeof(title), "%d%% used, %d%% free", usedPercent, freePrecent);
       ImGui::PlotLines("", memoryUsage, GRAPH_LENGTH, 0, title, 0.f, totalHeapSize, ImVec2(0, 40.0f));
     }
   }

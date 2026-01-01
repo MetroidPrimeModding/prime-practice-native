@@ -24,9 +24,6 @@ typedef double f64;
 #ifndef NULL
 #define NULL 0
 #endif
-#ifndef nullptr
-#define nullptr NULL
-#endif
 
 #define PADDING(Amt) char padding##Amt[(Amt)]
 
@@ -38,8 +35,8 @@ typedef double f64;
 #ifdef __cplusplus
 void *operator new(size_t size);
 void *operator new[](size_t size);
-void *operator new(size_t size, void *ptr);
-void *operator new[](size_t size, void *ptr);
+void *operator new(size_t size, void *ptr) noexcept;
+void *operator new[](size_t size, void *ptr) noexcept;
 
 void operator delete(void *);
 void operator delete[](void *ptr);
