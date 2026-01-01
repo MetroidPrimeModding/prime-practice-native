@@ -8,9 +8,11 @@ HookStub:
   stwu %r1, -HOOK_FRAME_SIZE(%r1)
   // Save GPR0
   stw %r0, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET(%r1)
-  // Save GPR1
-  lwz %r0, 0(%r1)
-  stw %r0, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 4(%r1)
+  // Save stack pointer (we do not restore it from here, but this way the c++ gets it correctly)
+  stw %r1, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 4(%r1)
+  // save LR to restore later
+  mflr %r0
+  stw %r0, HOOK_REGS_OFFSET + HOOK_REG_LR_OFFSET(%r1)
 
   //set HOOK_REG_EARLY_RET_OFFSET to 0
   li %r0, 0
@@ -26,7 +28,7 @@ HookStub:
   mfspr %r0, 9
   stw %r0, HOOK_REGS_OFFSET + HOOK_REG_CTR_OFFSET(%r1)
 
-  // Save GPRs
+  // Save GPRs 2-31
   stmw %r2, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 8(%r1)
 
   // Save FPRs
@@ -63,19 +65,15 @@ HookStub:
   stfd %f30, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 240(%r1)
   stfd %f31, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 248(%r1)
 
-  // Call hook
-  lwz %r31, HOOK_REGS_OFFSET + HOOK_REG_CONTEXT_OFFSET(%r1)
+  // Call hook function
+  // arg1 = pointer to HookRegisters struct
+  // address is stored in HOOK_REG_TARGET_OFFSET
   addi %r3, %r1, HOOK_REGS_OFFSET
-  lwz %r4, HOOK_CTX_TRAMP_OFFSET(%r31)
-  lwz %r0, HOOK_CTX_HOOK_OFFSET(%r31)
+  lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_TARGET_OFFSET(%r1)
   mtctr %r0
   bctrl
 
-  // load the trampoline address into CTR
-  lwz %r0, HOOK_CTX_TRAMP_OFFSET(%r31)
-  mtctr %r0
-
-  // Restore registers
+  // Restore fp registers
   lfd %f0, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 0(%r1)
   lfd %f1, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 8(%r1)
   lfd %f2, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 16(%r1)
@@ -109,31 +107,33 @@ HookStub:
   lfd %f30, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 240(%r1)
   lfd %f31, HOOK_REGS_OFFSET + HOOK_REG_FPR_OFFSET + 248(%r1)
 
-  // Restore GPRs
+  // Restore GPRs 2-31
   lmw %r2, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 8(%r1)
 
-  // Restore LR, CR, XER
+  // Restore LR
   lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_LR_OFFSET(%r1)
   mtlr %r0
-  lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_CR_OFFSET(%r1)
-  mtcrf 0xFF, %r0
-  lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_XER_OFFSET(%r1)
-  mtspr 1, %r0
 
+  // load the trampoline address into CTR
+  lwz %r0,  HOOK_REGS_OFFSET + HOOK_REG_TRAMPOLINE_OFFSET(%r1)
+  mtctr %r0
   // Check for early return
   lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_EARLY_RET_OFFSET(%r1)
   cmpwi %r0, 0
   beq 1f
-  // Early return requested, swap lr into ctr to return to original caller
+  // Early return requested, use saved LR to return to original caller
+  // if not, CTR contains the trampoline address
   mflr %r0
   mtctr %r0
-  lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET(%r1)
-  lwz %r1, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 4(%r1)
-  blr
 1:
-  // No early return, load GPR0 and GPR1 for trampoline call
+  // Restore CR and XER
+  lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_CR_OFFSET(%r1)
+  mtcrf 0xFF, %r0
+  lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_XER_OFFSET(%r1)
+  mtspr 1, %r0
+  // Restore GPR0 and stack frame
   lwz %r0, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET(%r1)
-  lwz %r1, HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + 4(%r1)
+  addi %r1, %r1, HOOK_FRAME_SIZE
 
   bctr
 

@@ -17,7 +17,9 @@ extern "C" void HookStub();
 // - restore all registers
 // - jump to the trampoline to execute the overwritten bytes and continue execution
 struct Hook {
-  struct HookContext;
+  struct Registers;
+  using HookFn = void (*)(Registers *regs);
+
   /** this is initialized in assembly: HookStub.S */
   struct Registers {
     u32 gpr[32];
@@ -28,7 +30,8 @@ struct Hook {
     u32 pad;
     double fpr[32];
     bool earlyReturn;
-    HookContext* ctx;
+    HookFn hook;
+    void *trampoline;
 
     template <typename T>
     T getCallArg(int index) const {
@@ -72,17 +75,8 @@ struct Hook {
   static_assert(offsetof(Registers, xer) == HOOK_REG_XER_OFFSET, "HookStub constants must match Registers layout.");
   static_assert(offsetof(Registers, fpr) == HOOK_REG_FPR_OFFSET, "HookStub constants must match Registers layout.");
   static_assert(offsetof(Registers, earlyReturn) == HOOK_REG_EARLY_RET_OFFSET, "HookStub constants must match Registers layout.");
-  static_assert(offsetof(Registers, ctx) == HOOK_REG_CONTEXT_OFFSET, "HookStub constants must match Registers layout.");
-
-  using HookFn = void (*)(Registers *regs, void *trampoline);
-
-  struct HookContext {
-    HookFn hook;
-    void *trampoline;
-  };
-
-  static_assert(offsetof(HookContext, hook) == HOOK_CTX_HOOK_OFFSET, "HookStub constants must match HookContext layout.");
-  static_assert(offsetof(HookContext, trampoline) == HOOK_CTX_TRAMP_OFFSET, "HookStub constants must match HookContext layout.");
+  static_assert(offsetof(Registers, hook) == HOOK_REG_TARGET_OFFSET, "HookStub constants must match Registers layout.");
+  static_assert(offsetof(Registers, trampoline) == HOOK_REG_TRAMPOLINE_OFFSET, "HookStub constants must match Registers layout.");
 
   Hook(const char* name, void *target, HookFn hookFn);
 
@@ -93,9 +87,8 @@ struct Hook {
 private:
   bool Install();
 
-  alignas(4) u32 entry[6]{0xFFFFFFFF};
+  alignas(4) u32 entry[9]{0xFFFFFFFF};
   alignas(4) u32 trampoline[2]{0xFFFFFFFF};
-  HookContext context;
   const char* name;
   void *target = nullptr;
   HookFn hookFn = nullptr;
@@ -103,6 +96,6 @@ private:
 };
 
 #define DEFINE_HOOK(target, name) \
-  void Hook_##name##_HookFunc(Hook::Registers *regs, void *trampoline); \
+  void Hook_##name##_HookFunc(Hook::Registers *regs); \
   Hook g_##name##_Hook(#name, (void *)(target), Hook_##name##_HookFunc); \
-  void Hook_##name##_HookFunc(Hook::Registers *regs, void *trampoline)
+  void Hook_##name##_HookFunc(Hook::Registers *regs)

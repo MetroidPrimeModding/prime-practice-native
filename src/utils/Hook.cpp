@@ -46,23 +46,31 @@ void BuildTrampoline(u32 *trampolineWords, const u32 *targetInstr) {
       MakeBranchRel(&trampolineWords[1], reinterpret_cast<const u8 *>(targetInstr) + sizeof(u32), false);
 }
 
-void BuildEntry(u32 *entryWords, const Hook::HookContext *context) {
-  // OSReport("Entry: %p, HookContext: %p\n", entryWords, context);
-  constexpr int kEntryCtxStackOffset = HOOK_REGS_OFFSET + HOOK_REG_CONTEXT_OFFSET - HOOK_FRAME_SIZE;
+void BuildEntry(u32 *entryWords, Hook::HookFn hookFn, void *trampoline) {
+  constexpr int kEntryTargetStackOffset = HOOK_REGS_OFFSET + HOOK_REG_TARGET_OFFSET - HOOK_FRAME_SIZE;
+  constexpr int kEntryTrampolineStackOffset = HOOK_REGS_OFFSET + HOOK_REG_TRAMPOLINE_OFFSET - HOOK_FRAME_SIZE;
   constexpr int kEntrySavedR12Offset =
       HOOK_REGS_OFFSET + HOOK_REG_GPR_OFFSET + (12 * static_cast<int>(sizeof(u32))) - HOOK_FRAME_SIZE;
-  static_assert(kEntryCtxStackOffset >= -32768 && kEntryCtxStackOffset <= 32767, "Entry context offset out of range.");
+  static_assert(kEntryTargetStackOffset >= -32768 && kEntryTargetStackOffset <= 32767, "Entry context offset out of range.");
+  static_assert(kEntryTrampolineStackOffset >= -32768 && kEntryTrampolineStackOffset <= 32767, "Entry context offset out of range.");
   static_assert(kEntrySavedR12Offset >= -32768 && kEntrySavedR12Offset <= 32767, "Entry save offset out of range.");
-  const u32 contextAddr = static_cast<u32>(reinterpret_cast<uintptr_t>(context));
+  const u32 targetAddr = reinterpret_cast<u32>(hookFn);
+  const u32 trampolineAddr = reinterpret_cast<u32>(trampoline);
   entryWords[0] = MakeStw(12, 1, kEntrySavedR12Offset);
-  entryWords[1] = MakeAddis(12, 0, Hi16(contextAddr));
-  entryWords[2] = MakeOri(12, 12, Lo16(contextAddr));
-  entryWords[3] = MakeStw(12, 1, kEntryCtxStackOffset);
-  entryWords[4] = MakeLwz(12, 1, kEntrySavedR12Offset);
-  entryWords[5] = MakeBranchRel(&entryWords[5], reinterpret_cast<void *>(&HookStub), false);
+
+  entryWords[1] = MakeAddis(12, 0, Hi16(targetAddr));
+  entryWords[2] = MakeOri(12, 12, Lo16(targetAddr));
+  entryWords[3] = MakeStw(12, 1, kEntryTargetStackOffset);
+
+  entryWords[4] = MakeAddis(12, 0, Hi16(trampolineAddr));
+  entryWords[5] = MakeOri(12, 12, Lo16(trampolineAddr));
+  entryWords[6] = MakeStw(12, 1, kEntryTrampolineStackOffset);
+
+  entryWords[7] = MakeLwz(12, 1, kEntrySavedR12Offset);
+  entryWords[8] = MakeBranchRel(&entryWords[8], reinterpret_cast<void *>(&HookStub), false);
 }
 
-Hook::Hook(const char *name, void *target, HookFn hookFn) : name(name), target(target), hookFn(hookFn), context{} {
+Hook::Hook(const char *name, void *target, HookFn hookFn) : name(name), target(target), hookFn(hookFn) {
   Install();
 }
 
@@ -70,25 +78,22 @@ bool Hook::Install() {
   if (installed || target == nullptr || hookFn == nullptr) {
     return false;
   }
-  context.hook = hookFn;
-  context.trampoline = trampoline;
 
   u32 *targetInstr = reinterpret_cast<u32 *>(target);
 
   if (!IsRelBranchReachable(targetInstr, entry) || !IsRelBranchReachable(entry, reinterpret_cast<void *>(&HookStub)) ||
-      !IsRelBranchReachable(trampoline + sizeof(u32), reinterpret_cast<u8 *>(target) + sizeof(u32))) {
+      !IsRelBranchReachable(trampoline + 1, reinterpret_cast<u8 *>(target) + sizeof(u32))) {
     return false;
   }
 
   BuildTrampoline(trampoline, targetInstr);
-  BuildEntry(entry, &context);
+  BuildEntry(entry, hookFn, trampoline);
+
+  FlushCode(trampoline, sizeof(trampoline));
+  FlushCode(entry, sizeof(entry));
 
   *targetInstr = MakeBranchRel(targetInstr, entry, false);
-
   FlushCode(targetInstr, sizeof(u32));
-  FlushCode(trampoline, sizeof(trampoline));
-  DCFlushRange(&context, sizeof(HookContext));
-  FlushCode(entry, sizeof(entry));
 
   installed = true;
   OSReport("Hook %s installed at %p to %p\n", name, target, (void *)hookFn);
