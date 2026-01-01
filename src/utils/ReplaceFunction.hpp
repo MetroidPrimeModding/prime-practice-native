@@ -54,6 +54,7 @@ const char* PrettyName() {
 
 template <typename T>
 struct TypeName {
+#if DEBUG
 private:
   constexpr static char prefix[] = "const char *PrettyName() [T = ";
   constexpr static char suffix[] = "]";
@@ -70,6 +71,10 @@ public:
     memcpy(c_str, prettyName + prefixLen, length - 1);
     c_str[length - 1] = '\0';
   }
+#else
+public:
+  constexpr static const char* c_str = "Unk";
+#endif
 };
 
 

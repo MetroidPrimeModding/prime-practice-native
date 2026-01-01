@@ -52,7 +52,7 @@ namespace GUI {
     textureData = new char[tex_size];
     // verify 32-byte alignment
     if ((u32) textureData % 32 != 0) {
-      OSReport("Texture data not 32-byte aligned!!!\n");
+      DebugLog("Texture data not 32-byte aligned!!!\n");
       delete textureData;
       return;
     }

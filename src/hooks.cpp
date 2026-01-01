@@ -169,7 +169,6 @@ DECLARE_FUNCTION_REPLACEMENT(CAutoMapper_ProcessMapScreenInput) {
         TAreaId areaId = *self->curAreaId();
         IGameArea *area = world->IGetAreaAlways(areaId);
         u32 mrea = area->IGetAreaAssetId();
-        //    OSReport("world %x %x %d vt %x\n", world, area, areaId, GetVtable(world));
         warp(worldid, mrea);
       }
     }
@@ -189,7 +188,7 @@ DECLARE_FUNCTION_REPLACEMENT(CRandom16_Next) {
 // CMainFlow::AdvanceGameState
 DECLARE_FUNCTION_REPLACEMENT(CMainFlow_AdvanceGameState) {
  static void Callback(CMainFlow *self, CArchitectureQueue &queue) {
-  OSReport("Hooked advance game state\n");
+  DebugLog("Hooked advance game state\n");
   // This hook is only compiled in if mode == Debug
 
   // Hook into CMainFlow::AdvanceGameState(). When this function is called with

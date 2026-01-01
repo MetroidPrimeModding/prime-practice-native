@@ -248,7 +248,6 @@ void ImGuiEngine::ImGui_Init() {
       &prime_malloc, &prime_free
   );
 
-  OSReport("Create context \n");
   ImFontAtlas *atlas = IM_NEW(ImFontAtlas);
   atlas->TexDesiredWidth = 512;
   atlas->Flags |= ImFontAtlasFlags_NoMouseCursors;

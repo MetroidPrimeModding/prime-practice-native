@@ -71,7 +71,7 @@ namespace GUI {
     usedTextures[qrNum] = true;
     texIds[qrNum] = id;
 
-    OSReport("Rendering QR %s id %u\n", data, id);
+    DebugLog("Rendering QR %s id %u\n", data, id);
     QRCode qrcode;
     uint8_t qrcodeBytes[qrcode_getBufferSize(LOCK_VERSION)];
     qrcode_initText(&qrcode, qrcodeBytes, LOCK_VERSION, (int) ecc, data);

@@ -29,8 +29,6 @@
 #define PAD_MAX_CONTROLLERS 4
 
 PracticeMod::PracticeMod() {
-  OSReport("Hello, Dolphin\n");
-
   ImGuiEngine::ImGui_Init();
   ImGuiEngine::ImGui_Init_Style();
   GUI::initQR();

@@ -126,7 +126,7 @@ void _prolog() {
     initialized = false;
   }
   if (initialized) {
-    OSReport("Already called prolog once\n");
+    DebugLog("Already called prolog once\n");
     return;
   }
   initialized = true;

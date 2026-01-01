@@ -40,7 +40,7 @@ u32 MakeStw(u8 rs, u8 ra, s16 imm) {
 }
 
 void BuildTrampoline(u32 *trampolineWords, const u32 *targetInstr) {
-  // OSReport("Trampoline : %p, TargetInstr: %p\n", trampolineWords, targetInstr);
+  // DebugLog("Trampoline : %p, TargetInstr: %p\n", trampolineWords, targetInstr);
   trampolineWords[0] = *targetInstr;
   trampolineWords[1] =
       MakeBranchRel(&trampolineWords[1], reinterpret_cast<const u8 *>(targetInstr) + sizeof(u32), false);
@@ -96,7 +96,7 @@ bool Hook::Install() {
   FlushCode(targetInstr, sizeof(u32));
 
   installed = true;
-  OSReport("Hook %s installed at %p to %p\n", name, target, (void *)hookFn);
+  DebugLog("Hook %s installed at %p to %p\n", name, target, (void *)hookFn);
   return true;
 }
 // void *Hook::GetTrampoline() const { return (void *)context.trampoline; }

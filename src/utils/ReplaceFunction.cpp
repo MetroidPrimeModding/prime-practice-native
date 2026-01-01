@@ -18,7 +18,7 @@ namespace ReplaceFunctionHookPool {
   }
 
   void BuildTrampoline(u32 *trampolineWords, const u32 *targetInstr) {
-    // OSReport("Trampoline : %p, TargetInstr: %p\n", trampolineWords, targetInstr);
+    // DebugLog("Trampoline : %p, TargetInstr: %p\n", trampolineWords, targetInstr);
     trampolineWords[0] = *targetInstr;
     trampolineWords[1] =
         MakeBranchRel(&trampolineWords[1], reinterpret_cast<const u8 *>(targetInstr) + sizeof(u32), false);
@@ -39,7 +39,7 @@ namespace ReplaceFunctionHookPool {
 
   ReplacementHookTrampoline* AllocateHookTrampoline() {
     if (currentHookIndex >= MaxHooks) {
-      OSReport("ReplaceFunctionHookPool: Out of hook trampolines!\n");
+      DebugLog("ReplaceFunctionHookPool: Out of hook trampolines!\n");
       return nullptr;
     }
     return &hookPool[currentHookIndex++];
@@ -61,7 +61,7 @@ namespace ReplaceFunctionHookPool {
     // check if original instruction is a branch to something that could be inside the hook pool
     ReplacementHookTrampoline* originalFnTrampoline = findExistingHook(originalPtr);
     if (originalFnTrampoline != nullptr) {
-      OSReport("Hook #%d %s already has trampoline at %p\n", currentHookIndex, name, originalFnTrampoline->trampolineWords);
+      DebugLog("Hook #%d %s already has trampoline at %p\n", currentHookIndex, name, originalFnTrampoline->trampolineWords);
     } else {
       originalFnTrampoline = AllocateHookTrampoline();
       if (originalFnTrampoline != nullptr) {
@@ -72,14 +72,14 @@ namespace ReplaceFunctionHookPool {
     }
 
     if (originalFnTrampoline == nullptr) {
-      OSReport("ReplaceFunctionHookPool: Failed to allocate trampoline for hook at %p to %p\n", originalPtr,
+      DebugLog("ReplaceFunctionHookPool: Failed to allocate trampoline for hook at %p to %p\n", originalPtr,
                replacementPtr);
       return nullptr;
     }
 
     if (!IsRelBranchReachable(targetInstr, replacementPtr) ||
         !IsRelBranchReachable(originalFnTrampoline->trampolineWords + 1, static_cast<u32*>(originalPtr) + 1)) {
-      OSReport("ReplaceFunctionHookPool: Branch not reachable for hook at %p to %p\n", originalPtr,
+      DebugLog("ReplaceFunctionHookPool: Branch not reachable for hook at %p to %p\n", originalPtr,
                replacementPtr);
       return nullptr;
     }
@@ -87,7 +87,7 @@ namespace ReplaceFunctionHookPool {
     *targetInstr = MakeBranchRel(targetInstr, replacementPtr, false);
     FlushCode(targetInstr, sizeof(u32));
 
-    OSReport("Hook #%d %s installed at %p -> %p (trampoline: %p)\n", currentHookIndex, name, originalPtr, replacementPtr, originalFnTrampoline->trampolineWords);
+    DebugLog("Hook #%d %s installed at %p -> %p (trampoline: %p)\n", currentHookIndex, name, originalPtr, replacementPtr, originalFnTrampoline->trampolineWords);
     return originalFnTrampoline->trampolineWords;
   }
 };
