@@ -47,7 +47,7 @@
 // empty.
 #define IMGUI_DISABLE_DEMO_WINDOWS // Disable demo windows: ShowDemoWindow()/ShowStyleEditor() will be empty. Not
                                    // recommended.
-// #define IMGUI_DISABLE_METRICS_WINDOW                      // Disable metrics/debugger window: ShowMetricsWindow()
+#define IMGUI_DISABLE_METRICS_WINDOW                      // Disable metrics/debugger window: ShowMetricsWindow()
 // will be empty.
 
 //---- Don't implement some functions to reduce linkage requirements.
@@ -106,10 +106,6 @@
 // backend.
 // #define IMGUI_ENABLE_STB_TRUETYPE
 
-//--- Completely disable text inputs. With a controller, these don't work anyway
-//--- Saves a lot of space (~60k)
-#define IMGUI_DISABLE_TEXT_INPUTS
-
 // use imgui's vec math
 #define IMGUI_DEFINE_MATH_OPERATORS
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
@@ -156,6 +152,18 @@ namespace ImGui
     void MyFunction(const char* name, const MyMatrix44& v);
 }
 */
+
+//--- CUSTOM STUFF ---------------------------------------------------
+
+//--- Completely disable text inputs. With a controller, these don't work anyway
+//--- Saves a lot of space (~60k)
+#define IMGUI_DISABLE_TEXT_INPUTS
+
+//--- Disable clipboard support, we won't be using it
+#define IMGUI_DISABLE_CLIPBOARD
+
+//--- Disable logging support, we won't be using it
+#define IMGUI_DISABLE_LOG
 
 #include "Math/CMath.hpp"
 #include <math.h>
