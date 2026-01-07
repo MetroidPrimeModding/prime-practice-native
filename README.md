@@ -79,6 +79,10 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 2.9.0
+- Fixes for the room timer
+- Huge refactor/cleanup of how the code works - with hopefully no changes to functionality
+
 ### 2.8.0
 - Add option to show targeted object info (including hp, asset id, etc)
 - Add option for infinite scans
