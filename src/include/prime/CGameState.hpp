@@ -15,4 +15,4 @@ public:
   inline double PlayTime() { return *GetField<double>(this, 0xa0); }
 };
 
-extern CGameState *g_GameState;
+extern CGameState *gpGameState;

@@ -19,7 +19,7 @@ namespace GUI {
         ImGui::Unindent(20.0f);
       }
       if (ImGui::Button("Reset Scans")) {
-        CPlayerState *playerState = CStateManager::instance()->GetPlayerState();
+        CPlayerState *playerState = g_StateManager.GetPlayerState();
         if (playerState) {
           auto &scanTimes = playerState->scanStates;
           for (int i = 0; i < scanTimes.length(); i++) {
@@ -28,7 +28,7 @@ namespace GUI {
         }
       }
       if (ImGui::Button("Complete Scans")) {
-        CPlayerState *playerState = CStateManager::instance()->GetPlayerState();
+        CPlayerState *playerState = g_StateManager.GetPlayerState();
         if (playerState) {
           auto &scanTimes = playerState->scanStates;
           for (int i = 0; i < scanTimes.length(); i++) {
@@ -45,7 +45,7 @@ namespace GUI {
   }
 
   void drawScans() {
-    CPlayerState *playerState = CStateManager::instance()->GetPlayerState();
+    CPlayerState *playerState = g_StateManager.GetPlayerState();
     if (!playerState) return;
     auto &scanTimes = playerState->scanStates;
     for (int i = 0; i < scanTimes.length(); i++) {

@@ -17,12 +17,11 @@ namespace WorldRenderer {
       return;
     }
 
-    CStateManager *mgr = CStateManager::instance();
-    CObjectList *list = mgr->GetAllObjs();
+    CObjectList *list =  g_StateManager.GetAllObjs();
     if (list == nullptr) return;
 
-    SViewport backupViewport = *SVIEWPORT_GLOBAL;
-    mgr->SetupViewForDraw(backupViewport);
+    SViewport backupViewport = CGraphics::mViewport;
+    g_StateManager.SetupViewForDraw(backupViewport);
 
     CGraphics::SetCullMode(ERglCullMode_Back);
     CGX::SetBlendMode(GxBlendMode_BLEND, GxBlendFactor_SRCALPHA, GxBlendFactor_INVSRCALPHA, GxLogicOp_OR);

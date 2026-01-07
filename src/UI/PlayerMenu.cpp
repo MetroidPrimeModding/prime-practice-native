@@ -1,14 +1,15 @@
-#include <prime/CStateManager.hpp>
-#include <prime/CPlayer.hpp>
-#include <prime/CPlayerState.hpp>
-#include <prime/CGameGlobalObjects.hpp>
-#include <prime/CGameState.hpp>
-#include <prime/CWorldState.hpp>
-#include <prime/CWorld.hpp>
-#include <prime/CCameraBobber.hpp>
 #include "PlayerMenu.hpp"
 #include "WarpMenu.h"
 #include "imgui.h"
+#include "prime/CMain.hpp"
+#include <prime/CCameraBobber.hpp>
+#include <prime/CGameGlobalObjects.hpp>
+#include <prime/CGameState.hpp>
+#include <prime/CPlayer.hpp>
+#include <prime/CPlayerState.hpp>
+#include <prime/CStateManager.hpp>
+#include <prime/CWorld.hpp>
+#include <prime/CWorldState.hpp>
 
 namespace GUI {
   CTransform4f savedPos{CTransform4f::Identity()};
@@ -18,18 +19,14 @@ namespace GUI {
   u32 savedAreaAssetID{0};
 
   void drawPlayerMenu() {
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
-    CPlayerState *playerState = stateManager->GetPlayerState();
+    CPlayer *player =  g_StateManager.Player();
+    // CPlayerState *playerState = stateManager->GetPlayerState();
 
-    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
-    CGameState *gameState = globals->getGameState();
-
-    u32 currentWorldAssetID = gameState->MLVL();
+    u32 currentWorldAssetID = gpGameState->MLVL();
     u32 currentAreaAssetID = 0;
-    CWorld *world = stateManager->GetWorld();
+    CWorld *world = g_StateManager.GetWorld();
     if (world) {
-      currentAreaAssetID = world->areas()->ptr[gameState->CurrentWorldState().x4_areaId.id].ptr->IGetAreaAssetId();
+      currentAreaAssetID = world->areas()->ptr[gpGameState->CurrentWorldState().x4_areaId.id].ptr->IGetAreaAssetId();
     }
     if (savedWorldAssetID == 0 || savedWorldAssetID == 0xFFFFFFFF) {
       savedWorldAssetID = currentWorldAssetID;
@@ -119,8 +116,7 @@ namespace GUI {
   }
 
   void loadPos() {
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
+    CPlayer *player = g_StateManager.Player();
 
     *player->getTransform() = savedPos;
     *player->GetVelocity() = savedVelocity;
@@ -128,18 +124,13 @@ namespace GUI {
   }
 
   void savePos() {
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
+    CPlayer *player = g_StateManager.Player();
 
-    CGameGlobalObjects *globals = ((CGameGlobalObjects *) 0x80457798);
-    CGameState *gameState = globals->getGameState();
-
-
-    u32 currentWorldAssetID = gameState->MLVL();
+    u32 currentWorldAssetID = gpGameState->MLVL();
     u32 currentAreaAssetID = 0;
-    CWorld *world = stateManager->GetWorld();
+    CWorld *world = g_StateManager.GetWorld();
     if (!world) return;
-    currentAreaAssetID = world->areas()->ptr[gameState->CurrentWorldState().x4_areaId.id].ptr->IGetAreaAssetId();
+    currentAreaAssetID = world->areas()->ptr[gpGameState->CurrentWorldState().x4_areaId.id].ptr->IGetAreaAssetId();
 
     savedPos = *player->getTransform();
     savedVelocity = *player->GetVelocity();

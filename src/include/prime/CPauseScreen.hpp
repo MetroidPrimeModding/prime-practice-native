@@ -2,13 +2,13 @@
 
 class CPauseScreen {
 public:
-  typedef enum ESubScreen {
-    ESubScreen_LogBook,
-    ESubScreen_Options,
-    ESubScreen_Inventory,
-    ESubScreen_ToGame,
-    ESubScreen_ToMap
-  } ESubScreen;
+    typedef enum ESubScreen {
+      ESubScreen_LogBook,
+      ESubScreen_Options,
+      ESubScreen_Inventory,
+      ESubScreen_ToGame,
+      ESubScreen_ToMap
+    } ESubScreen;
 
   ESubScreen x0_initialSubScreen;
   u32 x4_;

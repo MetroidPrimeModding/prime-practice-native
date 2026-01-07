@@ -94,9 +94,8 @@ namespace GUI {
   void refillItems(CPlayerState *playerState);
 
   void drawInventoryMenu() {
-    CStateManager *stateManager = CStateManager::instance();
-//    CPlayer *player = stateManager->Player();
-    CPlayerState *playerState = stateManager->GetPlayerState();
+    //    CPlayer *player = stateManager->Player();
+    CPlayerState *playerState = g_StateManager.GetPlayerState();
 
     if (ImGui::TreeNode("Inventory")) {
       if (ImGui::Button("Refill")) {

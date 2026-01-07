@@ -140,7 +140,7 @@ void _prolog() {
 
 // void resetLayerStates(const CStateManager &manager) {
 //  CMemoryCardSys *memorySystem = *(CMemoryCardSys **) 0x805A8C44;
-//  CGameState *gameState = *(CGameState **) (0x80457798 + 0x134);
+//  CGameState *gameState = gpGameState;
 //  uint32 currentMlvl = gameState->MLVL();
 //
 //  CSaveWorldIntermediate *worldIntermediates = memorySystem->worldIntermediate;

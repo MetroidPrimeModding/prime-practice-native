@@ -200,9 +200,8 @@ DECLARE_FUNCTION_REPLACEMENT(CMainFlow_AdvanceGameState) {
   // Make sure the patch does not run twice if the player quits out to main menu
   if (!sHasDoneInitialBoot && self->GetGameState() == 7) {
     sHasDoneInitialBoot = true;
-    CGameState *gameState = *((CGameState **)(0x80457798 + 0x134));
-    gameState->SetCurrentWorldId(0x83F6FF6F);                         // chozo ruins
-    gameState->CurrentWorldState().SetDesiredAreaAssetId(0x47E73BC5); // gathering hall
+    gpGameState->SetCurrentWorldId(0x83F6FF6F);                         // chozo ruins
+    gpGameState->CurrentWorldState().SetDesiredAreaAssetId(0x47E73BC5); // gathering hall
     self->SetGameState(kCFS_Game, queue);
   } else {
     Orig(self, queue);

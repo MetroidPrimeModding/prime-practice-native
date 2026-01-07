@@ -41,7 +41,6 @@ set(SOURCE_FILES
         src/include/utils.hpp
 
         src/include/MathyTypes.hpp
-        src/include/prime/fnAddr.cpp
         src/include/prime/CStateManager.hpp
         src/include/prime/CMemoryCardSys.hpp
         src/include/prime/CSimplePool.hpp

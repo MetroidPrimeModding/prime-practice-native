@@ -35,8 +35,7 @@ namespace GUI {
   }
 
   void hideAllRooms() {
-    CStateManager *stateManager = CStateManager::instance();
-    CWorld *world = stateManager->GetWorld();
+    CWorld *world = g_StateManager.GetWorld();
     if (world == nullptr) {
       return;
     }
@@ -50,8 +49,7 @@ namespace GUI {
   }
 
   void showVisibilityControls() {
-    CStateManager *stateManager = CStateManager::instance();
-    CWorld *world = stateManager->GetWorld();
+    CWorld *world = g_StateManager.GetWorld();
     if (world == nullptr) {
       return;
     }
@@ -85,8 +83,7 @@ namespace GUI {
   }
 
   void showLoadControls() {
-    CStateManager *stateManager = CStateManager::instance();
-    CWorld *world = stateManager->GetWorld();
+    CWorld *world = g_StateManager.GetWorld();
     if (world == nullptr) {
       return;
     }

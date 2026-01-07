@@ -18,6 +18,8 @@ public:
   explicit inline TAreaId(s32 id) : id(id) {}
 
   s32 id;
+
+  inline bool isValid() const { return id >= 0; }
 };
 
 #define kInvalidAreaId (TAreaId(-1))

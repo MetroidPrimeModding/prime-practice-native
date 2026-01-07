@@ -67,8 +67,7 @@ struct BombJumpUIState {
   void update() {
     if (frame < 0 || frame >= FrameDataCount) return;
 
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
+    CPlayer *player = g_StateManager.Player();
     if (player == nullptr) return;
     CPlayerGun *gun = player->getPlayerGun();
     if (gun == nullptr) return;
@@ -89,7 +88,7 @@ struct BombJumpUIState {
 
     if (autoJump != nullptr && currentBomb < autoJump->count) {
       if (frame == autoJump->timings[currentBomb]) {
-        gun->DropBomb(EBWeapon::Bomb, *stateManager);
+        gun->DropBomb(EBWeapon::Bomb, g_StateManager);
 //        player->getPlayerGun()->DropBomb(EBWeapon::PowerBomb, *stateManager);
         bombDropped();
       }
@@ -105,8 +104,7 @@ struct BombJumpUIState {
       reset();
     }
     if (currentBomb < BombMax) {
-      CStateManager *stateManager = CStateManager::instance();
-      CPlayer *player = stateManager->Player();
+      CPlayer *player =  g_StateManager.Player();
 
       bombTimings[currentBomb] = frame;
       bombPositions[currentBomb] = player->getTransform()->z;
@@ -174,8 +172,7 @@ void GUI::drawBombJumpingInterface() {
 
   state->update();
 
-  CStateManager *stateManager = CStateManager::instance();
-  CPlayer *player = stateManager->Player();
+  CPlayer *player = g_StateManager.Player();
   if (player == nullptr) return;
   CPlayerGun *gun = player->getPlayerGun();
   if (gun == nullptr) return;

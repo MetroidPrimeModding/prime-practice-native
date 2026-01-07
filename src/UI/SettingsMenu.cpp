@@ -32,9 +32,9 @@ namespace GUI {
         BITFIELD_CHECKBOX("Input", SETTINGS.OSD_showInput);
         ImGui::SameLine();
         BITFIELD_CHECKBOX("Time", SETTINGS.OSD_showIGT);
-        BITFIELD_CHECKBOX("Previous Room time", SETTINGS.OSD_showPreviousRoomTime);
-        BITFIELD_CHECKBOX("Current Room time", SETTINGS.OSD_showCurrentRoomTime);
-        BITFIELD_CHECKBOX("Room time: Use Loads", SETTINGS.OSD_roomTimeIsBasedOnLoadStart);
+        BITFIELD_CHECKBOX("Previous Room time (P)", SETTINGS.OSD_showPreviousRoomTime);
+        BITFIELD_CHECKBOX("Current Room time (C)", SETTINGS.OSD_showCurrentRoomTime);
+        BITFIELD_CHECKBOX("Dock -> Load time (L)", SETTINGS.OSD_showMostRecentDoorToLoadTime);
         BITFIELD_CHECKBOX("Frame time", SETTINGS.OSD_showFrameTime);
         BITFIELD_CHECKBOX("Memory info", SETTINGS.OSD_showMemoryInfo);
         ImGui::SameLine();
@@ -55,8 +55,7 @@ namespace GUI {
           writeValueToMemory<u32>(0x80041644, readValueFromMemory<u32>(0x80041644) & 0xFFFF0000 | maxBomb);
           writeValueToMemory<u32>(0x8003fdd0, readValueFromMemory<u32>(0x8003fdd0) & 0xFFFF0000 | maxBomb);
 
-          CStateManager *stateManager = CStateManager::instance();
-          CPlayer *player = stateManager->Player();
+          CPlayer *player = g_StateManager.Player();
           if (player == nullptr) return;
           CPlayerGun *gun = player->getPlayerGun();
           if (gun == nullptr) return;
@@ -86,8 +85,7 @@ namespace GUI {
       }
 
       if (ImGui::TreeNode("RNG")) {
-        CStateManager *stateManager = CStateManager::instance();
-        CRandom16 *rng = stateManager->GetRandom();
+        CRandom16 *rng = g_StateManager.GetRandom();
         // ImGui::Text("Address of RNG: %08x", (u32)(&rng->m_seed));
 
         ImGui::Text("Warning: locking may crash sometimes!");
@@ -126,8 +124,7 @@ namespace GUI {
   }
 
   void drawWorldLightOption() {
-    CStateManager *stateManager = CStateManager::instance();
-    CWorld *world = stateManager->GetWorld();
+    CWorld *world = g_StateManager.GetWorld();
     if (world == nullptr) {
       ImGui::Text("World is null");
       return;

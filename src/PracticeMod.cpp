@@ -152,7 +152,7 @@ void PracticeMod::HandleInputs() {
 
 void PracticeMod::renderMenu() {
   ImGuiIO &io = ImGui::GetIO();
-  io.DisplaySize = ImVec2(SVIEWPORT_GLOBAL->x8_width, SVIEWPORT_GLOBAL->xc_height);
+  io.DisplaySize = ImVec2(CGraphics::mViewport.x8_width, CGraphics::mViewport.xc_height);
   io.DeltaTime = 1.f / 60.f;
 
   ImGui::NewFrame();
@@ -169,7 +169,7 @@ void PracticeMod::renderMenu() {
   ImGui::SetNextWindowCollapsed(!render, ImGuiCond_Always);
   ImGui::SetNextWindowSizeConstraints(
       ImVec2(0, 0),
-      ImVec2(400, SVIEWPORT_GLOBAL->xc_height - 40)
+      ImVec2(400, CGraphics::mViewport.xc_height - 40)
   );
   if (ImGui::Begin(
       "Practice Mod", nullptr,
@@ -278,8 +278,7 @@ void PracticeMod::update(float dt) const {
   }
 
   if (SETTINGS.BOMBJUMP_infiniteBombs) {
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
+    CPlayer *player = g_StateManager.Player();
     if (player == nullptr) goto bombjump_done;
     CPlayerGun *gun = player->getPlayerGun();
     if (gun == nullptr) goto bombjump_done;
@@ -289,14 +288,13 @@ void PracticeMod::update(float dt) const {
   bombjump_done:;
 
   if (SETTINGS.SCAN_infiniteScanTime) {
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
+    CPlayer *player =  g_StateManager.Player();
     if (player == nullptr) return;
 
     bool important = false;
     TUniqueId scanId = player->getScanningObjectId();
     if (scanId > 0) {
-      CEntity *entity = CStateManager::instance()->ObjectById(scanId);
+      CEntity *entity = g_StateManager.ObjectById(scanId);
       if (entity) {
         u32 vtable = entity->getVtablePtr();
         auto vtableInfo = GetVtableInfo(vtable);
@@ -319,21 +317,18 @@ void PracticeMod::update(float dt) const {
 
 void warp(uint32_t world, uint32_t area) {
   OSReport("Warping to %x, %x\n", world, area);
-  CAssetId worldID = (CAssetId) (world);
-  CAssetId areaID = (CAssetId) (area);
+  CAssetId worldID = world;
+  CAssetId areaID = area;
 
-  CStateManager *mgr = CStateManager::instance();
-  mgr->GetWorld()->SetPauseState(true);
+  g_StateManager.GetWorld()->SetPauseState(true);
 
-  CGameState *gameState = *((CGameState **) (0x80457798 + 0x134));
   CSfxManager::SfxStart(0x59A, 0x7F, 0x40, false, 0x7F, false, kInvalidAreaId.id);
-  gameState->SetCurrentWorldId(worldID);
-  gameState->CurrentWorldState().SetDesiredAreaAssetId(areaID);
+  gpGameState->SetCurrentWorldId(worldID);
+  gpGameState->CurrentWorldState().SetDesiredAreaAssetId(areaID);
 
-  CMain *cmain = *((CMain **) 0x805A8C38);
-  cmain->SetFlowState(EFlowState_None);
+  gpMain->SetFlowState(EFlowState_None);
 
-  mgr->SetShouldQuitGame(true);
+  g_StateManager.SetShouldQuitGame(true);
 
   PracticeMod::GetInstance()->pauseScreenClosed();
 }

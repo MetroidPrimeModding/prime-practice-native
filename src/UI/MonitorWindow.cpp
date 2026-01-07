@@ -14,6 +14,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "imgui_internal.h"
+#include "prime/CMain.hpp"
 #include "prime/CPatterned.hpp"
 #include "stb_sprintf.h"
 
@@ -34,7 +35,7 @@ namespace GUI {
 
   void drawRoomTime();
 
-  void handleLoadBasedRoomTiming(double current_time);
+  void handleLoadTime();
 
   void drawLoads();
 
@@ -100,8 +101,7 @@ namespace GUI {
   }
 
   void drawLoads() {
-    CGameGlobalObjects *globals = ((CGameGlobalObjects *)0x80457798);
-    CResFactory *resFactory = globals->getResFactory();
+    CResFactory *resFactory = gpMain->GetGameGlobalObjects()->getResFactory();
     auto list = resFactory->getLoadList();
 
     u32 count = list->size;
@@ -141,10 +141,8 @@ namespace GUI {
   }
 
   void drawIGT() {
-    CGameGlobalObjects *globals = ((CGameGlobalObjects *)0x80457798);
-    CGameState *gameState = globals->getGameState();
-    if (gameState) {
-      double time = gameState->PlayTime();
+    if (gpGameState) {
+      double time = gpGameState->PlayTime();
       int ms = (int)(time * 1000.0) % 1000;
       int seconds = (int)time % 60;
       int minutes = ((int)time / 60) % 60;
@@ -154,60 +152,55 @@ namespace GUI {
   }
 
   u32 last_room = -1;
-  double last_time = 0;
+  double last_room_time = 0;
   double room_start_time = 0;
 
-  bool isLoading = false;
+  bool is_loading = false;
+  double last_load_time = 0;
+
+  void draw_time(const char *prefix, double current_room_time) {
+    int frames = (int)(current_room_time / (1.0 / 60.0));
+    int ms = (int)(current_room_time * 1000.0) % 1000;
+    int seconds = (int)current_room_time % 60;
+    int minutes = ((int)current_room_time / 60) % 60;
+    int hours = ((int)current_room_time / 60 / 60) % 60;
+    ImGui::Text("%s%02d:%02d:%02d.%03d|%d", prefix, hours, minutes, seconds, ms, frames);
+  }
 
   void drawRoomTime() {
-    CGameGlobalObjects *globals = ((CGameGlobalObjects *)0x80457798);
-    CGameState *gameState = globals->getGameState();
-    CStateManager *stateManager = CStateManager::instance();
-    CWorld *world = stateManager->GetWorld();
+    CWorld *world = g_StateManager.GetWorld();
+    if (!gpGameState || !world) return;
+    double current_time = gpGameState->PlayTime();
 
-    if (gameState && world) {
-      double current_time = gameState->PlayTime();
-
-      if (SETTINGS.OSD_roomTimeIsBasedOnLoadStart) {
-        handleLoadBasedRoomTiming(current_time);
-      } else {
-        u32 current_room = world->IGetCurrentAreaId().id;
-        if (current_room != last_room) {
-          last_time = current_time - room_start_time;
-          room_start_time = current_time;
-          last_room = current_room;
-        }
-      }
+    u32 current_room = world->IGetCurrentAreaId().id;
+    if (current_room != last_room) {
+      last_room_time = current_time - room_start_time;
+      room_start_time = current_time;
+      last_room = current_room;
+    }
+    if (SETTINGS.OSD_showPreviousRoomTime) {
+      draw_time("P: ", last_room);
+    }
+    if (SETTINGS.OSD_showCurrentRoomTime) {
+      if (SETTINGS.OSD_showPreviousRoomTime) ImGui::SameLine();
       double current_room_time = current_time - room_start_time;
-      if (SETTINGS.OSD_showPreviousRoomTime) {
-        int frames = (int)(last_time / (1.0 / 60.0));
-        int ms = (int)(last_time * 1000.0) % 1000;
-        int seconds = (int)last_time % 60;
-        int minutes = ((int)last_time / 60) % 60;
-        int hours = ((int)last_time / 60 / 60) % 60;
-        ImGui::Text("P: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
-      }
-      if (SETTINGS.OSD_showCurrentRoomTime) {
-        if (SETTINGS.OSD_showPreviousRoomTime)
-          ImGui::SameLine();
-        int frames = (int)(current_room_time / (1.0 / 60.0));
-        int ms = (int)(current_room_time * 1000.0) % 1000;
-        int seconds = (int)current_room_time % 60;
-        int minutes = ((int)current_room_time / 60) % 60;
-        int hours = ((int)current_room_time / 60 / 60) % 60;
-        ImGui::Text("C: %02d:%02d:%02d.%03d|%d", hours, minutes, seconds, ms, frames);
-      }
+      draw_time("C: ", current_room_time);
+    }
+    if (SETTINGS.OSD_showMostRecentDoorToLoadTime) {
+      handleLoadTime();
+      draw_time("L: ", last_load_time);
     }
   }
 
-  void handleLoadBasedRoomTiming(double current_time) {
-    CStateManager *stateManager = CStateManager::instance();
-    CWorld *world = stateManager->GetWorld();
-    if (world == nullptr) {
-      return;
-    }
+  void handleLoadTime() {
+    CWorld *world = g_StateManager.GetWorld();
+    if (!gpGameState || !world || !world->areas() || !world->areas()->ptr) return;
+    double current_time = gpGameState->PlayTime();
+
     TAreaId areaId = world->IGetCurrentAreaId();
+    if (!areaId.isValid()) return;
     auto currentArea = world->areas()->get(areaId.id).ptr;
+    if (!currentArea) return;
     auto docks = currentArea->docks();
 
     bool currentlyLoading = false;
@@ -216,10 +209,11 @@ namespace GUI {
       auto dock = &docks->get(i);
       auto refs = dock->refs();
       for (int j = 0; j < refs->length(); j++) {
-        auto ref = &refs->get(j);
-        auto connectedAreaId = ref->x0_area;
+        auto &ref = refs->get(j);
+        auto connectedAreaId = ref.x0_area;
+        if (!connectedAreaId.isValid()) continue;
         auto connectedArea = world->areas()->get(connectedAreaId.id).ptr;
-        // safety
+        if (!connectedArea) continue;
         if (connectedArea->curChain() == EChain::Loading) {
           currentlyLoading = true;
           break;
@@ -227,20 +221,18 @@ namespace GUI {
       }
     }
 
-    if (currentlyLoading && !isLoading) {
+    if (currentlyLoading && !is_loading) {
       // started loading
-      last_time = current_time - room_start_time;
-      room_start_time = current_time;
-      isLoading = true;
-    } else if (!currentlyLoading && isLoading) {
+      last_load_time = current_time - room_start_time;
+      is_loading = true;
+    } else if (!currentlyLoading && is_loading) {
       // finished loading
-      isLoading = false;
+      is_loading = false;
     }
   }
 
   void drawPos() {
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
+    CPlayer *player = g_StateManager.Player();
 
     if (player) {
       float x = player->getTransform()->matrix[3];
@@ -251,8 +243,7 @@ namespace GUI {
   }
 
   void drawVelocity() {
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
+    CPlayer *player = g_StateManager.Player();
 
     if (player) {
       float x = player->GetVelocity()->x;
@@ -265,8 +256,7 @@ namespace GUI {
   }
 
   void drawRotationalVelocity() {
-    CStateManager *stateManager = CStateManager::instance();
-    CPlayer *player = stateManager->Player();
+    CPlayer *player = g_StateManager.Player();
 
     if (player) {
       float x = player->GetAngularVelocity()->x;
@@ -489,8 +479,7 @@ namespace GUI {
   }
 
   void drawRng() {
-    CStateManager *stateManager = CStateManager::instance();
-    CRandom16 *rng = stateManager->GetRandom();
+    CRandom16 *rng = g_StateManager.GetRandom();
     ImGui::Text("RNG: %08x", rng->GetSeed());
   }
 
@@ -503,11 +492,12 @@ namespace GUI {
   enum class IDronePhase { START, PHASE1, BETWEEN12, PHASE2, BETWEEN23, PHASE3, BETWEEN34, PHASE4, END };
   IDronePhase currentPhase = IDronePhase::START;
 
-  inline u32 timerFrames(float time) { return CMath::CeilingF(time / (1.0 / 60.0)); }
+  inline u32 timerFrames(float time) {
+    return CMath::CeilingF(time / (1.0 / 60.0));
+  }
 
   void drawIDrone() {
-    CStateManager *mgr = CStateManager::instance();
-    CWorld *world = mgr->GetWorld();
+    CWorld *world = g_StateManager.GetWorld();
     if (!world) {
       return;
     }
@@ -525,7 +515,7 @@ namespace GUI {
     CScriptTimer *timerShort = nullptr;
     CScriptTimer *timerLong = nullptr;
 
-    CObjectList *list = mgr->GetAllObjs();
+    CObjectList *list = g_StateManager.GetAllObjs();
     int visited = 0;
     int id = list->first;
     while (id != 0xFFFF && visited < list->count) {
@@ -702,13 +692,12 @@ namespace GUI {
   }
 
   void drawTarget() {
-    CPlayer *player = CStateManager::instance()->Player();
-    if (!player)
-      return;
+    CPlayer *player = g_StateManager.Player();
+    if (!player) return;
 
     TUniqueId orbitId = player->getOrbitTargetId();
     if (orbitId > 0) {
-      CEntity *entity = CStateManager::instance()->ObjectById(orbitId);
+      CEntity *entity = g_StateManager.ObjectById(orbitId);
       if (entity) {
         u32 vtable = entity->getVtablePtr();
         auto vtableInfo = GetVtableInfo(vtable);
@@ -730,7 +719,7 @@ namespace GUI {
 
     TUniqueId scanId = player->getScanningObjectId();
     if (scanId > 0) {
-      CEntity *entity = CStateManager::instance()->ObjectById(scanId);
+      CEntity *entity = g_StateManager.ObjectById(scanId);
       if (entity) {
         u32 vtable = entity->getVtablePtr();
         auto vtableInfo = GetVtableInfo(vtable);

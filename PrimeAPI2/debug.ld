@@ -39,7 +39,7 @@ SECTIONS
   .gap_vsnprintf :
   {
     . = ALIGN(4);
-     *(.text._vsnprintf*)
+     *(.text.stbsp_snprintf*)
     ASSERT(((0x8056A7E4 + 0x1610) > .), "gap_vsnprintf section too large");
   } :gap_vsnprintf
   _GAP_VSNPRINGF_END = .;

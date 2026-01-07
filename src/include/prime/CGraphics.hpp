@@ -29,7 +29,6 @@ enum ERglAlphaFunc {
 
 enum ERglAlphaOp { ERglAlphaOp_AND = 0, ERglAlphaOp_OR = 1, ERglAlphaOp_XOR = 2, ERglAlphaOp_XNOR = 3 };
 
-#define SVIEWPORT_GLOBAL ((SViewport *)0x803ED910)
 struct SViewport {
   u32 x0_left;
   u32 x4_top;
@@ -41,6 +40,7 @@ struct SViewport {
 
 class CGraphics {
 public:
+  static SViewport mViewport;
   static void SetCullMode(ERglCullMode mode);
   static void SetOrtho(float left, float right, float top, float bottom, float near, float far);
   static void SetViewPointMatrix(const CTransform4f &mat);

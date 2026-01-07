@@ -36,7 +36,6 @@ class CStateManager {
   rstl::rc_ptr<CWorldLayerState> worldLayerState;
 
 public:
-  static inline CStateManager *instance() { return ((CStateManager *)0x8045A1A8); }
   enum EInitPhase { kInit_LoadWorld = 0, kInit_LoadFirstArea = 1, kInit_Done = 2 };
 
   void InitializeState(uint WorldAssetId, TAreaId AreaId, uint AreaAssetId);
@@ -59,6 +58,8 @@ public:
 
   void DrawWorld() const;
   void DrawDebugStuff() const;
-  CFrustum SetupViewForDraw(const SViewport &vp) const;
+  CFrustum SetupViewForDraw(const SViewport &vp);
   void ResetViewAfterDraw(const SViewport &backupViewport, const CTransform4f &backupViewMatrix) const;
 };
+
+extern CStateManager g_StateManager;
