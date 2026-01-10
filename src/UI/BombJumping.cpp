@@ -1,4 +1,7 @@
 #include "BombJumping.hpp"
+
+#include "ImHelpers.hpp"
+
 #include <../PracticeMod.hpp>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -178,21 +181,12 @@ void GUI::drawBombJumpingInterface() {
   if (gun == nullptr) return;
 
   {
-    ImGui::SetNextWindowPos(ImVec2(10, 450), ImGuiCond_None, ImVec2(0, 1));
+    ImGui::SetNextWindowPos(ImVec2(10, 450), ImGuiCond_Once, ImVec2(0, 1));
     ImGui::Begin(
         "Bomb Jumping", nullptr,
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_AlwaysAutoResize |
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoInputs |
-        ImGuiWindowFlags_NoNavInputs |
-        ImGuiWindowFlags_NoNavFocus |
-        ImGuiWindowFlags_NoNav |
-        ImGuiWindowFlags_NoFocusOnAppearing |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoDecoration |
-        //        ImGuiWindowFlags_NoBackground |
-        ImGuiFocusedFlags_None // just for conveneint commenting in/out
+        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+          ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoFocusOnAppearing |
+          ImGuiWindowFlags_NoDecoration
     );
 
     auto posStats = calcStats([](int idx) { return state->frameData[idx].zPos; }, 0, state->frame);
@@ -301,6 +295,7 @@ void GUI::drawBombJumpingInterface() {
       }
     }
 
+    ImHelpers::ClampCurrentWindowToScreen();
     ImGui::End();
   }
 }

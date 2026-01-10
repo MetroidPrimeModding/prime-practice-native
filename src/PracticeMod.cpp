@@ -100,8 +100,13 @@ void PracticeMod::HandleInputs() {
     ImGuiIO *io = &ImGui::GetIO();
     io->NavInputs[ImGuiNavInput_Activate] = inputs[0].DA();
     io->NavInputs[ImGuiNavInput_Cancel] = inputs[0].DB();
-//    io->NavInputs[ImGuiNavInput_Menu] = inputs[0].DX();
-//    io->NavInputs[ImGuiNavInput_Input] = inputs[0].DY();
+    io->NavInputs[ImGuiNavInput_Menu] = inputs[0].DX();
+    io->NavInputs[ImGuiNavInput_Input] = inputs[0].DY();
+    io->NavInputs[ImGuiNavInput_FocusNext] = inputs[0].DRTrigger();
+    io->NavInputs[ImGuiNavInput_FocusPrev] = inputs[0].DLTrigger();
+    io->NavInputs[ImGuiNavInput_TweakFast] = inputs[0].DRTrigger();
+    io->NavInputs[ImGuiNavInput_TweakSlow] = inputs[0].DLTrigger();
+
 
     // dpad
     io->NavInputs[ImGuiNavInput_DpadLeft] = inputs[0].DDPLeft() || inputs[0].DLALeft();
@@ -113,14 +118,6 @@ void PracticeMod::HandleInputs() {
     io->NavInputs[ImGuiNavInput_LStickRight] = inputs[0].ARARight();
     io->NavInputs[ImGuiNavInput_LStickUp] = inputs[0].ARAUp();
     io->NavInputs[ImGuiNavInput_LStickDown] = inputs[0].ARADown();
-
-
-    /*
-    MAP_BUTTON(ImGuiNavInput_FocusPrev,     SDL_CONTROLLER_BUTTON_LEFTSHOULDER);    // L1 / LB
-    MAP_BUTTON(ImGuiNavInput_FocusNext,     SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);   // R1 / RB
-    MAP_BUTTON(ImGuiNavInput_TweakSlow,     SDL_CONTROLLER_BUTTON_LEFTSHOULDER);    // L1 / LB
-    MAP_BUTTON(ImGuiNavInput_TweakFast,     SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);   // R1 / RB
-     */
   } else if (!this->pauseScreenActive) {
     //  warp hotkeys
     if (hotkeyInputTimeout <= 0) {
@@ -150,6 +147,7 @@ void PracticeMod::HandleInputs() {
   }
 }
 
+
 void PracticeMod::renderMenu() {
   ImGuiIO &io = ImGui::GetIO();
   io.DisplaySize = ImVec2(CGraphics::mViewport.x8_width, CGraphics::mViewport.xc_height);
@@ -157,16 +155,19 @@ void PracticeMod::renderMenu() {
 
   ImGui::NewFrame();
   GUI::qrNewFrame();
-  bool render = this->pauseScreenActive && this->menuActive;
-  if (render) {
+  bool renderMenu = this->pauseScreenActive && this->menuActive;
+  if (renderMenu) {
     ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Always, ImVec2(0, 0));
   } else {
     // Hack: if we're not rendering, just move off-screen so that it doesn't show up on-screen
     // This allows it to persist selected item state
     ImGui::SetNextWindowPos(ImVec2(1000, 20), ImGuiCond_Always, ImVec2(0, 0));
   }
-  ImGui::SetNextWindowFocus();
-  ImGui::SetNextWindowCollapsed(!render, ImGuiCond_Always);
+  if (renderMenu && !wasRenderingLastFrame) {
+    ImGui::SetNextWindowFocus();
+  }
+  wasRenderingLastFrame = renderMenu;
+  ImGui::SetNextWindowCollapsed(!renderMenu, ImGuiCond_Always);
   ImGui::SetNextWindowSizeConstraints(
       ImVec2(0, 0),
       ImVec2(400, CGraphics::mViewport.xc_height - 40)
@@ -289,7 +290,7 @@ void PracticeMod::update(float dt) const {
 
   if (SETTINGS.SCAN_infiniteScanTime) {
     CPlayer *player =  g_StateManager.Player();
-    if (player == nullptr) return;
+    if (player == nullptr) goto infiniteScanDone;
 
     bool important = false;
     TUniqueId scanId = player->getScanningObjectId();
@@ -313,6 +314,7 @@ void PracticeMod::update(float dt) const {
       *player->getCurScanTime() = 0.1f;
     }
   }
+  infiniteScanDone:;
 }
 
 void warp(uint32_t world, uint32_t area) {

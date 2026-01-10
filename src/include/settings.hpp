@@ -25,6 +25,7 @@ struct Settings {
   bool OSD_showRng : 1 {false};
   bool OSD_showIDrone : 1 {true};
   bool OSD_showTargetInfo : 1 {false};
+  bool OSD_showJumpState : 1 {false};
 
   bool BOMBJUMP_enable : 1 {false};
   bool BOMBJUMP_infiniteBombs : 1 {false};

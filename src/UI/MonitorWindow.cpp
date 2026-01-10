@@ -13,36 +13,27 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
+#include "ImHelpers.hpp"
 #include "imgui_internal.h"
 #include "prime/CMain.hpp"
 #include "prime/CPatterned.hpp"
+#include "prime/CPlayer.hpp"
 #include "stb_sprintf.h"
 
 namespace GUI {
   void drawFrameTime();
-
   void drawMemoryUsage();
-
   void drawInput(CFinalInput *inputs);
-
   void drawPos();
-
   void drawVelocity();
-
   void drawRotationalVelocity();
-
+  void drawJumpState();
   void drawIGT();
-
   void drawRoomTime();
-
   void handleLoadTime();
-
   void drawLoads();
-
   void drawRng();
-
   void drawIDrone();
-
   void drawTarget();
 
   void drawMonitorWindow(CFinalInput *inputs) {
@@ -50,15 +41,11 @@ namespace GUI {
       return;
     }
     {
-      ImGui::SetNextWindowPos(ImVec2(630, 10), ImGuiCond_None, ImVec2(1, 0));
+      ImGui::SetNextWindowPos(ImVec2(630, 10), ImGuiCond_Once, ImVec2(1, 0));
       ImGui::Begin("Monitor", nullptr,
                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
-                       ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus |
-                       ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove |
-                       ImGuiWindowFlags_NoDecoration |
-                       //        ImGuiWindowFlags_NoBackground |
-                       ImGuiFocusedFlags_None // just for conveneint commenting in/out
-      );
+                       ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoFocusOnAppearing |
+                       ImGuiWindowFlags_NoDecoration);
       if (SETTINGS.OSD_showIGT) {
         drawIGT();
       }
@@ -71,6 +58,9 @@ namespace GUI {
       }
       if (SETTINGS.OSD_showRotationalVelocity) {
         drawRotationalVelocity();
+      }
+      if (SETTINGS.OSD_showJumpState) {
+        drawJumpState();
       }
       if (SETTINGS.OSD_showFrameTime) {
         drawFrameTime();
@@ -88,6 +78,7 @@ namespace GUI {
         drawTarget();
       }
 
+      ImHelpers::ClampCurrentWindowToScreen();
       ImGui::End();
     }
 
@@ -107,15 +98,11 @@ namespace GUI {
     u32 count = list->size;
     if (count > 0) {
       // actually draw
-      ImGui::SetNextWindowPos(ImVec2(10, 450), ImGuiCond_None, ImVec2(0, 1));
+      ImGui::SetNextWindowPos(ImVec2(10, 450), ImGuiCond_Once, ImVec2(0, 1));
       ImGui::Begin("Loads", nullptr,
                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
-                       ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus |
-                       ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove |
-                       ImGuiWindowFlags_NoDecoration |
-                       //        ImGuiWindowFlags_NoBackground |
-                       ImGuiFocusedFlags_None // just for conveneint commenting in/out
-      );
+                       ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoFocusOnAppearing |
+                       ImGuiWindowFlags_NoDecoration);
 
       char sObjTagBuff[14];
 
@@ -136,6 +123,7 @@ namespace GUI {
       }
       ImGui::Text("%d/%dkb left", count, totalSize / 1024);
 
+      ImHelpers::ClampCurrentWindowToScreen();
       ImGui::End();
     }
   }
@@ -179,7 +167,7 @@ namespace GUI {
       last_room = current_room;
     }
     if (SETTINGS.OSD_showPreviousRoomTime) {
-      draw_time("P: ", last_room);
+      draw_time("P: ", last_room_time);
     }
     if (SETTINGS.OSD_showCurrentRoomTime) {
       if (SETTINGS.OSD_showPreviousRoomTime) ImGui::SameLine();
@@ -353,14 +341,11 @@ namespace GUI {
   void drawInput(CFinalInput *inputs) {
     CFinalInput *p1 = &inputs[0];
 
-    ImGui::SetNextWindowPos(ImVec2(630, 450), ImGuiCond_None, ImVec2(1, 1));
+    ImGui::SetNextWindowPos(ImVec2(630, 450), ImGuiCond_Once, ImVec2(1, 1));
     ImGui::Begin("Input", nullptr,
                  ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus |
-                     ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove |
-                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground |
-                     ImGuiFocusedFlags_None // just for conveneint commenting in/out
-    );
+                     ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoFocusOnAppearing |
+                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
 
     ImDrawList *dl = ImGui::GetWindowDrawList();
     ImVec2 p = ImGui::GetCursorScreenPos();
@@ -475,6 +460,7 @@ namespace GUI {
     }
 
     ImGui::Dummy(ImVec2(130, 80));
+    ImHelpers::ClampCurrentWindowToScreen();
     ImGui::End();
   }
 
@@ -737,5 +723,31 @@ namespace GUI {
         }
       }
     }
+  }
+
+  const char *nameForJumpstate(CPlayer::EPlayerMovementState jumpState) {
+    switch (jumpState) {
+    case CPlayer::EPlayerMovementState::OnGround:
+      return "OnGround";
+    case CPlayer::EPlayerMovementState::StartJump:
+      return "StartJump";
+    case CPlayer::EPlayerMovementState::InAir:
+      return "In Air";
+    case CPlayer::EPlayerMovementState::Falling:
+      return "Falling";
+    case CPlayer::EPlayerMovementState::FallingMorphed:
+      return "FallingMorphed";
+    default:
+      return "Unknown";
+    }
+  }
+
+  void drawJumpState() {
+    CPlayer *player = g_StateManager.Player();
+    if (!player) return;
+    CPlayer::EPlayerMovementState jumpState = *player->getMovementState();
+    ImGui::Text("Jump State: %s", nameForJumpstate(jumpState));
+    float dashHoldTime = *player->getDashButtonHoldTime();
+    ImGui::Text("Dash Hold Time: %.2f", dashHoldTime);
   }
 } // namespace GUI

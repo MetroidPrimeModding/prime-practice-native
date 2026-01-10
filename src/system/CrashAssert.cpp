@@ -8,4 +8,9 @@ void CrashAssert(bool v, const char* file, int line) {
     while (true);
   }
 }
+
+void abort() {
+  OSReport("ABORT!\n");
+  while (true);
+}
 }

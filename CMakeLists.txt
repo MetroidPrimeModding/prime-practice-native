@@ -97,7 +97,6 @@ set(SOURCE_FILES
         src/PracticeMod.hpp
         src/include/GetField.hpp
         src/include/settings.hpp
-        src/include/ImHelpers.hpp
         src/include/GX.hpp
 
         ext/imgui/imgui.cpp
@@ -136,6 +135,8 @@ set(SOURCE_FILES
         src/utils/DataByteStream.hpp
         src/utils/DataBitStream.cpp
 
+        src/UI/ImHelpers.hpp
+        src/UI/ImHelpers.cpp
         src/UI/WarpMenu.h
         src/UI/WarpMenu.cpp
         src/UI/PlayerMenu.hpp

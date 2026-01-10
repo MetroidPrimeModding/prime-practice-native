@@ -1,6 +1,6 @@
-#include <imgui.h>
-#include "ImHelpers.hpp"
 #include "SettingsMenu.hpp"
+#include "ImHelpers.hpp"
+#include <imgui.h>
 
 #include <prime/CRandom16.hpp>
 

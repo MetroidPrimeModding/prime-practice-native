@@ -10,3 +10,8 @@
       __VA_ARGS__                                                                                                      \
     }                                                                                                                  \
   }
+
+
+namespace ImHelpers {
+  void ClampCurrentWindowToScreen();
+}

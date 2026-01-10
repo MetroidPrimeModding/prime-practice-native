@@ -12,10 +12,10 @@ class PracticeMod {
 public:
   static PracticeMod *GetInstance();
   static void ClearInstance();
-  bool menuActive{false};
-
-  bool pauseScreenActive{false};
-  bool mapActive{false};
+  bool menuActive:1{false};
+  bool pauseScreenActive:1{false};
+  bool mapActive:1{false};
+  bool wasRenderingLastFrame:1{false};
   CFinalInput inputs[4];
 
   PracticeMod();
