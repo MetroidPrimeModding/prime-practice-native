@@ -747,7 +747,5 @@ namespace GUI {
     if (!player) return;
     CPlayer::EPlayerMovementState jumpState = *player->getMovementState();
     ImGui::Text("Jump State: %s", nameForJumpstate(jumpState));
-    float dashHoldTime = *player->getDashButtonHoldTime();
-    ImGui::Text("Dash Hold Time: %.2f", dashHoldTime);
   }
 } // namespace GUI

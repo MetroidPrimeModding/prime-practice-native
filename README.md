@@ -79,7 +79,7 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
-### 2.10.0
+### 2.10.0/2.10.1
 - Fix previous room timer not working
 - Add jump state monitoring
 - Add ability to move windows around (hold "X" and use c-stick to move)
