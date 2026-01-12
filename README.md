@@ -3,8 +3,7 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## How to install (Windows)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
-- Copy a metroid prime iso to 'prime.iso' in this directory
-- Run `patch.bat`
+- Run `patch.bat` and select your .iso
 
 ## How to install (Non-windows)
 - Make sure you have python3 installed (it should come with most linux distros/macOS)
