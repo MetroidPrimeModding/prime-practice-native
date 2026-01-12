@@ -38,9 +38,9 @@ namespace GUI {
       RGB565(0x80, 0x80, 0x00), // dark yellow
       RGB565(0xC0, 0xC0, 0xC0)  // light gray
   };
-  static GXTlutObj gxTlutObj;
-  static GXTexObj gxTexObj;
-  static IMGuiGXTexture imGuiTexture;
+  GXTlutObj gxTlutObj;
+  GXTexObj gxTexObj;
+  IMGuiGXTexture imGuiTexture;
 
   char *textureData = nullptr;
 

@@ -10,15 +10,13 @@
 #include <prime/CScriptTimer.hpp>
 #include <prime/CStateManager.hpp>
 #include <prime/CWorld.hpp>
-
-#define IMGUI_DEFINE_MATH_OPERATORS
-
-#include "ImHelpers.hpp"
-#include "imgui_internal.h"
 #include "prime/CMain.hpp"
 #include "prime/CPatterned.hpp"
-#include "prime/CPlayer.hpp"
 #include "stb_sprintf.h"
+
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "ImHelpers.hpp"
+#include "imgui_internal.h"
 
 namespace GUI {
   void drawFrameTime();
@@ -219,6 +217,10 @@ namespace GUI {
     }
   }
 
+  bool useExponential(float val) {
+    return (val > 1e5f || val < -1e5f);
+  }
+
   void drawPos() {
     CPlayer *player = g_StateManager.Player();
 
@@ -226,7 +228,11 @@ namespace GUI {
       float x = player->getTransform()->matrix[3];
       float y = player->getTransform()->matrix[7];
       float z = player->getTransform()->matrix[11];
-      ImGui::Text("Pos: %7.2fx %7.2fy %7.2fz", x, y, z);
+      if (useExponential(x) || useExponential(y) || useExponential(z)) {
+        ImGui::Text("Pos: %7.2ex %7.2ey %7.2ez", x, y, z);
+      } else {
+        ImGui::Text("Pos: %7.2fx %7.2fy %7.2fz", x, y, z);
+      }
     }
   }
 
@@ -239,7 +245,11 @@ namespace GUI {
       float z = player->GetVelocity()->z;
       float h = CMath::SqrtF(x * x + y * y);
 
-      ImGui::Text("Vel: %5.2fx %5.2fy %5.2fz %5.2fh", x, y, z, h);
+      if (useExponential(x) || useExponential(y) || useExponential(z) || useExponential(h)) {
+        ImGui::Text("Vel: %5.2ex %5.2ey %5.2ez %5.2eh", x, y, z, h);
+      } else {
+        ImGui::Text("Vel: %5.2fx %5.2fy %5.2fz %5.2fh", x, y, z, h);
+      }
     }
   }
 
@@ -252,7 +262,11 @@ namespace GUI {
       float z = player->GetAngularVelocity()->z;
       float h = CMath::SqrtF(x * x + y * y);
 
-      ImGui::Text("Rot: %5.2fx %5.2fy %5.2fz %5.2fh", x, y, z, h);
+      if (useExponential(x) || useExponential(y) || useExponential(z) || useExponential(h)) {
+        ImGui::Text("Rot: %5.2ex %5.2ey %5.2ez %5.2eh", x, y, z, h);
+      } else {
+        ImGui::Text("Rot: %5.2fx %5.2fy %5.2fz %5.2fh", x, y, z, h);
+      }
     }
   }
 

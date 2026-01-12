@@ -83,7 +83,7 @@ DECLARE_FUNCTION_REPLACEMENT(CMainFlow_OnMessage) {
     if (msg.x4_type == EArchMsgType_UserInput) {
       CArchMsgParmUserInput *status = (CArchMsgParmUserInput *)msg.x8_parm.RawPointer();
       // The mod 4 is just for safety
-      PracticeMod::GetInstance()->inputs[status->x4_parm.ControllerIdx() % 4] = status->x4_parm;
+      memcpy(&PracticeMod::GetInstance()->inputs[status->x4_parm.ControllerIdx()], &status->x4_parm, sizeof(CFinalInput));
       if (status->x4_parm.ControllerIdx() == 0) {
         PracticeMod::GetInstance()->HandleInputs();
         // TODO: move this to hook in Game::Update or something

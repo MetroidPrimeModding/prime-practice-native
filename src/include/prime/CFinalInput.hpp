@@ -4,7 +4,9 @@
 
 class CFinalInput {
 public:
-  PADDING(0x34);
+  // u8 data[0x30]{0};
+  // 12 * 4 = 48 bytes
+  u32 data[12]{0};
   //    float x0_dt;
   //    u32 x4_controllerIdx;
   //    float x8_anaLeftX;
