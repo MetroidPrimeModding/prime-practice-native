@@ -190,3 +190,4 @@
 0x805a8c40 gpGameState
 0x805a8c38 gpMain
 0x8045A1A8 g_StateManager
+0x8024e610 _ZN17CMemoryCardDriver6UpdateEf

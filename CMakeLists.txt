@@ -39,6 +39,7 @@ set(SOURCE_FILES
         src/include/types.h
         src/include/os.h
         src/include/utils.hpp
+        src/include/card.h
 
         src/include/MathyTypes.hpp
         src/include/prime/CStateManager.hpp
