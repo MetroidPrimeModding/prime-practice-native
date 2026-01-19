@@ -79,6 +79,7 @@ This project can produce a release & patch a metroid prime iso to be the practic
 ## Changelog
 
 ### 2.10.2
+- Windows patch script will now prompt for iso location
 - Fix Nintendont support
 
 ### 2.10.0/2.10.1
