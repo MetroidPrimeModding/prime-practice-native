@@ -24,6 +24,10 @@ cd release
 mkdir "${VERSION}"
 cd "${VERSION}"
 
+# raw binary
+cp "${DIR}/cmake-build-release-docker/prime-practice" \
+  "prime-practice-${VERSION}.elf"
+
 # Windows release
 mkdir "prime-practice-${VERSION}-windows/"
 cp "${DIR}/cmake-build-release-docker/prime-practice" \
