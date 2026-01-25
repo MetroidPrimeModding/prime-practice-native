@@ -1,1 +1,1 @@
-#define PRAC_MOD_VERSION "2.10.2"
+#define MOD_VERSION "2.10.2"

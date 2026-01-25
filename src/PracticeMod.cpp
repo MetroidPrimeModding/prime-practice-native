@@ -184,7 +184,7 @@ void PracticeMod::renderMenu() {
     GUI::drawWarpMenu();
     GUI::drawRoomMenu();
     GUI::drawScanMenu();
-    if (ImGui::TreeNode("v%s", PRAC_MOD_VERSION)) {
+    if (ImGui::TreeNode("v%s", MOD_VERSION)) {
       ImGui::Text("Links (QR codes):");
       if (ImGui::TreeNode("Releases")) {
         GUI::drawQRCode("https://github.com/MetroidPrimeModding/prime-practice-native/releases", 3.0f);

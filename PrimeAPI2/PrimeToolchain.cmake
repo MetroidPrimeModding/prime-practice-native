@@ -45,3 +45,9 @@ set(CMAKE_ASM_LINK_EXECUTABLE "${LLD_DIR}/bin/ld.lld <CMAKE_ASM_LINK_FLAGS> <LIN
 set(CMAKE_C_OUTPUT_EXTENSION ".o")
 set(CMAKE_CXX_OUTPUT_EXTENSION ".o")
 set(CMAKE_ASM_OUTPUT_EXTENSION ".o")
+
+set(OBJCOPY "${LLVM_DIR}/bin/llvm-objcopy")
+set(OBJDUMP "${LLVM_DIR}/bin/llvm-objdump")
+set(READELF "${LLVM_DIR}/bin/llvm-readelf")
+
+set(GCN_STATIC_PATCHER "gcn-static-patcher-cli")

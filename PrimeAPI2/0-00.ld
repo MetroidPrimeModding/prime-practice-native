@@ -2,10 +2,12 @@ ENTRY(_prolog)
 ENTRY(_earlyboot_memset)
 PHDRS
 {
-  gap1 PT_LOAD;
-  gap_vsnprintf PT_LOAD;
+  gap_stb PT_LOAD;
   gap_atlas PT_LOAD;
-  end PT_LOAD;
+  gap1 PT_LOAD;
+  maindata PT_LOAD;
+  bss PT_DYNAMIC;
+  embedded_data PT_NOTE;
 }
 
 /*
@@ -35,13 +37,22 @@ PHDRS
 */
 SECTIONS
 {
+  .patcher_config : {
+    KEEP(*(.patcher_config*))
+  } : embedded_data
+
+  .new_bnr : {
+      KEEP(*(.new_bnr*))
+    } : embedded_data
+
   . = 0x8056A7E4;
-  .gap_vsnprintf :
+  .gap_stb :
   {
     . = ALIGN(4);
-    /* TODO: use this space, now that we're using a different snprinf */
+    *(.text._Z*stb*)
+    *(.text.stb_snprintf)
     ASSERT(((0x8056A7E4 + 0x1610) > .), "gap_vsnprintf section too large");
-  } :gap_vsnprintf
+  } :gap_stb
   _GAP_VSNPRINGF_END = .;
 
   . = 0x805A02F8;
@@ -58,41 +69,40 @@ SECTIONS
   _GAP_ATLAS_END = .;
 
   . = _LINK_START;
-  .imgui :
+  .text :
   {
-    . = ALIGN(4);
-    *(.imgui*)
-    *(.imgui.*)
-  }: end
+    *(.text._Z*ImGui*)
+  } :maindata
 
-	.bss :
-	{
-		*(.dynbss)
-		*(.gnu.linkonce.b*)
-		*(.bss*)
-		*(COMMON)
-		. = ALIGN(4);
-	} :end
-	_LINK_END = .;
-	_LINK_SIZE = _LINK_END - _LINK_START;
+  .bss :
+  {
+    *(.dynbss)
+    *(.gnu.linkonce.b*)
+    *(.bss*)
+    *(COMMON)
+    . = ALIGN(4);
+  } :maindata
+
+  /* Data must go here; otherwise it will not be initialized to zero due to our bypass of the BSS segment in early boot code */
+  .data :
+    {
+      . = ALIGN(4);
+      *(.rodata)
+      *(.eh_frame)
+      *all.rodata*(*)
+      *(.roda)
+      *(.rodata.*)
+      *(.gnu.linkonce.r*)
+      *(.data)
+      *(.data.*)
+      *(.gnu.linkonce.d*)
+      . = ALIGN(4);
+    } :maindata
+  _LINK_END = .;
+  _LINK_SIZE = _LINK_END - _LINK_START;
 
   /* GAP 1 */
   . = 0x80577BAC;
-  .data :
-  {
-    . = ALIGN(4);
-    *(.rodata)
-    *(.eh_frame)
-    *all.rodata*(*)
-    *(.roda)
-    *(.rodata.*)
-    *(.gnu.linkonce.r*)
-    *(.data)
-    *(.data.*)
-    *(.gnu.linkonce.d*)
-    . = ALIGN(4);
-  } :gap1
-
   .text :
   {
     _INIT_START = .;
@@ -109,13 +119,6 @@ SECTIONS
     *(.gnu.linkonce.t*)
     *(.glue_7)
     *(.glue_7t)
-  } :gap1
-
-  .gap1 :
-  {
-    . = ALIGN(4);
-    *(.gap1*)
-    ASSERT(((0x80577BAC + 0x14000) > .), "gap1 section too large");
   } :gap1
   _GAP1_END = .;
 }

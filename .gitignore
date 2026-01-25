@@ -1,5 +1,6 @@
 *.dol
 *.rel
+*.iso
 /mp1/
 /dolphin/
 /build/
@@ -11,3 +12,4 @@
 .DS_Store
 target/
 src/Tweaks
+/release

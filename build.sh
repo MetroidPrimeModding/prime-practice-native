@@ -8,7 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "${DIR}"
 
 # these are exported so build_and_copy.sh can use them too
-IMAGE="ghcr.io/metroidprimemodding/prime-practice-native/build:latest"
+IMAGE="ghcr.io/metroidprimemodding/gcn-static-patcher/build:latest"
 CMAKE_DIR="cmake-build-${BUILD_TYPE_LOWER}-docker" # same as my clion for convenience
 EXTERNAL_SRC_DIR="./"
 EXTERNAL_BUILD_DIR="${EXTERNAL_SRC_DIR}${CMAKE_DIR}"

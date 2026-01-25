@@ -1,0 +1,19 @@
+# Example configuration for GCN Static Patcher
+game_name = "Metroid Prime"
+mod_name = "Metroid Prime Practice Mod"
+version = "2.10.3"
+# optional; if not present, hash check is skipped
+expected_iso_hash = "eeacd0ced8e2bae491eca14f141a4b7c"
+expected_dol_hash = "009076cec5524f43d96ee715ad8a67e5"
+# Default output ISO name
+output_name_iso = "prime-practice-mod.iso"
+# Default output DOL name
+output_name_dol = "default_mod.dol"
+# Symbol name of the place to jump *from* to entry point of the mod
+entry_point_symbol = "PPCSetFpIEEEMode"
+
+# List of additional branch patches to apply
+[[branch_patches]]
+branch_from_symbol = "_PATCH_EARLYBOOT_MEMSET"
+to_symbol = "_earlyboot_memset"
+link = true

@@ -38,18 +38,18 @@ u32 safeBlocks[] = {
     0x805A02F8,
     0x2868,
     //    0x805A53D4, 0xC,
-    0x805A56E4,
-    0x78C,
+    // 0x805A56E4,
+    // 0x78C,
     //    0x805A66AC, 0x48,
     //    0x805A676C, 0x18,
     //    0x805A67EC, 0x10,
     //    0x805A6B90, 0x10,
 };
 
-void memset_start_end(u32 dst, u32 end) {
+void memset_start_end(u32 dst, u32 end, char val) {
   if (end > dst) return;
   u32 size = end - dst;
-  memset((void *)dst, 0, size);
+  memset((void *)dst, val, size);
 }
 
 [[maybe_unused]] void _earlyboot_memset(void *dst, char val, u32 size) {
@@ -68,7 +68,7 @@ void memset_start_end(u32 dst, u32 end) {
     } else if (end < blockStart) {
       // if the end is before this block starts, then it's safe.
       // finish the memset
-      memset_start_end(start, end);
+      memset_start_end(start, end, val);
       start = end; // we're done
       break;
     } else if (end < blockEnd) {
@@ -77,12 +77,12 @@ void memset_start_end(u32 dst, u32 end) {
       break;
     } else {
       // otherwise, write until start of block and resume after
-      memset_start_end(start, blockStart);
+      memset_start_end(start, blockStart, val);
       start = blockEnd;
     }
   }
   // whatever is left is after us
-  memset_start_end(start, end);
+  memset_start_end(start, end, val);
 }
 
 struct ForceStaticInit {

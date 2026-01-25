@@ -18,15 +18,11 @@ extern void OSResetSystem(int reset, u32 resetCode, int forceMenu);
 constexpr s64 TICKS_PER_SECOND = (162000000L / 4L);
 constexpr s64 TICKS_PER_MS = TICKS_PER_SECOND / 1000;
 
-inline void DebugLog(const char* fmt, ...) {
 #ifdef DEBUG
-    va_list args;
-    va_start(args, fmt);
-    OSReport("DEBUG: ");
-    OSReport(fmt, args);
-    va_end(args);
+#define DebugLog OSReport
+#else
+#define DebugLog(...) do { } while (0)
 #endif
-}
 
 #ifdef __cplusplus
 }

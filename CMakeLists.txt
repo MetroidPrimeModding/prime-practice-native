@@ -127,10 +127,10 @@ set(SOURCE_FILES
 
         src/utils/settings.cpp
         src/utils/CEntity.cpp
-#        src/utils/Hook.hpp
-#        src/utils/Hook.cpp
-#        src/utils/HookStub.S
-#        src/utils/HookStubConstants.h
+        #        src/utils/Hook.hpp
+        #        src/utils/Hook.cpp
+        #        src/utils/HookStub.S
+        #        src/utils/HookStubConstants.h
         src/utils/ReplaceFunction.hpp
         src/utils/ReplaceFunction.cpp
         src/utils/DataByteStream.hpp
@@ -162,10 +162,12 @@ set(SOURCE_FILES
         src/world/WorldRenderer.cpp
         src/world/WorldRenderer.hpp
 
-        src/version.h
         src/PracticeMod.cpp
         src/prime-practice.cpp
         src/hooks.cpp
 )
 
-add_prime_binary(prime-practice src/prime-practice.lst default.dol ${SOURCE_FILES})
+add_gc_static_binary(prime-practice src/prime-practice.lst default.dol
+        src/patcher_config.toml
+        src/opening_practice.bnr
+        ${SOURCE_FILES})
