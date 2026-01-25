@@ -84,7 +84,6 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ### 2.10.3
 - New GUI-based patcher
-- Fix any% preset keys
 
 ### 2.10.2
 - Windows patch script will now prompt for iso location
