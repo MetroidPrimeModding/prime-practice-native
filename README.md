@@ -3,14 +3,18 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## How to install (Windows)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
-- Run `patch.bat` and select your .iso
+- Run `patcher.exe`
+- Drag-and-drop or select your .iso
 
-## How to install (Non-windows)
-- Make sure you have python3 installed (it should come with most linux distros/macOS)
+## How to install (MacOS)
 - Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
-- Copy a metroid prime iso to 'prime.iso' in this directory
-- Run `patch.sh` from a terminal
-  - You can drag and drop the script into a terminal to get the full path
+- Run `patcher.app`
+- Drag-and-drop or select your .iso
+
+## How to install (Linux)
+- Get a metroid prime .iso (i.e. using a hacked wii and cleanrip)
+- Run 'patcher'
+- Drag-and-drop or select your .iso
 
 ## Usage
 - Launch the iso in Dolphin
@@ -77,6 +81,10 @@ This project can produce a release & patch a metroid prime iso to be the practic
 - Incinerator Drone fight details
 
 ## Changelog
+
+### 2.10.3
+- New GUI-based patcher
+- Fix any% preset keys
 
 ### 2.10.2
 - Windows patch script will now prompt for iso location
