@@ -33,6 +33,8 @@ This project can produce a release & patch a metroid prime iso to be the practic
 - `a` - Select item in menu
 - `b` - Go back a menu
 - `x` - (on map) warp to selected room
+- `dpad-up x3` - Load saved position
+- `dpad-down x3` - Save current position
 
 ## Known Issues
 - Rare crashes (so far, inconsistent)
