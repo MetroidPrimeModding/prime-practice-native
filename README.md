@@ -84,6 +84,9 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 2.10.4
+- The game no longer crashes when trying to open the menu
+
 ### 2.10.3
 - New GUI-based patcher
 

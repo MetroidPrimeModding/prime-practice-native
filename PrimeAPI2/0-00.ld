@@ -72,6 +72,7 @@ SECTIONS
   .text :
   {
     *(.text._Z*ImGui*)
+    *(*.text._Z*ImDraw*)
   } :maindata
 
   .bss :
@@ -119,6 +120,7 @@ SECTIONS
     *(.gnu.linkonce.t*)
     *(.glue_7)
     *(.glue_7t)
+    ASSERT(((0x80577BAC + 0x14000) > .), "gap1 section too large");
   } :gap1
   _GAP1_END = .;
 }
