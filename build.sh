@@ -17,5 +17,10 @@ DOCKER_BUILD_DIR="${DOCKER_SRC_DIR}${CMAKE_DIR}"
 
 mkdir -p "${EXTERNAL_BUILD_DIR}"
 
+CONTAINER_COMMAND=docker
+if command -v podman; then
+  CONTAINER_COMMAND=podman
+fi
+
 # launch a build in a docker container first (this does the same thing intellij would do)
-docker run --rm -v "${EXTERNAL_SRC_DIR}":"${DOCKER_SRC_DIR}" "${IMAGE}" bash -c "cd \"${DOCKER_BUILD_DIR}\" && cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -G Ninja && cmake --build . --config ${BUILD_TYPE}"
+${CONTAINER_COMMAND} run --rm -v "${EXTERNAL_SRC_DIR}":"${DOCKER_SRC_DIR}":z "${IMAGE}" bash -xec "cd \"${DOCKER_BUILD_DIR}\" && cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -G Ninja && cmake --build . --config ${BUILD_TYPE}"
