@@ -28,16 +28,18 @@ class Carveout:
   start: int
   size: int
   priority: int
-
   # Segments reloaded through DI on reset (OSReboot) are DMA'd with the address and length rounded down to 32
-  # bytes, so each segment must start and end on a 32-byte boundary to load where it was linked.
+  # bytes, so each segment must start and end on a 32-byte boundary to load where it was linked. Stomps are
+  # written into an existing DOL section instead, so they only need instruction alignment.
+  seg_align: int = 32
+
   @property
   def load_start(self):
-    return align_up(self.start, 32)
+    return align_up(self.start, self.seg_align)
 
   @property
   def load_end(self):
-    return (self.start + self.size) // 32 * 32
+    return (self.start + self.size) // self.seg_align * self.seg_align
 
   @property
   def load_size(self):
@@ -85,7 +87,7 @@ class Bin:
     return True
 
   def used(self):
-    return align_up(self.cursor, 32) - self.carveout.load_start if self.items else 0
+    return align_up(self.cursor, self.carveout.seg_align) - self.carveout.load_start if self.items else 0
 
 
 def align_up(v, a):
@@ -98,11 +100,28 @@ def load_config(path):
     Carveout(c["name"], int(c["start"], 0), int(c["size"], 0), int(c["priority"]))
     for c in cfg["carveouts"]
   ]
-  names = [c.name for c in carveouts]
+  stomps = [
+    Carveout(c["name"], int(c["start"], 0), int(c["size"], 0), 0, seg_align=4)
+    for c in cfg.get("stomps", [])
+  ]
+  names = [c.name for c in carveouts + stomps]
   if len(names) != len(set(names)):
     sys.exit(f"{path}: duplicate carveout names")
   cfg["carveouts"] = carveouts
+  cfg["stomps"] = merge_adjacent(stomps)
   return cfg
+
+
+def merge_adjacent(stomps):
+  """Stomps are listed per function; adjacent ones become one region so larger sections fit."""
+  merged = []
+  for c in sorted(stomps, key=lambda c: c.start):
+    if merged and c.start <= merged[-1].start + merged[-1].size:
+      last = merged[-1]
+      last.size = max(last.size, c.start + c.size - last.start)
+    else:
+      merged.append(Carveout(f"stomp_{c.start:08X}", c.start, c.size, 0, seg_align=4))
+  return merged
 
 
 def selected_carveouts(cfg):
@@ -147,7 +166,9 @@ def parse_map(map_path, cfg):
 
 
 def pack(items, cfg):
-  bins = [Bin(c, c.load_end - cfg["reserve_bytes"]) for c in selected_carveouts(cfg)]
+  # Stomps first: they don't use a DOL section slot, so filling them may leave a carveout segment empty.
+  bins = [Bin(c, c.load_end) for c in cfg["stomps"]]
+  bins += [Bin(c, c.load_end - cfg["reserve_bytes"]) for c in selected_carveouts(cfg)]
   leftover = []
   for item in sorted(items, key=lambda i: (-i.size, i.section)):
     if not any(b.try_add(item) for b in bins):
@@ -167,7 +188,7 @@ def render_ldscript(template_path, bins):
       f"  .carveout_{c.name} :\n"
       f"  {{\n"
       f"{rules}\n"
-      f"    . = ALIGN(32);\n"
+      f"    . = ALIGN({c.seg_align});\n"
       f'    ASSERT(. <= 0x{c.load_end:08X}, "carveout {c.name} overflow");\n'
       f"  }} :{c.name}"
     )
