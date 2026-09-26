@@ -1,0 +1,28 @@
+{
+  "max_carveouts": 7,
+  "reserve_bytes": 0,
+  "pack_input_sections": [
+    ".text.*",
+    ".rodata.*"
+  ],
+  "never_pack": [
+    ".boot*",
+    ".init",
+    ".text._prolog",
+    ".text._earlyboot_memset*"
+  ],
+  "carveouts": [
+    { "name": "bss_CMetroidAreaCollider", "start": "0x80577BAC", "size": "0x14000", "priority": 0 },
+    { "name": "bss_CSfxManager", "start": "0x805A02F8", "size": "0x2868", "priority": 1 },
+    { "name": "bss_CAnimData", "start": "0x8056A7E4", "size": "0x1610", "priority": 2 },
+    { "name": "bss_CFluidPlaneManager", "start": "0x8056F8CC", "size": "0x1080", "priority": 3 },
+    { "name": "bss_DolphinCGraphics", "start": "0x805A56E4", "size": "0x78C", "priority": 4 },
+    { "name": "bss_RumbleFxTable", "start": "0x80571CCC", "size": "0x1A0", "priority": 5 },
+    { "name": "bss_CDecalManager", "start": "0x8056D5E0", "size": "0x138", "priority": 6 },
+    { "name": "bss_CFluidPlaneManager_2", "start": "0x8056F654", "size": "0x104", "priority": 7 },
+    { "name": "bss_CScriptMazeNode", "start": "0x80572414", "size": "0x100", "priority": 8 },
+    { "name": "bss_RumbleFxTable_2", "start": "0x80571ABC", "size": "0xD4", "priority": 9 },
+    { "name": "bss_CSfxManager_2", "start": "0x8059FBE8", "size": "0x90", "priority": 10 },
+    { "name": "bss_CScriptMazeNode_2", "start": "0x80572088", "size": "0x50", "priority": 11 }
+  ]
+}

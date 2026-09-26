@@ -1,1 +1,1 @@
-#define MOD_VERSION "2.10.2"
+#define MOD_VERSION "2.11.0"

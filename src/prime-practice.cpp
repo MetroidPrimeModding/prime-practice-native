@@ -1,4 +1,5 @@
 #include "PracticeMod.hpp"
+#include "carveouts.h"
 #include "utils/ReplaceFunction.hpp"
 #include <os.h>
 #include <prime/CFontEndUI.hpp>
@@ -15,39 +16,8 @@ __attribute__((visibility("default"))) extern void _prolog();
 void *memcpy(void *dest, const void *src, size_t count);
 }
 
-u32 safeBlocks[] = {
-    0x8056A7E4,
-    0x1610,
-    //    0x8056D5E0, 0x138,
-    //    0x8056F654, 0x104,
-    //    0x8056F874, 0x20,
-    0x8056F8CC,
-    0x1080,
-    //    0x80571ABC, 0xD4,
-    //    0x80571CCC, 0x1A0,
-    //    0x80572030, 0xC,
-    //    0x80572054, 0xC,
-    //    0x80572088, 0x50,
-    //    0x805723EC, 0xC,
-    //    0x80572414, 0x100,
-    //    0x8057267C, 0xC,
-    0x80577BAC,
-    0x14000,
-    //    0x8059FBB8, 0xC,
-    //    0x8059FBE8, 0x90,
-    0x805A02F8,
-    0x2868,
-    //    0x805A53D4, 0xC,
-    // 0x805A56E4,
-    // 0x78C,
-    //    0x805A66AC, 0x48,
-    //    0x805A676C, 0x18,
-    //    0x805A67EC, 0x10,
-    //    0x805A6B90, 0x10,
-};
-
 void memset_start_end(u32 dst, u32 end, char val) {
-  if (end > dst) return;
+  if (end < dst) return;
   u32 size = end - dst;
   memset((void *)dst, val, size);
 }
@@ -55,33 +25,15 @@ void memset_start_end(u32 dst, u32 end, char val) {
 [[maybe_unused]] void _earlyboot_memset(void *dst, char val, u32 size) {
   u32 start = (u32)dst;
   u32 end = start + size;
-  for (u32 i = 0; i < sizeof(safeBlocks) / sizeof(u32); i += 2) {
-    if (end >= start) break; // we're done
-
-    u32 blockStart = safeBlocks[i];
-    u32 blockSize = safeBlocks[i + 1];
-    u32 blockEnd = blockStart + blockSize;
-
-    // if the start is after the end, continue
-    if (start > blockEnd) {
-      continue;
-    } else if (end < blockStart) {
-      // if the end is before this block starts, then it's safe.
-      // finish the memset
-      memset_start_end(start, end, val);
-      start = end; // we're done
-      break;
-    } else if (end < blockEnd) {
-      // if the end address is less than our end, finish
-      start = end; // we're done
-      break;
-    } else {
-      // otherwise, write until start of block and resume after
-      memset_start_end(start, blockStart, val);
-      start = blockEnd;
-    }
+  // CARVEOUT_SAFE_BLOCKS is sorted by address
+  for (u32 i = 0; i < sizeof(CARVEOUT_SAFE_BLOCKS) / sizeof(u32) && start < end; i += 2) {
+    u32 blockStart = CARVEOUT_SAFE_BLOCKS[i];
+    u32 blockEnd = blockStart + CARVEOUT_SAFE_BLOCKS[i + 1];
+    if (blockEnd <= start) continue;
+    if (blockStart >= end) break;
+    memset_start_end(start, blockStart, val); // no-op if start is already inside the block
+    start = blockEnd;
   }
-  // whatever is left is after us
   memset_start_end(start, end, val);
 }
 

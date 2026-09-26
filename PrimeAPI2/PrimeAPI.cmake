@@ -37,23 +37,19 @@ set(CMAKE_PRIME_CXX_FLAGS_LIST
         -Wno-delete-incomplete
 )
 
-set(LD_FILE ${PRIMEAPI2_PATH}/0-00.ld)
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(LD_FILE ${PRIMEAPI2_PATH}/debug.ld)
-endif ()
-
 set(CMAKE_PRIME_LINK_FLAGS_LIST
         -nostdlib
         --gc-sections
         --no-demangle
         --keep-unique=_earlyboot_memset
+        # only reached via the patcher's branch patch, so nothing references it and LTO would drop it
+        --undefined=_earlyboot_memset
         #        "-e _prolog"
         #        "--unresolved-symbols=report-all"
         #        --error-unresolved-symbols
         #        --no-allow-shlib-undefined
         #        --no-undefined
         #        -r
-        "-T ${LD_FILE}"
 )
 
 list(JOIN CMAKE_PRIME_C_FLAGS_LIST " " CMAKE_PRIME_C_FLAGS)
@@ -111,28 +107,80 @@ macro(add_symbol_object output_file symbol_list)
   )
 endmacro()
 
-# Macro to get the required link arguments in place
-macro(add_gc_static_binary name symbol_list base_dol patch_toml bnr_file)
-  add_executable(${name} ${ARGN}
-          "${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o"
-          "${CMAKE_CURRENT_BINARY_DIR}/patcher_config.o"
-          "${CMAKE_CURRENT_BINARY_DIR}/new_bnr.o"
-          "${CMAKE_CURRENT_BINARY_DIR}/internal/version.h"
-  )
-  set_target_properties(${name} PROPERTIES LINK_FLAGS
-          "${CMAKE_PRIME_LINK_FLAGS} -Map ${CMAKE_CURRENT_BINARY_DIR}/${name}.map"
-  )
+# Macro to get the required link arguments in place.
+# Links twice: pass 1 puts everything in maindata, then carveouts.py packs sections from the pass-1 map into the
+# carveouts listed in carveouts_json and pass 2 links with the generated script.
+macro(add_gc_static_binary name symbol_list base_dol patch_toml bnr_file carveouts_json)
+  set(_bin "${CMAKE_CURRENT_BINARY_DIR}")
+  get_filename_component(_carveouts_json "${carveouts_json}" REALPATH)
+  set(_carveouts_py "${PRIMEAPI2_PATH}/python/carveouts.py")
+  set(_ld_template "${PRIMEAPI2_PATH}/linker.ld.in")
 
-  target_link_libraries(${name} "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/libgcc.a")
+  add_library(${name}_objs OBJECT ${ARGN}
+          "${_bin}/internal/version.h"
+          "${_bin}/internal/carveouts.h"
+  )
+  # add internal as an additional include directory, and also as a dependency to force rebuilds
+  target_include_directories(${name}_objs PRIVATE "${_bin}/internal/")
+
+  set(_link_inputs
+          $<TARGET_OBJECTS:${name}_objs>
+          "${_bin}/dol_symbols.o"
+          "${_bin}/patcher_config.o"
+          "${_bin}/new_bnr.o"
+  )
 
   # Create the dol_symbols, patcher_config, and new_bnr objects
-  add_symbol_object("${CMAKE_CURRENT_BINARY_DIR}/dol_symbols.o" "${symbol_list}")
-  add_data_object("${CMAKE_CURRENT_BINARY_DIR}/patcher_config.o" "${patch_toml}" ".patcher_config")
-  add_data_object("${CMAKE_CURRENT_BINARY_DIR}/new_bnr.o" "${bnr_file}" ".new_bnr")
-  create_version_header("${CMAKE_CURRENT_BINARY_DIR}/internal/version.h" "${patch_toml}")
+  add_symbol_object("${_bin}/dol_symbols.o" "${symbol_list}")
+  add_data_object("${_bin}/patcher_config.o" "${patch_toml}" ".patcher_config")
+  add_data_object("${_bin}/new_bnr.o" "${bnr_file}" ".new_bnr")
+  create_version_header("${_bin}/internal/version.h" "${patch_toml}")
 
-  # add internal as an additional include directory, and also as a dependency to force rebuilds
-  target_include_directories(${name} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/internal/")
+  add_custom_command(
+          OUTPUT "${_bin}/internal/carveouts.h"
+          COMMAND python3 "${_carveouts_py}" header
+          --config "${_carveouts_json}"
+          --out "${_bin}/internal/carveouts.h"
+          DEPENDS "${_carveouts_json}" "${_carveouts_py}"
+  )
+
+  add_custom_command(
+          OUTPUT "${_bin}/pass1.ld"
+          COMMAND python3 "${_carveouts_py}" ldscript
+          --template "${_ld_template}"
+          --out "${_bin}/pass1.ld"
+          DEPENDS "${_ld_template}" "${_carveouts_py}"
+  )
+  add_custom_target(${name}_pass1_ld DEPENDS "${_bin}/pass1.ld")
+
+  add_executable(${name}_pass1 ${_link_inputs})
+  set_target_properties(${name}_pass1 PROPERTIES
+          LINK_FLAGS "${CMAKE_PRIME_LINK_FLAGS} -T ${_bin}/pass1.ld -Map ${_bin}/${name}_pass1.map"
+          LINK_DEPENDS "${_bin}/pass1.ld"
+  )
+  target_link_libraries(${name}_pass1 "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/libgcc.a")
+  add_dependencies(${name}_pass1 ${name}_pass1_ld)
+
+  add_custom_command(
+          OUTPUT "${_bin}/packed.ld"
+          BYPRODUCTS "${_bin}/packed.txt"
+          COMMAND python3 "${_carveouts_py}" pack
+          --config "${_carveouts_json}"
+          --template "${_ld_template}"
+          --map "${_bin}/${name}_pass1.map"
+          --out "${_bin}/packed.ld"
+          --report "${_bin}/packed.txt"
+          DEPENDS ${name}_pass1 "${_carveouts_json}" "${_ld_template}" "${_carveouts_py}"
+  )
+  add_custom_target(${name}_packed_ld DEPENDS "${_bin}/packed.ld")
+
+  add_executable(${name} ${_link_inputs})
+  set_target_properties(${name} PROPERTIES
+          LINK_FLAGS "${CMAKE_PRIME_LINK_FLAGS} -T ${_bin}/packed.ld -Map ${_bin}/${name}.map"
+          LINK_DEPENDS "${_bin}/packed.ld"
+  )
+  target_link_libraries(${name} "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/libgcc.a")
+  add_dependencies(${name} ${name}_packed_ld)
 
   # Create the patched dol
   add_custom_command(

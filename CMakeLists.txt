@@ -170,4 +170,5 @@ set(SOURCE_FILES
 add_gc_static_binary(prime-practice src/prime-practice.lst default.dol
         src/patcher_config.toml
         src/opening_practice.bnr
+        carveouts.json
         ${SOURCE_FILES})

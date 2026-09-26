@@ -1,0 +1,75 @@
+/* Template: carveouts.py fills in the @CARVEOUT_*@ placeholders from carveouts.json. */
+ENTRY(_prolog)
+ENTRY(_earlyboot_memset)
+PHDRS
+{
+@CARVEOUT_PHDRS@
+  maindata PT_LOAD;
+  bss PT_DYNAMIC;
+  embedded_data PT_NOTE;
+}
+
+SECTIONS
+{
+  .patcher_config : {
+    KEEP(*(.patcher_config*))
+  } : embedded_data
+
+  .new_bnr : {
+      KEEP(*(.new_bnr*))
+    } : embedded_data
+
+  /* Carveout sections must come before maindata: an input section goes to the first rule that matches it. */
+@CARVEOUT_SECTIONS@
+
+  . = _LINK_START;
+  .text :
+  {
+    _INIT_START = .;
+    . = ALIGN(4);
+    *(.boot._prolog*)
+    *(.boot._earlyboot_memset*)
+    *(.boot*)
+    *(.init)
+    *(.text._prolog)
+    *(.text*)
+    *(.text.*)
+    *(.gnu.warning)
+    *(.gnu.linkonce.t*)
+    *(.glue_7)
+    *(.glue_7t)
+  } :maindata
+
+  .init_array :
+  {
+    KEEP(*(.init_array*))
+  } :maindata
+
+  .bss :
+  {
+    *(.dynbss)
+    *(.gnu.linkonce.b*)
+    *(.bss*)
+    *(COMMON)
+    . = ALIGN(4);
+  } :maindata
+
+  /* Data must go here; otherwise it will not be initialized to zero due to our bypass of the BSS segment in early boot code */
+  .data :
+    {
+      . = ALIGN(4);
+      *(.rodata)
+      *(.eh_frame)
+      *all.rodata*(*)
+      *(.roda)
+      *(.rodata.*)
+      *(.gnu.linkonce.r*)
+      *(.data)
+      *(.data.*)
+      *(.gnu.linkonce.d*)
+      /* 32-byte segment end: see Carveout.load_start in carveouts.py */
+      . = ALIGN(32);
+    } :maindata
+  _LINK_END = .;
+  _LINK_SIZE = _LINK_END - _LINK_START;
+}
