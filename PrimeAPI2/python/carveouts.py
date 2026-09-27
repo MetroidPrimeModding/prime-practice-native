@@ -219,6 +219,13 @@ def cmd_ldscript(args):
   write(args.out, render_ldscript(args.template, []))
 
 
+def report_row(name, addr, row, note):
+  size, content, pad, lost, free = row
+  filled = 100 * content / size if size else 0
+  return (f"{name:<24} {addr:<10} {size:>7X} {content:>7X} {pad:>5X} {lost:>5X} {free:>6X}  {filled:5.1f}% "
+          f"{note}").rstrip()
+
+
 def cmd_pack(args):
   cfg = load_config(args.config)
   items = parse_map(args.map, cfg)
@@ -227,17 +234,19 @@ def cmd_pack(args):
   bins, leftover = pack(items, cfg)
   write(args.out, render_ldscript(args.template, bins))
 
-  report = []
-  total_used = total_cap = 0
+  report = [f"{'region':<24} {'address':<10} {'size':>7} {'code':>7} {'pad':>5} {'lost':>5} {'free':>6}  filled"]
+  totals = [0, 0, 0, 0, 0]
   for b in bins:
     c = b.carveout
+    content = sum(it.size for it in b.items)
     used = b.used()
-    total_used += used
-    total_cap += c.load_size
-    report.append(f"{c.name:<24} 0x{c.load_start:08X} used 0x{used:05X} / 0x{c.load_size:05X} "
-                  f"free 0x{c.load_size - used:05X}  ({len(b.items)} sections)")
+    row = [c.size, content, used - content, c.size - c.load_size, c.load_size - used]
+    totals = [t + v for t, v in zip(totals, row)]
+    report.append(report_row(c.name, f"0x{c.load_start:08X}", row, f"({len(b.items)} section{'s' if len(b.items) != 1 else ''})"))
+  report.append(report_row("total", "", totals, ""))
+  report.append("code: packed sections, pad: alignment padding, lost: trimmed to align the segment, "
+                "filled: code / size")
   left_size = sum(i.size for i in leftover)
-  report.append(f"{'total':<24} {'':10} used 0x{total_used:05X} / 0x{total_cap:05X}")
   report.append(f"left in maindata: 0x{left_size:X} bytes of packable sections ({len(leftover)} sections)")
   report.append("largest leftovers:")
   report += [f"  0x{i.size:05X} {i.section}" for i in leftover[:10]]

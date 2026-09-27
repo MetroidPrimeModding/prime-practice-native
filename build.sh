@@ -24,3 +24,7 @@ fi
 
 # launch a build in a docker container first (this does the same thing intellij would do)
 ${CONTAINER_COMMAND} run --rm -v "${EXTERNAL_SRC_DIR}":"${DOCKER_SRC_DIR}":z "${IMAGE}" bash -xec "cd \"${DOCKER_BUILD_DIR}\" && cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -G Ninja && cmake --build . --config ${BUILD_TYPE}"
+
+# carveout/stomp fill report from the pack step (it only prints during the build when packing reruns)
+set +x
+cat "${EXTERNAL_BUILD_DIR}/packed.txt"
