@@ -79,19 +79,23 @@ static void patchCode(u32 addr, u32 instr) {
 // Keep the game from reaching code overwritten by mod code (see "stomps" in carveouts.json). Must run before
 // CDolphinController::Initialize, so this can't wait for the PracticeMod constructor.
 static void disableStompedFeatures() {
-  // NES Metroid. SFusionBonusFrame::DoOptionsAdvance: stw r0, 0x8(r31) (mAction = kFA_PlayNESMetroid)
-  patchCode(0x8001E218, 0x60000000); // nop
-
-  // GBA link: CGBASupport is never created, so SFusionBonusFrame's link frame pointer stays null and its
-  // null-guarded calls into SGBALinkFrame never run.
+  // GBA SDK
   patchCode(0x8034F694, 0x60000000); // CDolphinController::Initialize: bl GBAInit -> nop
-  patchCode(0x8001EC48, 0x38600000); // SFusionBonusFrame ctor: bl operator new (CGBASupport) -> li r3, 0
-  patchCode(0x8001EBD0, 0x60000000); // SFusionBonusFrame dtor: bl ~CGBASupport -> nop
-  patchCode(0x8001EBE4, 0x60000000); // SFusionBonusFrame dtor: bl ~SGBALinkFrame -> nop
-  patchCode(0x8001E808, 0x38600001); // SFusionBonusFrame::PumpLoad: bl CGBASupport::IsReady -> li r3, 1
-  // SFusionBonusFrame::DoOptionsAdvance: skip creating a link frame (fusion suit / locked NES Metroid)
-  patchCode(0x8001E174, 0x480000F4); // b 0x8001E268
-  patchCode(0x8001E220, 0x48000048); // b 0x8001E268
+
+  // Extras menu (SFusionBonusFrame), which was the only way into the GBA link and NES Metroid. Selecting it does
+  // nothing, so kS_FusionBonus is never entered, and CFrontEndUI never creates the frame.
+  patchCode(0x8002133C, 0x60000000); // SFrontEndFrame::DoAdvance: stw (mAction = kEA_FusionBonus) -> nop
+  patchCode(0x80020168, 0x60000000); // SNewFileSelectFrame::DoFileselectAdvance: stw (kA_FusionBonus) -> nop
+  patchCode(0x8001CEBC, 0x38600000); // CFrontEndUI::Update: bl operator new (SFusionBonusFrame) -> li r3, 0
+  patchCode(0x8001CED8, 0x60000000); // CFrontEndUI::Update: bl ~SFusionBonusFrame -> nop
+  patchCode(0x8001D0D8, 0x38600001); // CFrontEndUI::Update: bl SFusionBonusFrame::PumpLoad -> li r3, 1
+  // Only reached in kS_FusionBonus; patched anyway so a stray transition can't jump into mod code.
+  patchCode(0x8001D2F8, 0x60000000); // CFrontEndUI::Update: bl SFusionBonusFrame::Update -> nop
+  patchCode(0x8001CA44, 0x60000000); // CFrontEndUI::ProcessUserInput: bl SFusionBonusFrame::ProcessUserInput -> nop
+  patchCode(0x8001C3D8, 0x60000000); // CFrontEndUI::Draw: bl SFusionBonusFrame::Draw -> nop
+  // The destructors don't null-check before these calls; the callees check `this` themselves.
+  patchCode(0x8001DA30, 0x60000000); // ~CFrontEndUI: bl ~SFusionBonusFrame -> nop
+  patchCode(0x8001DA08, 0x60000000); // ~CFrontEndUI: bl ~SNesEmulatorFrame -> nop
 }
 
 void _prolog() {

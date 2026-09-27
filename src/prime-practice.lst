@@ -191,3 +191,6 @@
 0x805a8c38 gpMain
 0x8045A1A8 g_StateManager
 0x8024e610 _ZN17CMemoryCardDriver6UpdateEf
+0x80011B2C _ZN7CPlayer13AsyncLoadSuitER13CStateManager
+0x800914B4 _ZN12CPlayerState18SetIsFusionEnabledEb
+0x800914C4 _ZNK12CPlayerState18GetIsFusionEnabledEv

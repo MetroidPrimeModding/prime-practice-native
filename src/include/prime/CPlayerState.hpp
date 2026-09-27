@@ -150,6 +150,8 @@ public:
   void IncrPickUp(CPlayerState::EItemType, int);
   void AddPowerUp(CPlayerState::EItemType, int);
   void ReInitializePowerUp(CPlayerState::EItemType, int);
+  void SetIsFusionEnabled(bool);
+  bool GetIsFusionEnabled() const;
   void PutTo(COutputStream &);
 
   static inline u32 GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[size_t(type)]; }

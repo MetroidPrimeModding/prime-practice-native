@@ -202,8 +202,8 @@ namespace GUI {
         }
         if (itemType == CPlayerState::EItemType::VariaSuit || itemType == CPlayerState::EItemType::PowerSuit ||
             itemType == CPlayerState::EItemType::GravitySuit || itemType == CPlayerState::EItemType::PhazonSuit) {
-          // TODO
-//          g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+          // ReInitializePowerUp already recomputed the current suit; this reloads the arm to match
+          if (CPlayer *player = g_StateManager.Player()) player->AsyncLoadSuit(g_StateManager);
         }
       }
     } else if (maxValue > 1) {

@@ -105,6 +105,16 @@ namespace GUI {
         };
       }
 
+      CPlayerState *playerState = g_StateManager.GetPlayerState();
+      bool fusion = playerState->GetIsFusionEnabled();
+      if (ImGui::Checkbox("Fusion suit", &fusion)) {
+        playerState->SetIsFusionEnabled(fusion);
+        // Also set what the Extras menu set, so new games and loaded saves keep it
+        gpGameState->SetHasFusion(fusion);
+        // Reloads the arm; the morph ball model updates on the next morph
+        player->AsyncLoadSuit(g_StateManager);
+      }
+
       int fluidCounter = (int) player->getFluidCounter();
       if (ImGui::DragInt("Water box count", &fluidCounter, 1, 0, 0b11)) {
         player->setFluidCounter((u32) fluidCounter);
@@ -117,6 +127,8 @@ namespace GUI {
 
   void loadPos() {
     CPlayer *player = g_StateManager.Player();
+    // Null outside gameplay, where the D-pad hotkeys still fire (e.g. scrolling the front-end menus)
+    if (!player) return;
 
     *player->getTransform() = savedPos;
     *player->GetVelocity() = savedVelocity;
@@ -129,7 +141,7 @@ namespace GUI {
     u32 currentWorldAssetID = gpGameState->MLVL();
     u32 currentAreaAssetID = 0;
     CWorld *world = g_StateManager.GetWorld();
-    if (!world) return;
+    if (!world || !player) return;
     currentAreaAssetID = world->areas()->ptr[gpGameState->CurrentWorldState().x4_areaId.id].ptr->IGetAreaAssetId();
 
     savedPos = *player->getTransform();

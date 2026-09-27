@@ -14,6 +14,7 @@ public:
 
 
   void Teleport(const CTransform4f &newTransform, CStateManager &, bool resetBallCam);
+  void AsyncLoadSuit(CStateManager &);
 
   CCameraBobber *getCameraBobber() { return *GetField<CCameraBobber *>(this, 0x76C); }
   CPlayerGun *getPlayerGun() { return *GetField<CPlayerGun *>(this, 0x490); }

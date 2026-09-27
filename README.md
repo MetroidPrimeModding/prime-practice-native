@@ -84,6 +84,13 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 2.11.0
+- Fixes for resets
+- Fix a longstanding crash on the menu if you load position by hitting d-pad too quickly
+- Reduce memory footprint
+  - Disable the fusion connection bonuses menu. Use the in-game menu to enable/disable fusion suit.
+  - Disable the NES emulator
+
 ### 2.10.4
 - The game no longer crashes when trying to open the menu
 
