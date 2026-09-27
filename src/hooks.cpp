@@ -11,10 +11,12 @@
 #include "prime/CScriptSpecialFunction.hpp"
 #include "prime/CSfxManager.hpp"
 #include "prime/CStateManager.hpp"
+#include "prime/CStringTable.hpp"
 #include "prime/CTweaks.hpp"
 #include "prime/CWorldState.hpp"
 #include "types.h"
 #include "utils/ReplaceFunction.hpp"
+#include "version.h"
 #include <os.h>
 #include <prime/CFontEndUI.hpp>
 #include <prime/CPlayerGun.hpp>
@@ -114,6 +116,16 @@ DECLARE_FUNCTION_REPLACEMENT(CStateManager_Update) {
 DECLARE_FUNCTION_REPLACEMENT(CScriptSpecialFunction_ShouldSkipCinematic) {
   static bool Callback(CScriptSpecialFunction *self, const CStateManager &mgr) {
     return true;
+  }
+};
+
+// CStringTable::GetString
+DECLARE_FUNCTION_REPLACEMENT(CStringTable_GetString) {
+  static const char16_t *Callback(const CStringTable *self, int idx) {
+    // The front end's Extras entry, which does nothing now (see disableStompedFeatures)
+    if (self == gpStringTable && idx == 0x25) return u"Practice Mod v" MOD_VERSION;
+    if (self == gpStringTable && idx == 0x60) return u"";
+    return Orig(self, idx);
   }
 };
 
@@ -227,6 +239,7 @@ void InstallHooks() {
   CAutoMapper_Draw::InstallAtFuncPtr(&CAutoMapper::Draw);
   CAutoMapper_ProcessMapScreenInput::InstallAtFuncPtr(&CAutoMapper::ProcessMapScreenInput);
   CRandom16_Next::InstallAtFuncPtr(&CRandom16::Next);
+  CStringTable_GetString::InstallAtFuncPtr(&CStringTable::GetString);
 #ifdef DEBUG
   CMainFlow_AdvanceGameState::InstallAtFuncPtr(&CMainFlow::AdvanceGameState);
 #endif

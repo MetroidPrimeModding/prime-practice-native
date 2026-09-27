@@ -194,3 +194,5 @@
 0x80011B2C _ZN7CPlayer13AsyncLoadSuitER13CStateManager
 0x800914B4 _ZN12CPlayerState18SetIsFusionEnabledEb
 0x800914C4 _ZNK12CPlayerState18GetIsFusionEnabledEv
+0x803566FC _ZNK12CStringTable9GetStringEi
+0x805A8C34 gpStringTable
