@@ -96,6 +96,15 @@ static void disableStompedFeatures() {
   // The destructors don't null-check before these calls; the callees check `this` themselves.
   patchCode(0x8001DA30, 0x60000000); // ~CFrontEndUI: bl ~SFusionBonusFrame -> nop
   patchCode(0x8001DA08, 0x60000000); // ~CFrontEndUI: bl ~SNesEmulatorFrame -> nop
+
+  // Image gallery (CSlideShow). With no galleries unlocked, the menus grey the entry out and make it unselectable.
+  patchCode(0x80021424, 0x38600000); // SFrontEndFrame::Update: bl SlideShowGalleryFlags -> li r3, 0
+  patchCode(0x8001FBA8, 0x38600000); // SNewFileSelectFrame::ClearFrameContents: bl SlideShowGalleryFlags -> li r3, 0
+  // Unreachable once the entry is unselectable; patched anyway so a stray selection can't jump into mod code.
+  patchCode(0x8002135C, 0x60000000); // SFrontEndFrame::DoAdvance: stw (mAction = kEA_SlideShow) -> nop
+  patchCode(0x8002017C, 0x60000000); // SNewFileSelectFrame::DoFileselectAdvance: stw (kA_SlideShow) -> nop
+  patchCode(0x8001C96C, 0x60000000); // CFrontEndUI::ProcessUserInput: bl StartSlideShow -> nop
+  patchCode(0x8001C9EC, 0x60000000); // CFrontEndUI::ProcessUserInput: bl StartSlideShow -> nop
 }
 
 void _prolog() {

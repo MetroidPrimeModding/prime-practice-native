@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """Find game code/data that becomes dead once some functions are dead, as candidates for carveouts.json "stomps".
 
-Builds a reference graph from the prime decomp's disassembly (build/GM8E01_00/asm after `ninja`), marks the seed
-functions dead, then repeatedly marks anything whose every referrer is dead. Symbols the mod uses
-(src/prime-practice.lst) count as live references.
+Builds a reference graph from the prime decomp's disassembly (build/GM8E01_00/asm after `ninja`). Symbols nothing
+references (entry points, interrupt handlers, ...) and symbols the mod uses (src/prime-practice.lst) are roots;
+the result is everything reachable from them that stops being reachable once the seeds are removed. Unlike
+"dead if every referrer is dead", this also catches dead cycles such as a vtable and its destructor.
 
   find_dead_code.py --decomp ~/projects/vm-temp/prime-decomp SEED_SYMBOL...
 
 Caveats, check each result before stomping it:
   - Seeds are assumed never called, even though live code still references them. Something that calls a seed with
     null (e.g. CodeWarrior destructors check `this` themselves) keeps it alive; don't seed those.
-  - Code outside the DOL (RELs, randomizer patches) and computed addresses aren't seen.
+  - Code outside the DOL (RELs, randomizer patches) and computed addresses aren't seen. Code that was already
+    unreachable (e.g. only referenced from a cycle) isn't reported.
   - Verify the bytes against the base DOL; the decomp must match GM8E01_00 there.
 """
 import argparse
@@ -19,7 +21,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-DEF = re.compile(r"^\.(fn|obj)\s+([^,\s]+)(?:,\s*(\w+))?")
+# Names with template args are quoted and may contain commas: .fn "vector<a,b>::f", weak
+DEF = re.compile(r'^\.(fn|obj)\s+("[^"]+"|[^,\s]+)(?:,\s*(\w+))?')
 END = re.compile(r"^\.end(fn|obj)\s")
 SECTION = re.compile(r"^(\.text|\.data|\.rodata|\.init|\.bss|\.sdata2?|\.sbss2?)\b|^\.section\s+([^,\s]+)")
 SIZE_COMMENT = re.compile(r"^# \.\S+:0x[0-9A-F]+ \| 0x([0-9A-F]{8}) \| size: 0x([0-9A-F]+)")
@@ -91,19 +94,31 @@ def main():
     if len(parts) >= 2 and (k := prog.globals.get(parts[1])):
       prog.refs[k].add(MOD)
 
-  dead = set()
+  seeds = set()
   for s in args.seeds:
     if s not in prog.globals:
       sys.exit(f"unknown seed {s}")
-    dead.add(prog.globals[s])
+    seeds.add(prog.globals[s])
 
-  changed = True
-  while changed:
-    changed = False
-    for k, referrers in prog.refs.items():
-      if k not in dead and all(r in dead for r in referrers):
-        dead.add(k)
-        changed = True
+  uses = defaultdict(set)  # referrer -> targets
+  for target, referrers in prog.refs.items():
+    for r in referrers:
+      uses[r].add(target)
+  roots = [MOD] + [k for k in prog.defs if not prog.refs.get(k)]
+
+  def reachable(blocked):
+    seen = set()
+    stack = [r for r in roots if r not in blocked]
+    while stack:
+      k = stack.pop()
+      if k in seen:
+        continue
+      seen.add(k)
+      stack.extend(t for t in uses[k] if t not in blocked)
+    return seen
+
+  dead = (reachable(set()) - reachable(seeds)) | seeds
+  dead.discard(MOD)
 
   for k in sorted(dead, key=lambda k: prog.defs[k]["addr"] or 0):
     d = prog.defs[k]
