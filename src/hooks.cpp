@@ -123,7 +123,7 @@ DECLARE_FUNCTION_REPLACEMENT(CScriptSpecialFunction_ShouldSkipCinematic) {
 DECLARE_FUNCTION_REPLACEMENT(CStringTable_GetString) {
   static const char16_t *Callback(const CStringTable *self, int idx) {
     // The front end's Extras entry, which does nothing now (see disableStompedFeatures)
-    if (self == gpStringTable && idx == 0x25) return u"Practice Mod v" MOD_VERSION u" \ndiscord.gg/EyEEqsMtX";
+    if (self == gpStringTable && idx == 0x25) return u"Practice Mod v" MOD_VERSION u" \ndiscord.gg/GUxe65Av8G";
     if (self == gpStringTable && idx == 0x60) return u"By Pwootage <3";
     return Orig(self, idx);
   }

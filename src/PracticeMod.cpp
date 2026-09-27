@@ -191,7 +191,7 @@ void PracticeMod::renderMenu() {
         ImGui::TreePop();
       }
       if (ImGui::TreeNode("Discord")) {
-        GUI::drawQRCode("https://discord.gg/EyEEqsMtX", 3.0f);
+        GUI::drawQRCode("https://discord.gg/GUxe65Av8G", 3.0f);
         ImGui::TreePop();
       }
       ImGui::TreePop();
