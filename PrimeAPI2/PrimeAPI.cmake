@@ -182,26 +182,30 @@ macro(add_gc_static_binary name symbol_list base_dol patch_toml bnr_file carveou
   target_link_libraries(${name} "${DEVKITPPC}/lib/gcc/powerpc-eabi/${GCC_VERSION}/libgcc.a")
   add_dependencies(${name} ${name}_packed_ld)
 
-  # Create the patched dol
-  add_custom_command(
-          OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
-          COMMAND "${GCN_STATIC_PATCHER}"
-          -m "${CMAKE_CURRENT_BINARY_DIR}/${name}"
-          -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
-          -o "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
-          --overwrite
-          DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}" "${CMAKE_CURRENT_BINARY_DIR}/${name}"
-  )
-  add_custom_target(
-          patch_dol ALL
-          DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
-          SOURCES "${base_dol}"
-  )
+  # The base dol is the game's and isn't checked in; without it (e.g. in CI) only the mod ELF is built.
+  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}")
+    message(STATUS "${base_dol} not found; skipping the patched dol")
+  else()
+    add_custom_command(
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            COMMAND "${GCN_STATIC_PATCHER}"
+            -m "${CMAKE_CURRENT_BINARY_DIR}/${name}"
+            -i "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            --overwrite
+            DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${base_dol}" "${CMAKE_CURRENT_BINARY_DIR}/${name}"
+    )
+    add_custom_target(
+            patch_dol ALL
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            SOURCES "${base_dol}"
+    )
 
-  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
-          DESTINATION "files/"
-          RENAME "default.dol")
-  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
-          DESTINATION "sys/"
-          RENAME "main.dol")
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            DESTINATION "files/"
+            RENAME "default.dol")
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/default_mod.dol"
+            DESTINATION "sys/"
+            RENAME "main.dol")
+  endif()
 endmacro()

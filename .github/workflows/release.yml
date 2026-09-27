@@ -1,0 +1,98 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  # builds and packages without publishing a release
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # https://github.com/MetroidPrimeModding/gcn-static-patcher/releases tag whose patcher GUIs are shipped
+  PATCHER_TAG: v1.1.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # keep in sync with IMAGE in build.sh (job containers can't read `env`)
+    container: ghcr.io/metroidprimemodding/gcn-static-patcher/build:20260927
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - name: Check version
+        id: version
+        shell: bash
+        run: |
+          version=$(sed -nE 's/^version = "([^"]+)"/\1/p' src/patcher_config.toml)
+          if [ -z "$version" ]; then
+            echo "::error::No version found in src/patcher_config.toml"
+            exit 1
+          fi
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match version $version in src/patcher_config.toml"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          # fail before building if the README changelog hasn't been written
+          ./release_notes.sh "$version"
+
+      - name: Build
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          cat build/packed.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prime-practice-elf
+          path: |
+            build/prime-practice
+            build/prime-practice.map
+          if-no-files-found: error
+
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: prime-practice-elf
+          path: build
+
+      - name: Package
+        run: |
+          ./package_release.sh "$VERSION" build/prime-practice "$PATCHER_TAG" "release/$VERSION"
+          ./release_notes.sh "$VERSION" > release-notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prime-practice-${{ env.VERSION }}
+          path: |
+            release/${{ env.VERSION }}/*.elf
+            release/${{ env.VERSION }}/*.zip
+            release/${{ env.VERSION }}/*.tar.gz
+          if-no-files-found: error
+
+      - name: Publish release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/${{ env.VERSION }}/*.elf
+            release/${{ env.VERSION }}/*.zip
+            release/${{ env.VERSION }}/*.tar.gz
+          fail_on_unmatched_files: true
+          body_path: release-notes.md
