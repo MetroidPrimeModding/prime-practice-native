@@ -1,0 +1,49 @@
+name: build
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+  # release.yml builds through this too
+  workflow_call:
+    outputs:
+      artifact:
+        description: Name of the artifact holding prime-practice.elf and prime-practice.map
+        value: ${{ jobs.build.outputs.artifact }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # keep in sync with IMAGE in build.sh (job containers can't read `env`)
+    container: ghcr.io/metroidprimemodding/gcn-static-patcher/build:20260927
+    outputs:
+      artifact: ${{ steps.name.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - name: Build
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          cat build/packed.txt
+          mkdir out
+          cp build/prime-practice out/prime-practice.elf
+          cp build/prime-practice.map out/prime-practice.map
+
+      - name: Name artifact
+        id: name
+        shell: bash
+        run: echo "artifact=prime-practice-${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.name.outputs.artifact }}
+          path: out/
+          if-no-files-found: error

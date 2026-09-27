@@ -8,7 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "${DIR}"
 
 # these are exported so build_and_copy.sh can use them too
-# keep in sync with the container image in .github/workflows/release.yml
+# keep in sync with the container image in .github/workflows/build.yml
 IMAGE="ghcr.io/metroidprimemodding/gcn-static-patcher/build:20260927"
 CMAKE_DIR="cmake-build-${BUILD_TYPE_LOWER}-docker" # same as my clion for convenience
 EXTERNAL_SRC_DIR="./"
