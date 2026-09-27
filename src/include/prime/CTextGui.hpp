@@ -114,7 +114,7 @@ public:
   void SetOutlineColor(const CColor &col);
   void SetFontColor(const CColor &col);
   //    void AddText(const rstl::wstring &str);
-  //		void SetText(const std::u16string& str, bool multipage=false);
+  void SetText(const rstl::wstring &str);
   void SetText(const rstl::string &str);
   void SetJustification(EJustification j);
   void SetVerticalJustification(EVerticalJustification j);
