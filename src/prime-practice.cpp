@@ -70,6 +70,30 @@ void runStaticInitializers() {
   }
 }
 
+static void patchCode(u32 addr, u32 instr) {
+  *(u32 *)addr = instr;
+  DCFlushRange((void *)addr, 4);
+  ICInvalidateRange((void *)addr, 4);
+}
+
+// Keep the game from reaching code overwritten by mod code (see "stomps" in carveouts.json). Must run before
+// CDolphinController::Initialize, so this can't wait for the PracticeMod constructor.
+static void disableStompedFeatures() {
+  // NES Metroid. SFusionBonusFrame::DoOptionsAdvance: stw r0, 0x8(r31) (mAction = kFA_PlayNESMetroid)
+  patchCode(0x8001E218, 0x60000000); // nop
+
+  // GBA link: CGBASupport is never created, so SFusionBonusFrame's link frame pointer stays null and its
+  // null-guarded calls into SGBALinkFrame never run.
+  patchCode(0x8034F694, 0x60000000); // CDolphinController::Initialize: bl GBAInit -> nop
+  patchCode(0x8001EC48, 0x38600000); // SFusionBonusFrame ctor: bl operator new (CGBASupport) -> li r3, 0
+  patchCode(0x8001EBD0, 0x60000000); // SFusionBonusFrame dtor: bl ~CGBASupport -> nop
+  patchCode(0x8001EBE4, 0x60000000); // SFusionBonusFrame dtor: bl ~SGBALinkFrame -> nop
+  patchCode(0x8001E808, 0x38600001); // SFusionBonusFrame::PumpLoad: bl CGBASupport::IsReady -> li r3, 1
+  // SFusionBonusFrame::DoOptionsAdvance: skip creating a link frame (fusion suit / locked NES Metroid)
+  patchCode(0x8001E174, 0x480000F4); // b 0x8001E268
+  patchCode(0x8001E220, 0x48000048); // b 0x8001E268
+}
+
 void _prolog() {
   // check to see if we have hooked OSSystemReset
   u32 orig = *(u32 *)&OSResetSystem;
@@ -85,6 +109,7 @@ void _prolog() {
   // this is the only thing in the function we replace
   asm volatile("mtfsb0 5");
   runStaticInitializers();
+  disableStompedFeatures();
   PracticeMod::ClearInstance();
   Hook_OSResetSystem::InstallAtFuncPtr(&OSResetSystem);
   InstallHooks();

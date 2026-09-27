@@ -74,10 +74,6 @@ PracticeMod::PracticeMod() {
   // Swap what text is used for ELAPSED to blank
   *((u32 *) 0x8001FFB8) = 0x3880005C; // li r4, 92 - which is blank
 
-  // Disable NES Metroid: the emulator's code is overwritten by mod code (see "stomps" in carveouts.json).
-  // SFusionBonusFrame::DoOptionsAdvance: stw r0, 0x8(r31) (mAction = kFA_PlayNESMetroid)
-  *((u32 *) 0x8001E218) = 0x60000000; // nop
-
   // This will cause the crash screen to appear every time
   *((u32 *) 0x802d6a44) = 0x60000000;
 
