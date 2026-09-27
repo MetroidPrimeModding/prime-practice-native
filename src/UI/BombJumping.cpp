@@ -10,7 +10,6 @@
 #include <prime/CPlayerGun.hpp>
 #include <prime/CStateManager.hpp>
 #include <settings.hpp>
-#include <stb_sprintf.h>
 
 constexpr float FPS = 60;
 constexpr float BombChargeTime = 3;
@@ -211,9 +210,13 @@ void GUI::drawBombJumpingInterface() {
       if (rechargePercent < 0) rechargePercent = 0;
       if (recharge < 0) recharge = 0;
       char buf[32];
-      stbsp_snprintf(buf, sizeof(buf), "%0.2f", recharge);
+      snprintf(buf, sizeof(buf), "%0.2f", recharge);
       ImVec2 p = ImGui::GetCursorScreenPos();
-      ImGui::ProgressBar(rechargePercent, ImVec2(-1.0f, 8.0f), "");
+      // Drawn by hand: ImGui::ProgressBar pulls in ~4.4KB for this one bar.
+      ImVec2 barSize(ImGui::GetContentRegionAvail().x, 8.0f);
+      dl->AddRectFilled(p, p + barSize, ImGui::GetColorU32(ImGuiCol_FrameBg));
+      dl->AddRectFilled(p, p + ImVec2(barSize.x * rechargePercent, barSize.y), ImGui::GetColorU32(ImGuiCol_PlotHistogram));
+      ImGui::Dummy(barSize);
       dl->AddText(p + ImVec2(graphWidth / 2 - 15, 0), IM_COL32(255, 255, 255, 255), buf);
     }
 
@@ -315,8 +318,8 @@ void GUI::drawCustomBombJumpConfigMenu() {
     if (i > 0) {
       last = TIMINGS_CUSTOM.timings[i - 1];
     }
-    stbsp_snprintf(label, sizeof(fmt), "%d", i);
-    stbsp_snprintf(fmt, sizeof(fmt), "%d/%+d", TIMINGS_CUSTOM.timings[i], TIMINGS_CUSTOM.timings[i] - last);
+    snprintf(label, sizeof(fmt), "%d", i);
+    snprintf(fmt, sizeof(fmt), "%d/%+d", TIMINGS_CUSTOM.timings[i], TIMINGS_CUSTOM.timings[i] - last);
     ImGui::DragInt(label, &TIMINGS_CUSTOM.timings[i], 1.0f, 0, 10000, fmt);
   }
 }

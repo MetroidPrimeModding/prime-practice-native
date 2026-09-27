@@ -92,7 +92,7 @@
 //IMGUI_DISABLE_DEFAULT_FORMAT_FUNCTIONS is defined)
 // Requires 'stb_sprintf.h' to be available in the include path. Compatibility checks of arguments and formats done by
 // clang and GCC will be disabled in order to support the extra formats provided by STB sprintf.
-#define IMGUI_USE_STB_SPRINTF
+// #define IMGUI_USE_STB_SPRINTF (snprintf/vsnprintf in libc.c wrap the game's MSL formatter instead)
 
 //---- Use FreeType to build and rasterize the font atlas (instead of stb_truetype which is embedded by default in Dear
 //ImGui)
@@ -164,6 +164,24 @@ namespace ImGui
 
 //--- Disable logging support, we won't be using it
 #define IMGUI_DISABLE_LOG
+
+//--- Only support S32 and Float in Drag/Slider widgets (drops the other scalar instantiations and libgcc 64-bit helpers)
+#define IMGUI_DISABLE_EXTRA_DATA_TYPES
+
+//--- Disable tables and legacy columns, we don't use either
+#define IMGUI_DISABLE_TABLES
+
+//--- Compile out anti-aliased lines/fills; ImGuiEngine turns them off at runtime anyway
+#define IMGUI_DISABLE_ANTIALIASING
+
+//--- Disable .ini settings; with file functions disabled they can never be loaded or saved
+#define IMGUI_DISABLE_INI_SETTINGS
+
+//--- Hash IDs with FNV-1a instead of table-based CRC32 (saves the 1KB table)
+#define IMGUI_USE_FNV1A_HASH
+
+//--- No mouse on GameCube, so never draw a software cursor
+#define IMGUI_DISABLE_MOUSE_CURSOR
 
 #include "Math/CMath.hpp"
 #include <math.h>

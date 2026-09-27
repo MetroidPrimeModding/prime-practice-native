@@ -6,7 +6,7 @@
 #include "prime/CStateManager.hpp"
 #include "prime/CWorld.hpp"
 #include <imgui.h>
-#include <stb_sprintf.h>
+#include <stdio.h>
 
 namespace GUI {
   void hideAllRooms();
@@ -66,14 +66,14 @@ namespace GUI {
         if (post->occlusionState() == EOcclusionState::Occluded) {
           char label[32];
           memset(label, 0, 32);
-          stbsp_snprintf(label, 32, "Show###%d", area->IGetAreaAssetId());
+          snprintf(label, 32, "Show###%d", area->IGetAreaAssetId());
           if (ImGui::Button(label)) {
             area->SetOcclusionState(EOcclusionState::Visible);
           }
         } else {
           char label[32];
           memset(label, 0, 32);
-          stbsp_snprintf(label, 32, "Hide###%d", area->IGetAreaAssetId());
+          snprintf(label, 32, "Hide###%d", area->IGetAreaAssetId());
           if (ImGui::Button(label)) {
             area->SetOcclusionState(EOcclusionState::Occluded);
           }
@@ -104,14 +104,14 @@ namespace GUI {
         if (loadOther) {
           char label[32];
           memset(label, 0, 32);
-          stbsp_snprintf(label, 32, "Unload###%d", connectedAreaId.id);
+          snprintf(label, 32, "Unload###%d", connectedAreaId.id);
           if (ImGui::Button(label)) {
             ref->x6_loadOther &= 0x7F;
           }
         } else {
           char label[32];
           memset(label, 0, 32);
-          stbsp_snprintf(label, 32, "Load###%d", connectedAreaId.id);
+          snprintf(label, 32, "Load###%d", connectedAreaId.id);
           if (ImGui::Button(label)) {
             ref->x6_loadOther |= 0x80;
           }

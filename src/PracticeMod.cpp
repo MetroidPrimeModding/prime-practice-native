@@ -24,7 +24,7 @@
 #include "system/malloc_wrappers.h"
 #include "utils.hpp"
 #include "version.h"
-#include "stb_sprintf.h"
+#include <stdio.h>
 
 #define PAD_MAX_CONTROLLERS 4
 
@@ -272,7 +272,7 @@ void PracticeMod::update(float dt) const {
       }
       ImDrawList *dl = ImGui::GetForegroundDrawList();
       char text[64];
-      int l = stbsp_snprintf(text, sizeof(text), "lag value: %d", c);
+      int l = snprintf(text, sizeof(text), "lag value: %d", c);
       dl->AddText(ImVec2(20, 20), IM_COL32(255, 255, 255, 255),
                   text, text + l);
     }

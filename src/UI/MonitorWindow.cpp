@@ -12,7 +12,6 @@
 #include <prime/CWorld.hpp>
 #include "prime/CMain.hpp"
 #include "prime/CPatterned.hpp"
-#include "stb_sprintf.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "ImHelpers.hpp"
@@ -286,7 +285,7 @@ namespace GUI {
     frames[GRAPH_LENGTH - 1] = ms;
 
     char title[32];
-    stbsp_snprintf(title, sizeof(title), "Frame time: %02.2f", ms);
+    snprintf(title, sizeof(title), "Frame time: %02.2f", ms);
     ImGui::PlotLines("", frames, GRAPH_LENGTH, 0, title, 0.f, 32.f, ImVec2(0, 40.0f));
   }
 
@@ -347,7 +346,7 @@ namespace GUI {
 
     if (SETTINGS.OSD_showMemoryGraph) {
       char title[32];
-      stbsp_snprintf(title, sizeof(title), "%d%% used, %d%% free", usedPercent, freePrecent);
+      snprintf(title, sizeof(title), "%d%% used, %d%% free", usedPercent, freePrecent);
       ImGui::PlotLines("", memoryUsage, GRAPH_LENGTH, 0, title, 0.f, totalHeapSize, ImVec2(0, 40.0f));
     }
   }

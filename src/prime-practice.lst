@@ -104,6 +104,7 @@
 0x8038DDBC vsprintf
 0x8038DE34 vprintf
 0x8038DEB0 printf
+0x8038E040 __pformatter
 0x80023584 _ZN9CMainFlow12SetGameStateE17EClientFlowStatesR18CArchitectureQueue
 0x80023854 _ZN9CMainFlow16AdvanceGameStateER18CArchitectureQueue
 0x8004B598 _ZN13CStateManager15InitializeStateEj7TAreaIdj

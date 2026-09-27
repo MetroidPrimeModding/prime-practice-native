@@ -144,29 +144,40 @@ namespace GUI {
         refillItems(playerState);
       }
 
-      if (ImGui::BeginTabBar("Items")) {
-        if (ImGui::BeginTabItem("General")) {
+      // A row of buttons instead of a tab bar: ImGui's tab bar code is ~20KB.
+      static const char *const ItemTabNames[] = {"General", "Weapons", "Morph Ball", "Artifacts"};
+      static int selectedItemTab = 0;
+      ImGui::Separator();
+      // Scoped so the buttons don't share IDs with same-named items (e.g. the "Morph Ball" checkbox).
+      ImGui::PushID("tabs");
+      for (int i = 0; i < int(sizeof(ItemTabNames) / sizeof(ItemTabNames[0])); i++) {
+        if (i > 0) ImGui::SameLine();
+        bool selected = i == selectedItemTab;
+        if (selected) ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+        if (ImGui::Button(ItemTabNames[i])) selectedItemTab = i;
+        if (selected) ImGui::PopStyleColor();
+      }
+      ImGui::PopID();
+      ImGui::Separator();
+
+      switch (selectedItemTab) {
+        case 0:
           RenderItemType(playerState, GeneralItems[0]); // full width
           RenderItemsDualColumn(playerState, GeneralItems, 1, sizeof(GeneralItems) / sizeof(GeneralItems[0]));
-          ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Weapons")) {
+          break;
+        case 1:
           RenderItemType(playerState, WeaponItems[0]); // full width
           RenderItemsDualColumn(playerState, WeaponItems, 1, sizeof(WeaponItems) / sizeof(WeaponItems[0]));
-          ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Morph Ball")) {
+          break;
+        case 2:
           RenderItemType(playerState, MorphBallItems[0]); // full width
           RenderItemsDualColumn(playerState, MorphBallItems, 1, sizeof(MorphBallItems) / sizeof(MorphBallItems[0]));
-          ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Artifacts")) {
+          break;
+        case 3:
           ImGui::Text("NOTE: This doesn't affect Artifact Temple layers");
 //          ImGui::Text("Use the Layers window to set them for progression");
           RenderItemsDualColumn(playerState, ArtifactItems, 0, sizeof(ArtifactItems) / sizeof(ArtifactItems[0]));
-          ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
+          break;
       }
 
       ImGui::TreePop();
