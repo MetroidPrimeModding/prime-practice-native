@@ -8,6 +8,7 @@
 #include "prime/CMapArea.hpp"
 #include "prime/CMapWorldInfo.hpp"
 #include "prime/CPauseScreen.hpp"
+#include "UI/SaveAnywhere.hpp"
 #include "prime/CScriptSpecialFunction.hpp"
 #include "prime/CSfxManager.hpp"
 #include "prime/CStateManager.hpp"
@@ -63,7 +64,7 @@ DECLARE_FUNCTION_REPLACEMENT(CPauseScreen_ProcessControllerInput) {
 
     if (self->InputEnabled()) {
       PracticeMod::GetInstance()->pauseScreenOpened();
-      if (input.PStart()) {
+      if (input.PStart() || SaveAnywhere::consumeCloseRequest()) {
         PracticeMod::GetInstance()->pauseScreenClosed();
 
         // Play some noises too

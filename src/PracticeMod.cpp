@@ -6,6 +6,7 @@
 #include "UI/PlayerMenu.hpp"
 #include "UI/QR.hpp"
 #include "UI/RoomMenu.hpp"
+#include "UI/SaveAnywhere.hpp"
 #include "UI/ScanMenu.hpp"
 #include "UI/SettingsMenu.hpp"
 #include "UI/WarpMenu.h"
@@ -261,6 +262,8 @@ void PracticeMod::renderMenu() {
 float bombTime = 0;
 
 void PracticeMod::update(float dt) const {
+  SaveAnywhere::update();
+
   // Lagger (loops)
   if (!this->pauseScreenActive) {
     if (SETTINGS.LAG_loop_iterations > 0) {

@@ -1,4 +1,5 @@
 #include "PlayerMenu.hpp"
+#include "SaveAnywhere.hpp"
 #include "WarpMenu.h"
 #include "imgui.h"
 #include "prime/CMain.hpp"
@@ -66,7 +67,13 @@ namespace GUI {
       player->getTransform()->x = xyz[0];
       player->getTransform()->y = xyz[1];
       player->getTransform()->z = xyz[2];
-
+      ImGui::Separator();
+      if (const char *why = SaveAnywhere::whyNot()) {
+        ImGui::Text("Can't save: %s", why);
+      } else if (ImGui::Button("Save game")) {
+        SaveAnywhere::request();
+      }
+      ImGui::Separator();
       if (ImGui::Button("IS on")) {
         player->GetAngularVelocity()->x = NAN;
         player->GetAngularVelocity()->y = NAN;

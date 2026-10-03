@@ -12,6 +12,7 @@ public:
     OnGround=0, StartJump, InAir, Falling, FallingMorphed
   };
 
+  enum class EMorphBallState : u32 { Unmorphed, Morphed, Morphing, Unmorphing };
 
   void Teleport(const CTransform4f &newTransform, CStateManager &, bool resetBallCam);
   void AsyncLoadSuit(CStateManager &);
@@ -24,5 +25,7 @@ public:
   float *getScanningTime() { return GetField<float>(this, 0x3AC); }
   float *getCurScanTime() { return GetField<float>(this, 0x3B0); }
   EPlayerMovementState *getMovementState() { return GetField<EPlayerMovementState>(this, 0x258); }
+  EMorphBallState getMorphBallState() { return *GetField<EMorphBallState>(this, 0x2F8); }
+  float getDeathTime() { return *GetField<float>(this, 0x9F4); }
   float *getDashButtonHoldTime() { return GetField<float>(this, 0x388); }
 };

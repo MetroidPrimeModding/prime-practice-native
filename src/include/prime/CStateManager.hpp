@@ -28,6 +28,8 @@ struct StateManagerFlags {
   bool xf94_30_fullThreat : 1;
 };
 
+enum class EStateManagerTransition : u32 { InGame, MapScreen, PauseGame, LogBook, SaveGame, MessageScreen };
+
 class CStateManager {
 
   PADDING(0x8b8);
@@ -37,6 +39,13 @@ class CStateManager {
 
 public:
   enum EInitPhase { kInit_LoadWorld = 0, kInit_LoadFirstArea = 1, kInit_Done = 2 };
+
+  enum class EGameState : u32 { Running, SoftPaused, Paused };
+
+  void DeferStateTransition(EStateManagerTransition t);
+  inline EStateManagerTransition GetDeferredStateTransition() const { return *GetField<EStateManagerTransition>(this, 0xF90); }
+  inline EGameState GetGameState() const { return *GetField<EGameState>(this, 0x904); }
+  float GetEscapeSequenceTimer() const;
 
   void InitializeState(uint WorldAssetId, TAreaId AreaId, uint AreaAssetId);
   void Update(float dt);
