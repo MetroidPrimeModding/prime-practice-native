@@ -84,6 +84,9 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 2.12.0
+- Save anywhere
+
 ### 2.11.0
 - Fixes for resets
 - Fix a longstanding crash on the menu if you load position by hitting d-pad too quickly
