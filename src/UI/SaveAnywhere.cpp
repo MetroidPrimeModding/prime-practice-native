@@ -1,5 +1,6 @@
 #include "SaveAnywhere.hpp"
 #include "prime/CCameraManager.hpp"
+#include "system/CardGate.hpp"
 #include "prime/CGameState.hpp"
 #include "prime/CPlayer.hpp"
 #include "prime/CStateManager.hpp"
@@ -49,6 +50,8 @@ namespace SaveAnywhere {
       return;
     }
     state = State::Idle;
-    if (!whyNot()) g_StateManager.DeferStateTransition(EStateManagerTransition::SaveGame);
+    if (whyNot()) return;
+    CardGate::saveLocationWithGame();
+    g_StateManager.DeferStateTransition(EStateManagerTransition::SaveGame);
   }
 }

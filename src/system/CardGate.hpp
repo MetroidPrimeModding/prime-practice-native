@@ -14,6 +14,8 @@ namespace CardGate {
   /** Writes SETTINGS to the card as soon as no CMemoryCardDriver exists. */
   void requestSave();
   bool saveRequested();
+  /** Remembers the player's position for the game save that is about to be made, and writes it once the card is free */
+  void saveLocationWithGame();
   /** True while we are reading or writing the card */
   bool busy();
   /** SETTINGS differs from what is on the card (or what was last loaded) */

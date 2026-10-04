@@ -8,6 +8,8 @@
 #include "prime/CPlayer.hpp"
 #include "prime/CStateManager.hpp"
 #include "prime/CToken.hpp"
+#include "prime/CWorld.hpp"
+#include "prime/CWorldState.hpp"
 #include "settings.hpp"
 #include <string.h>
 
@@ -76,6 +78,13 @@ namespace CardGate {
         out[size++] = length;
         for (int shift = (length - 1) * 8; shift >= 0; shift -= 8) out[size++] = value >> shift;
       }
+      void putWords(u8 id, const u32 *words, u8 count) {
+        out[size++] = id;
+        out[size++] = count * 4;
+        for (u8 i = 0; i < count; i++) {
+          for (int shift = 24; shift >= 0; shift -= 8) out[size++] = words[i] >> shift;
+        }
+      }
       __attribute__((noinline)) void operator()(u8 id, bool value) { put(id, value, 1); }
       __attribute__((noinline)) void operator()(u8 id, s32 value) { put(id, static_cast<u32>(value), 4); }
     };
@@ -90,6 +99,14 @@ namespace CardGate {
           if (data[at] == id && data[at + 1] == length) return data + at + 2;
         }
         return nullptr;
+      }
+      // The index-th word of a record that is length bytes long
+      bool word(u8 id, u8 length, u32 index, u32 &value) const {
+        const u8 *p = find(id, length);
+        if (!p) return false;
+        p += index * 4;
+        value = p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
+        return true;
       }
       __attribute__((noinline)) void operator()(u8 id, bool &value) {
         if (const u8 *p = find(id, 1)) value = p[0] != 0;
@@ -118,6 +135,24 @@ namespace CardGate {
     // time the write finishes
     Settings saved;
     Settings written;
+
+    // Where Save Anywhere was used. Only applied to the save it was made with, which the play time identifies: the
+    // game restores a save at its room's default spawn, and a later save elsewhere must not be overridden by this
+    struct Location {
+      bool valid = false;
+      u32 worldId = 0;
+      u32 areaId = 0;
+      u32 playTimeCs = 0;
+      CTransform4f transform = CTransform4f::Identity();
+    };
+    constexpr u8 kIdWorld = 100, kIdArea = 101, kIdPlayTime = 102, kIdTransform = 103;
+    constexpr u32 kPlayTimeToleranceCs = 100;
+    Location location;
+    bool settingsWanted = false;
+    bool saveIncludesSettings = false;
+    bool wasPlaying = false;
+    bool sessionPending = false;
+    u32 sessionPlayTimeCs = 0;
 
     // Only allocated while a card operation runs. The SDK's DMA needs 32-byte alignment, which we ensure ourselves
     // rather than relying on the allocator
@@ -230,10 +265,18 @@ namespace CardGate {
       bool art = writeArt(buffer + kBannerOffset);
       if (!art) memset(buffer + kBannerOffset, 0, kBannerBytes + kIconBytes);
 
-      memcpy(&written, &SETTINGS, sizeof(Settings));
+      memcpy(&written, saveIncludesSettings ? &SETTINGS : &saved, sizeof(Settings));
       u8 *payload = buffer + (art ? kPayloadOffsetWithArt : kPayloadOffsetNoArt);
       RecordWriter writer{payload + sizeof(PayloadHeader)};
       visitSettings(written, writer);
+      if (location.valid) {
+        writer.put(kIdWorld, location.worldId, 4);
+        writer.put(kIdArea, location.areaId, 4);
+        writer.put(kIdPlayTime, location.playTimeCs, 4);
+        u32 words[12];
+        memcpy(words, location.transform.matrix, sizeof(words));
+        writer.putWords(kIdTransform, words, 12);
+      }
       PayloadHeader header{kMagic, kVersion, writer.size, crc32(writer.out, writer.size)};
       memcpy(payload, &header, sizeof(header));
       return art;
@@ -313,6 +356,11 @@ namespace CardGate {
       }
       RecordReader reader{data, header.recordsSize};
       visitSettings(SETTINGS, reader);
+      u32 words[12];
+      location.valid = reader.word(kIdWorld, 4, 0, location.worldId) && reader.word(kIdArea, 4, 0, location.areaId) &&
+                       reader.word(kIdPlayTime, 4, 0, location.playTimeCs);
+      for (u32 i = 0; i < 12 && location.valid; i++) location.valid = reader.word(kIdTransform, 48, i, words[i]);
+      if (location.valid) memcpy(location.transform.matrix, words, sizeof(words));
       memcpy(&saved, &SETTINGS, sizeof(Settings));
       finish("Loaded saved settings");
     }
@@ -331,8 +379,33 @@ namespace CardGate {
       enter(Step::SettingStatus);
     }
 
+    u32 currentAreaAssetId() {
+      CWorld *world = g_StateManager.GetWorld();
+      if (!world) return 0;
+      return world->areas()->ptr[gpGameState->CurrentWorldState().x4_areaId.id].ptr->IGetAreaAssetId();
+    }
+
+    u32 playTimeCs() { return static_cast<u32>(gpGameState->PlayTime() * 100.0); }
+
+    void applyLocation() {
+      sessionPending = false;
+      u32 diff = sessionPlayTimeCs > location.playTimeCs ? sessionPlayTimeCs - location.playTimeCs
+                                                         : location.playTimeCs - sessionPlayTimeCs;
+      if (!location.valid || diff > kPlayTimeToleranceCs || gpGameState->MLVL() != location.worldId ||
+          currentAreaAssetId() != location.areaId) {
+        return;
+      }
+      CPlayer *player = g_StateManager.Player();
+      *player->getTransform() = location.transform;
+      *player->GetVelocity() = CVector3f{};
+      *player->GetAngularVelocity() = CVector3f{};
+      lastMessage = "Restored Save Anywhere position";
+    }
+
     void begin(Op newOp) {
       op = newOp;
+      saveIncludesSettings = settingsWanted;
+      settingsWanted = false;
       setBusy(true);
       bufferRaw = new u8[kBlockSize + 32];
       if (!bufferRaw) return fail("Out of memory", 0);
@@ -388,6 +461,14 @@ namespace CardGate {
   } // namespace
 
   void tick() {
+    bool playing = inGameplay();
+    if (playing && !wasPlaying) {
+      sessionPlayTimeCs = playTimeCs();
+      sessionPending = true;
+    }
+    wasPlaying = playing;
+    if (playing && sessionPending && loadDone) applyLocation();
+
     if (step != Step::Idle) return advance(false);
     // Driver wins: it owns the card for as long as it exists
     if (driverCount > 0) return;
@@ -400,7 +481,19 @@ namespace CardGate {
     if (!loadDone && inGameplay()) begin(Op::Load);
   }
 
-  void requestSave() { saveWanted = true; }
+  void requestSave() { saveWanted = settingsWanted = true; }
+
+  void saveLocationWithGame() {
+    // Until the file has been read, saved isn't known and writing would replace the stored settings with defaults
+    if (!loadDone || !inGameplay()) return;
+    CPlayer *player = g_StateManager.Player();
+    location.valid = true;
+    location.worldId = gpGameState->MLVL();
+    location.areaId = currentAreaAssetId();
+    location.playTimeCs = playTimeCs();
+    location.transform = *player->getTransform();
+    saveWanted = true;
+  }
   bool saveRequested() { return saveWanted; }
   bool busy() { return step != Step::Idle; }
   bool dirty() { return loadDone && !sameSettings(saved, SETTINGS); }
