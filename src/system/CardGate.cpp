@@ -37,15 +37,67 @@ namespace CardGate {
     constexpr u32 kPayloadOffsetNoArt = kBannerOffset;
 
     constexpr u32 kMagic = 0x50505356; // 'PPSV'
-    constexpr u32 kVersion = 1;
+    constexpr u32 kVersion = 2;
+    constexpr u32 kMaxRecordsBytes = 1024;
 
+    // Records are [id u8][length u8][big-endian value]. Unknown ids are skipped and missing ones keep their defaults,
+    // so settings can be added or removed without bumping kVersion; it only changes if this encoding does.
     struct PayloadHeader {
       u32 magic;
       u32 version;
-      u32 settingsSize;
-      u32 settingsCrc;
+      u32 recordsSize;
+      u32 recordsCrc;
     };
-    static_assert(kPayloadOffsetWithArt + sizeof(PayloadHeader) + sizeof(Settings) <= kBlockSize);
+
+#define SETTINGS_COUNT_FIELD(id, field) +1
+    constexpr u32 kFieldCount = 0 SETTINGS_FIELDS(SETTINGS_COUNT_FIELD);
+#undef SETTINGS_COUNT_FIELD
+    static_assert(kFieldCount * 6 <= kMaxRecordsBytes);
+    static_assert(kPayloadOffsetWithArt + sizeof(PayloadHeader) + kMaxRecordsBytes <= kBlockSize);
+
+    // Bitfields can't be bound to a reference, so each field goes through a local
+    template <class Visitor> void visitSettings(Settings &s, Visitor &visitor) {
+#define SETTINGS_VISIT_FIELD(id, field) \
+  { \
+    auto value = s.field; \
+    visitor(static_cast<u8>(id), value); \
+    if constexpr (Visitor::kLoads) s.field = value; \
+  }
+      SETTINGS_FIELDS(SETTINGS_VISIT_FIELD)
+#undef SETTINGS_VISIT_FIELD
+    }
+
+    struct RecordWriter {
+      static constexpr bool kLoads = false;
+      u8 *out;
+      u32 size = 0;
+      __attribute__((noinline)) void put(u8 id, u32 value, u8 length) {
+        out[size++] = id;
+        out[size++] = length;
+        for (int shift = (length - 1) * 8; shift >= 0; shift -= 8) out[size++] = value >> shift;
+      }
+      __attribute__((noinline)) void operator()(u8 id, bool value) { put(id, value, 1); }
+      __attribute__((noinline)) void operator()(u8 id, s32 value) { put(id, static_cast<u32>(value), 4); }
+    };
+
+    struct RecordReader {
+      static constexpr bool kLoads = true;
+      const u8 *data;
+      u32 size;
+      // Value bytes of the record with this id and length, or null
+      const u8 *find(u8 id, u8 length) const {
+        for (u32 at = 0; at + 2 <= size && at + 2 + data[at + 1] <= size; at += 2 + data[at + 1]) {
+          if (data[at] == id && data[at + 1] == length) return data + at + 2;
+        }
+        return nullptr;
+      }
+      __attribute__((noinline)) void operator()(u8 id, bool &value) {
+        if (const u8 *p = find(id, 1)) value = p[0] != 0;
+      }
+      __attribute__((noinline)) void operator()(u8 id, s32 &value) {
+        if (const u8 *p = find(id, 4)) value = static_cast<s32>(p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3]);
+      }
+    };
 
     enum class Step { Idle, Probing, Mounting, Deleting, Creating, Writing, SettingStatus, Reading };
     enum class Op { None, Load, Save };
@@ -179,10 +231,11 @@ namespace CardGate {
       if (!art) memset(buffer + kBannerOffset, 0, kBannerBytes + kIconBytes);
 
       memcpy(&written, &SETTINGS, sizeof(Settings));
-      PayloadHeader header{kMagic, kVersion, sizeof(Settings), crc32(&written, sizeof(Settings))};
       u8 *payload = buffer + (art ? kPayloadOffsetWithArt : kPayloadOffsetNoArt);
+      RecordWriter writer{payload + sizeof(PayloadHeader)};
+      visitSettings(written, writer);
+      PayloadHeader header{kMagic, kVersion, writer.size, crc32(writer.out, writer.size)};
       memcpy(payload, &header, sizeof(header));
-      memcpy(payload + sizeof(header), &written, sizeof(Settings));
       return art;
     }
 
@@ -248,17 +301,18 @@ namespace CardGate {
         return fail("Could not read the settings file status, using defaults", 0);
       }
       u32 offset = payloadOffset(stat);
-      if (offset + sizeof(PayloadHeader) + sizeof(Settings) > kBlockSize) {
+      if (offset + sizeof(PayloadHeader) > kBlockSize) {
         return fail("Settings file is not recognized, using defaults", 0);
       }
       PayloadHeader header;
       memcpy(&header, buffer + offset, sizeof(header));
       const u8 *data = buffer + offset + sizeof(header);
-      if (header.magic != kMagic || header.version != kVersion || header.settingsSize != sizeof(Settings) ||
-          header.settingsCrc != crc32(data, sizeof(Settings))) {
+      if (header.magic != kMagic || header.version != kVersion || header.recordsSize > kMaxRecordsBytes ||
+          offset + sizeof(header) + header.recordsSize > kBlockSize || header.recordsCrc != crc32(data, header.recordsSize)) {
         return fail("Saved settings are from a different version, using defaults", 0);
       }
-      memcpy(&SETTINGS, data, sizeof(Settings));
+      RecordReader reader{data, header.recordsSize};
+      visitSettings(SETTINGS, reader);
       memcpy(&saved, &SETTINGS, sizeof(Settings));
       finish("Loaded saved settings");
     }

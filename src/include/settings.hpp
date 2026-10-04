@@ -48,4 +48,36 @@ struct Settings {
   }
 };
 
+// Saved to the memory card by id (see CardGate). Ids are permanent: never reuse or renumber one, only append.
+#define SETTINGS_FIELDS(X) \
+  X(1, OSD_show) \
+  X(2, OSD_showFrameTime) \
+  X(3, OSD_showMemoryInfo) \
+  X(4, OSD_showMemoryGraph) \
+  X(5, OSD_showInput) \
+  X(6, OSD_showVelocity) \
+  X(7, OSD_showRotationalVelocity) \
+  X(8, OSD_showPos) \
+  X(9, OSD_showIGT) \
+  X(10, OSD_showCurrentRoomTime) \
+  X(11, OSD_showPreviousRoomTime) \
+  X(12, OSD_showMostRecentDoorToLoadTime) \
+  X(13, OSD_showLoads) \
+  X(14, OSD_showRng) \
+  X(15, OSD_showIDrone) \
+  X(16, OSD_showTargetInfo) \
+  X(17, OSD_showJumpState) \
+  X(18, BOMBJUMP_enable) \
+  X(19, BOMBJUMP_infiniteBombs) \
+  X(20, TRIGGER_renderUnknown) \
+  X(21, TRIGGER_renderLoad) \
+  X(22, TRIGGER_renderDoor) \
+  X(23, TRIGGER_renderForce) \
+  X(24, TRIGGER_renderCameraHint) \
+  X(25, LAG_loop_iterations) \
+  X(26, LAG_tri_renders) \
+  X(27, RNG_lockSeed) \
+  X(28, SCAN_infiniteScanTime) \
+  X(29, SCAN_infiniteScanTimeOnImportantScans)
+
 extern Settings SETTINGS;
