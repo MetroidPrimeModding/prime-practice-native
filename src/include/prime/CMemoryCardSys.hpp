@@ -8,6 +8,12 @@ class CSaveWorld;
 
 class CMemoryCardSys {
 public:
+  enum EMemoryCardPort { kCS_SlotA, kCS_SlotB };
+
+  // Allocate/free the game's CARD work area around the SDK mount/unmount
+  static s32 MountCard(EMemoryCardPort port);
+  static s32 UnmountCard(EMemoryCardPort port);
+
   PADDING(0x18);
   CSaveWorldIntermediate *worldIntermediate;
 };
@@ -67,6 +73,10 @@ enum class EMCState {
   StartPracModRead = 0x100001,
   StartPracModWrite = 0x100002,
 };
+
+// Entry points of the constructor and destructor, which C++ can't take the address of (for hooking only)
+extern "C" void CMemoryCardDriver_ConstructorEntry();
+extern "C" void CMemoryCardDriver_DestructorEntry();
 
 class CMemoryCardDriver {
 public:

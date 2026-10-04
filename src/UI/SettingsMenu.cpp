@@ -5,6 +5,7 @@
 #include <prime/CRandom16.hpp>
 
 #include "settings.hpp"
+#include "system/CardGate.hpp"
 #include "BombJumping.hpp"
 #include "prime/CGameGlobalObjects.hpp"
 #include "prime/CWorld.hpp"
@@ -20,8 +21,23 @@ namespace GUI {
 
   void drawHex32Editor(const char *title, s32 *value);
 
+  void drawSaveSettings() {
+    if (CardGate::busy() || CardGate::saveRequested()) {
+      ImGui::TextDisabled("Saving...");
+    } else if (ImGui::Button("Save settings")) {
+      CardGate::requestSave();
+    }
+    if (CardGate::dirty()) {
+      ImGui::SameLine();
+      ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f), "Unsaved changes");
+    }
+    if (CardGate::message()) ImGui::TextWrapped("%s", CardGate::message());
+    ImGui::Separator();
+  }
+
   void drawSettingsMenu() {
     if (ImGui::TreeNode("Settings")) {
+      drawSaveSettings();
       if (ImGui::TreeNode("On-screen display")) {
         BITFIELD_CHECKBOX("Show", SETTINGS.OSD_show);
         BITFIELD_CHECKBOX("Pos", SETTINGS.OSD_showPos);

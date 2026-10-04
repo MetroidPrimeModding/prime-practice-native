@@ -21,6 +21,7 @@
 #include "prime/CWorld.hpp"
 #include "prime/CWorldState.hpp"
 #include "settings.hpp"
+#include "system/CardGate.hpp"
 #include "system/ImGuiEngine.hpp"
 #include "system/malloc_wrappers.h"
 #include "utils.hpp"
@@ -85,6 +86,7 @@ PracticeMod::PracticeMod() {
 }
 
 void PracticeMod::render() {
+  CardGate::tick();
   this->renderMenu();
 }
 

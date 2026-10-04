@@ -7,6 +7,8 @@
 #include "prime/CMainFlow.hpp"
 #include "prime/CMapArea.hpp"
 #include "prime/CMapWorldInfo.hpp"
+#include "prime/CMemoryCardSys.hpp"
+#include "system/CardGate.hpp"
 #include "prime/CPauseScreen.hpp"
 #include "UI/SaveAnywhere.hpp"
 #include "prime/CScriptSpecialFunction.hpp"
@@ -42,6 +44,28 @@ DECLARE_FUNCTION_REPLACEMENT(CGraphics_EndScene) {
     TweakPatcher();
     PracticeMod::GetInstance()->render();
     Orig();
+  }
+};
+
+
+// CMemoryCardDriver::CMemoryCardDriver
+// The driver owns the memory card for its whole lifetime, so any card command of ours has to be finished first
+DECLARE_FUNCTION_REPLACEMENT(CMemoryCardDriver_ctor) {
+  static constexpr const char *NAME = "CMemoryCardDriver_ctor";
+  static CMemoryCardDriver *Callback(CMemoryCardDriver *self, s32 port, u32 banner, u32 icon0, u32 icon1, bool importPersistent) {
+    CardGate::driverConstructing();
+    return Orig(self, port, banner, icon0, icon1, importPersistent);
+  }
+};
+
+// CMemoryCardDriver::~CMemoryCardDriver
+DECLARE_FUNCTION_REPLACEMENT(CMemoryCardDriver_dtor) {
+  static constexpr const char *NAME = "CMemoryCardDriver_dtor";
+  static CMemoryCardDriver *Callback(CMemoryCardDriver *self, s32 flags) {
+    // The destructor unmounts the card, so we may use it again once it returns
+    CMemoryCardDriver *result = Orig(self, flags);
+    if (self) CardGate::driverDestroyed();
+    return result;
   }
 };
 
@@ -227,6 +251,8 @@ DECLARE_FUNCTION_REPLACEMENT(CMainFlow_AdvanceGameState) {
 
 void InstallHooks() {
   CGraphics_EndScene::InstallAtFuncPtr(&CGraphics::EndScene);
+  CMemoryCardDriver_ctor::InstallAtPtr(reinterpret_cast<void *>(&CMemoryCardDriver_ConstructorEntry));
+  CMemoryCardDriver_dtor::InstallAtPtr(reinterpret_cast<void *>(&CMemoryCardDriver_DestructorEntry));
   CPlayerGun_DropBomb::InstallAtFuncPtr(&CPlayerGun::DropBomb);
   CPauseScreen_ProcessControllerInput::InstallAtFuncPtr(&CPauseScreen::ProcessControllerInput);
   CMainFlow_OnMessage::InstallAtFuncPtr(&CMainFlow::OnMessage);

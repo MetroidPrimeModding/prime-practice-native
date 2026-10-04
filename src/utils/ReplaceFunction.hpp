@@ -101,7 +101,8 @@ public:
   static ALWAYS_INLINE void InstallAtPtr(void *address) {
     _REPLACE_STATIC_CALLBACK_ASSERT();
 
-    OrigRef() = ReplaceFunctionHookPool::Install(Derived::NAME, address, reinterpret_cast<void *>(Derived::Callback));
+    OrigRef() = reinterpret_cast<CallbackFuncPtr<>>(
+        ReplaceFunctionHookPool::Install(Derived::NAME, address, reinterpret_cast<void *>(Derived::Callback)));
   }
 
   template <typename T>

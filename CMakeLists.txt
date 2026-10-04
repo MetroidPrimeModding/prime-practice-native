@@ -44,6 +44,7 @@ set(SOURCE_FILES
         src/include/MathyTypes.hpp
         src/include/prime/CStateManager.hpp
         src/include/prime/CMemoryCardSys.hpp
+        src/include/prime/CToken.hpp
         src/include/prime/CSimplePool.hpp
         src/include/prime/CPauseScreen.hpp
         src/include/prime/CFinalInput.hpp
@@ -123,6 +124,8 @@ set(SOURCE_FILES
         src/system/font_atlas.hpp
         src/system/ImGuiEngine.cpp
         src/system/ImGuiEngine.hpp
+        src/system/CardGate.hpp
+        src/system/CardGate.cpp
         src/system/libc.c
 
         src/utils/settings.cpp

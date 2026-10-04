@@ -22,8 +22,11 @@ public:
   }
 };
 
+class CToken;
+
 class CSimplePool {
 public:
+  CToken GetObj(const char *name);
   //    CSimplePool(IFactory &factory);
   //    CToken GetObj(const SObjectTag &, const CVParamTransfer &);
   //    CToken GetObj(const SObjectTag &);
@@ -38,3 +41,5 @@ public:
   //    void ObjectUnreferenced(const SObjectTag &);
   //    std::vector <SObjectTag> GetReferencedTags() const;
 };
+
+extern CSimplePool *gpSimplePool;

@@ -86,6 +86,7 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ### 2.12.0
 - Save anywhere
+- Save practice mod settings to memory card
 
 ### 2.11.0
 - Fixes for resets

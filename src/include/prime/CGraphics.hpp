@@ -91,5 +91,18 @@ public:
 
 class CTexture {
 public:
+  enum ETexelFormat : s32 { kTF_C8 = 5, kTF_RGB5A3 = 8 };
+
   static void InvalidateTexmap(int texMapId);
+
+  // Raw bitmap and palette, as the memory card banner/icon need them
+  const void *GetConstBitMapData(int mip) const;
+  ETexelFormat texelFormat() const { return *GetField<ETexelFormat>(this, 0x0); }
+  s16 width() const { return *GetField<s16>(this, 0x4); }
+  s16 height() const { return *GetField<s16>(this, 0x6); }
+  // CTexture::mGraphicsPalette -> CGraphicsPalette::mEntries
+  const u16 *paletteEntries() const {
+    const void *palette = *GetField<const void *>(this, 0x10);
+    return palette ? *GetField<const u16 *>(palette, 0xC) : nullptr;
+  }
 };
