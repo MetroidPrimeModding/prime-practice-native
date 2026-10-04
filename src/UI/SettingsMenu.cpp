@@ -23,7 +23,7 @@ namespace GUI {
 
   void drawSaveSettings() {
     if (CardGate::busy() || CardGate::saveRequested()) {
-      ImGui::TextDisabled("Saving...");
+      ImGui::Text("Saving...");
     } else if (ImGui::Button("Save settings")) {
       CardGate::requestSave();
     }
@@ -31,7 +31,7 @@ namespace GUI {
       ImGui::SameLine();
       ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f), "Unsaved changes");
     }
-    if (CardGate::message()) ImGui::TextWrapped("%s", CardGate::message());
+    if (CardGate::message()) ImGui::Text("%s", CardGate::message());
     ImGui::Separator();
   }
 

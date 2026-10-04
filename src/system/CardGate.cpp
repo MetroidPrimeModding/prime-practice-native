@@ -67,7 +67,10 @@ namespace CardGate {
     Settings saved;
     Settings written;
 
-    alignas(32) u8 buffer[kBlockSize];
+    // Only allocated while a card operation runs. The SDK's DMA needs 32-byte alignment, which we ensure ourselves
+    // rather than relying on the allocator
+    u8 *bufferRaw = nullptr;
+    u8 *buffer = nullptr;
 
     u32 crc32(const void *data, u32 len) {
       const u8 *p = static_cast<const u8 *>(data);
@@ -101,6 +104,8 @@ namespace CardGate {
         CMemoryCardSys::UnmountCard(kPort);
         mounted = false;
       }
+      delete[] bufferRaw;
+      bufferRaw = buffer = nullptr;
       if (message) lastMessage = message;
       if (op == Op::Load) {
         loadDone = true;
@@ -168,7 +173,7 @@ namespace CardGate {
 
     // Returns whether the banner and icon were included
     bool buildFile() {
-      memset(buffer, 0, sizeof(buffer));
+      memset(buffer, 0, kBlockSize);
       memcpy(buffer + kCommentOffset, kComment, sizeof(kComment) - 1);
       bool art = writeArt(buffer + kBannerOffset);
       if (!art) memset(buffer + kBannerOffset, 0, kBannerBytes + kIconBytes);
@@ -205,14 +210,14 @@ namespace CardGate {
       writingArt = buildFile();
       if (!writingArt) DebugLog("CardGate: banner/icon unavailable, writing without\n");
       s32 result = CARDCreateAsync(kChan, kFileName, kBlockSize, &file, nullptr);
-      if (result != CARD_RESULT_READY) return fail("Could not create the settings file on the memory card", result);
+      if (result != CARD_RESULT_READY) return fail("Could not create the settings file", result);
       enter(Step::Creating);
     }
 
     void startSave() {
       bool exists = fileExists(kFileName);
       if (!hasEnoughSpace(exists)) {
-        return fail("Not enough free space on the memory card to save settings without affecting game saves", 0);
+        return fail("Not enough free memory card space", 0);
       }
       if (!exists) return startCreate();
       s32 result = CARDDeleteAsync(kChan, kFileName, nullptr);
@@ -222,7 +227,7 @@ namespace CardGate {
 
     void startLoad() {
       s32 result = CARDOpen(kChan, kFileName, &file);
-      if (result == CARD_RESULT_NOFILE) return finish("No saved settings on the memory card");
+      if (result == CARD_RESULT_NOFILE) return finish("No saved settings");
       if (result != CARD_RESULT_READY) return fail("Could not open the settings file", result);
       fileOpen = true;
 
@@ -255,7 +260,7 @@ namespace CardGate {
       }
       memcpy(&SETTINGS, data, sizeof(Settings));
       memcpy(&saved, &SETTINGS, sizeof(Settings));
-      finish("Loaded saved settings from the memory card");
+      finish("Loaded saved settings");
     }
 
     void startStatus() {
@@ -275,6 +280,9 @@ namespace CardGate {
     void begin(Op newOp) {
       op = newOp;
       setBusy(true);
+      bufferRaw = new u8[kBlockSize + 32];
+      if (!bufferRaw) return fail("Out of memory", 0);
+      buffer = reinterpret_cast<u8 *>((reinterpret_cast<u32>(bufferRaw) + 31) & ~31u);
       enter(Step::Probing);
     }
 
@@ -288,18 +296,18 @@ namespace CardGate {
 
       mounted = true;
       result = CMemoryCardSys::MountCard(kPort);
-      if (result != CARD_RESULT_READY) return fail("Could not mount the memory card", result);
+      if (result != CARD_RESULT_READY) return fail("Could not mount", result);
       enter(Step::Mounting);
     }
 
     // Anything but busy on a step's command ends that step
     void advance(bool draining) {
-      if (!draining && ++stepFrames > kTimeoutFrames) return fail("Memory card operation timed out", 0);
+      if (!draining && ++stepFrames > kTimeoutFrames) return fail("Memory card op timed out", 0);
       if (step == Step::Probing) return startMount();
 
       s32 result = CARDGetResultCode(kChan);
       if (result == CARD_RESULT_BUSY) return;
-      if (result != CARD_RESULT_READY) return fail("Memory card operation failed", result);
+      if (result != CARD_RESULT_READY) return fail("Memory card op failed", result);
 
       switch (step) {
       case Step::Mounting:
@@ -310,13 +318,13 @@ namespace CardGate {
         fileOpen = true;
         DCFlushRange(buffer, kBlockSize);
         result = CARDWriteAsync(&file, buffer, kBlockSize, 0, nullptr);
-        if (result != CARD_RESULT_READY) return fail("Could not write the settings file", result);
+        if (result != CARD_RESULT_READY) return fail("Could not write", result);
         return enter(Step::Writing);
       case Step::Writing:
         return startStatus();
       case Step::SettingStatus:
         memcpy(&saved, &written, sizeof(Settings));
-        return finish("Settings saved to the memory card");
+        return finish("Settings saved");
       case Step::Reading:
         return finishLoad();
       default:
