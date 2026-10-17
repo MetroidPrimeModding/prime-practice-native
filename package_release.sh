@@ -1,6 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+if (( $# != 4 )); then
+  echo 'Usage: package_release.sh <version> <ELF> <patcher-tag> <output-directory>' >&2
+  exit 1
+fi
+
 VERSION=$1
 ELF=$(realpath "$2")
 PATCHER_TAG=$3
@@ -8,6 +13,17 @@ OUT=$4
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PATCHER_URL="https://github.com/MetroidPrimeModding/gcn-static-patcher/releases/download/${PATCHER_TAG}"
+
+# Each supported tag has a reviewed manifest; changing PATCHER_TAG alone must fail closed.
+if [[ ! "${PATCHER_TAG}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "Invalid patcher tag: ${PATCHER_TAG}" >&2
+  exit 1
+fi
+PATCHER_HASHES="${DIR}/packaging/patchers-${PATCHER_TAG}.sha256"
+if [[ ! -f "${PATCHER_HASHES}" ]]; then
+  echo "No pinned patcher hashes for ${PATCHER_TAG}: ${PATCHER_HASHES}" >&2
+  exit 1
+fi
 
 if [ -e "${OUT}" ]; then
   echo "${OUT} already exists! Please remove it first."
@@ -23,6 +39,14 @@ trap 'rm -rf "${PATCHERS}"' EXIT
 fetch() {
   mkdir "${PATCHERS}/$2"
   curl -fsSL -o "${PATCHERS}/$1" "${PATCHER_URL}/$1"
+  local expected
+  expected=$(awk -v asset="$1" '$2 == asset { print $1 }' "${PATCHER_HASHES}")
+  if [[ ! "${expected}" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "Expected exactly one pinned SHA-256 for $1 in ${PATCHER_HASHES}" >&2
+    exit 1
+  fi
+  # Verify the downloaded bytes before either archive tool reads them.
+  printf '%s  %s\n' "${expected}" "$1" | (cd "${PATCHERS}" && sha256sum --check --strict)
   case "$1" in
     *.zip) unzip -q "${PATCHERS}/$1" -d "${PATCHERS}/$2" ;;
     *.tar.gz) tar -xzf "${PATCHERS}/$1" -C "${PATCHERS}/$2" ;;

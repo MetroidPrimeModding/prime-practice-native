@@ -12,6 +12,7 @@ permissions:
 
 env:
   # https://github.com/MetroidPrimeModding/gcn-static-patcher/releases tag whose patcher GUIs are shipped
+  # Update packaging/patchers-<tag>.sha256 together with this pin.
   PATCHER_TAG: v1.1.0
 
 jobs:
