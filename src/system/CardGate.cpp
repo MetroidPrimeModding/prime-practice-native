@@ -234,27 +234,68 @@ namespace CardGate {
       return palette ? offset + 512 : offset;
     }
 
-    // Copies the game's own save banner and icon so the file looks like a Metroid Prime save in the card manager
-    bool writeArt(u8 *out) {
-      CToken banner = gpSimplePool->GetObj("TXTR_SaveBanner");
-      CToken icon = gpSimplePool->GetObj("TXTR_SaveIcon0");
-      CTexture *bannerTex = banner.texture();
-      CTexture *iconTex = icon.texture();
-      if (!bannerTex || !iconTex) return false;
-      if (bannerTex->texelFormat() != CTexture::kTF_C8 || iconTex->texelFormat() != CTexture::kTF_C8) return false;
-      if (bannerTex->width() != 96 || bannerTex->height() != 32 || iconTex->width() != 32 || iconTex->height() != 32) {
-        return false;
-      }
-      const void *bannerPixels = bannerTex->GetConstBitMapData(0);
-      const void *iconPixels = iconTex->GetConstBitMapData(0);
-      const u16 *bannerPalette = bannerTex->paletteEntries();
-      const u16 *iconPalette = iconTex->paletteEntries();
-      if (!bannerPixels || !iconPixels || !bannerPalette || !iconPalette) return false;
+    // C8 pixels use GX 8x4 tiles; palettes contain big-endian RGB5A3 entries.
+    void artPixel(u8 *image, int width, int x, int y, u8 color) {
+      image[((y / 4) * (width / 8) + x / 8) * 32 + (y % 4) * 8 + x % 8] = color;
+    }
 
-      memcpy(out, bannerPixels, 96 * 32);
-      memcpy(out + 96 * 32, bannerPalette, 512);
-      memcpy(out + kBannerBytes, iconPixels, 32 * 32);
-      memcpy(out + kBannerBytes + 32 * 32, iconPalette, 512);
+    void artText(u8 *image, int width, int x, int y, const char *text, int scale) {
+      // Five columns per glyph, with bit zero at the top. Only the card labels need these glyphs.
+      constexpr char letters[] = "ACEHIMOPRST1";
+      constexpr u8 glyphs[][5] = {
+          {0x7E, 0x09, 0x09, 0x09, 0x7E}, // A
+          {0x3E, 0x41, 0x41, 0x41, 0x22}, // C
+          {0x7F, 0x49, 0x49, 0x49, 0x41}, // E
+          {0x7F, 0x08, 0x08, 0x08, 0x7F}, // H
+          {0x41, 0x41, 0x7F, 0x41, 0x41}, // I
+          {0x7F, 0x02, 0x0C, 0x02, 0x7F}, // M
+          {0x3E, 0x41, 0x41, 0x41, 0x3E}, // O
+          {0x7F, 0x09, 0x09, 0x09, 0x06}, // P
+          {0x7F, 0x09, 0x19, 0x29, 0x46}, // R
+          {0x46, 0x49, 0x49, 0x49, 0x31}, // S
+          {0x01, 0x01, 0x7F, 0x01, 0x01}, // T
+          {0x00, 0x42, 0x7F, 0x40, 0x00}, // 1
+      };
+      for (; *text; ++text, x += 6 * scale) {
+        const char *glyph = letters;
+        while (*glyph && *glyph != *text)
+          ++glyph;
+        if (!*glyph) continue;
+        for (int col = 0; col < 5; ++col) {
+          for (int row = 0; row < 7; ++row) {
+            if (!(glyphs[glyph - letters][col] & (1 << row))) continue;
+            for (int dy = 0; dy < scale; ++dy)
+              for (int dx = 0; dx < scale; ++dx)
+                artPixel(image, width, x + col * scale + dx, y + row * scale + dy, 3);
+          }
+        }
+      }
+    }
+
+    void artBackground(u8 *image, int width) {
+      for (int y = 0; y < 32; ++y) {
+        for (int x = 0; x < width; ++x) {
+          bool border = x == 0 || x == width - 1 || y == 0 || y == 31;
+          artPixel(image, width, x, y, border ? 2 : 1);
+        }
+      }
+      u8 *palette = image + width * 32;
+      memset(palette, 0, 512);
+      constexpr u16 colors[] = {0x8000, 0x8423, 0x82F7, 0xFFFF}; // black, navy, teal, white
+      for (u32 i = 0; i < sizeof(colors) / sizeof(colors[0]); ++i) {
+        palette[i * 2] = colors[i] >> 8;
+        palette[i * 2 + 1] = colors[i];
+      }
+    }
+
+    // Independent artwork avoids borrowing game texture/token storage.
+    bool writeArt(u8 *out) {
+      artBackground(out, 96);
+      artText(out, 96, 33, 6, "PRIME", 1);
+      artText(out, 96, 24, 19, "PRACTICE", 1);
+      out += kBannerBytes;
+      artBackground(out, 32);
+      artText(out, 32, 5, 9, "P1", 2);
       return true;
     }
 
