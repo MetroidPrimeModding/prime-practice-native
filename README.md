@@ -84,6 +84,10 @@ This project can produce a release & patch a metroid prime iso to be the practic
 
 ## Changelog
 
+### 2.12.1
+- Improved save banner for the custom save file
+- Fix a minor cache flush bug
+
 ### 2.12.0
 - Save anywhere
 - Save practice mod settings to memory card
