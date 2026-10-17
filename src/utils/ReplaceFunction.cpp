@@ -67,7 +67,7 @@ namespace ReplaceFunctionHookPool {
       if (originalFnTrampoline != nullptr) {
         originalFnTrampoline->originalAddress = originalPtr;
         BuildTrampoline(originalFnTrampoline->trampolineWords, targetInstr);
-        FlushCode(originalFnTrampoline, TrampolineSize);
+        FlushCode(originalFnTrampoline->trampolineWords, sizeof(originalFnTrampoline->trampolineWords));
       }
     }
 
