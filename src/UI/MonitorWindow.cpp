@@ -742,14 +742,14 @@ namespace GUI {
     switch (jumpState) {
     case CPlayer::EPlayerMovementState::OnGround:
       return "OnGround";
-    case CPlayer::EPlayerMovementState::StartJump:
-      return "StartJump";
-    case CPlayer::EPlayerMovementState::InAir:
-      return "In Air";
+    case CPlayer::EPlayerMovementState::Leaping:
+      return "Leaping";
     case CPlayer::EPlayerMovementState::Falling:
       return "Falling";
-    case CPlayer::EPlayerMovementState::FallingMorphed:
-      return "FallingMorphed";
+    case CPlayer::EPlayerMovementState::OffLedge:
+      return "OffLedge";
+    case CPlayer::EPlayerMovementState::Bouncing:
+      return "Bouncing";
     default:
       return "Unknown";
     }
